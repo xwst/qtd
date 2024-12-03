@@ -1,0 +1,5 @@
+/build
+/bin
+/temp
+/doc
+CMakeLists.txt.user
