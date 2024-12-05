@@ -25,7 +25,7 @@ QSqlQuery Util::get_sql_query(const QString& sql_filename, const QString& connec
     return QSqlQuery(Util::get_sql_query_string(sql_filename), connection);
 }
 
-bool Util::create_tables_if_not_exist(QString& connection_name) {
+bool Util::create_tables_if_not_exist(const QString& connection_name) {
     // The "if not exist"-part is governed by the SQL commands.
     QString all_queries_str = Util::get_sql_query_string("create_tables.sql");
     auto connection = QSqlDatabase::database(connection_name);

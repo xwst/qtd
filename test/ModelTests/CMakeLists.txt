@@ -1,0 +1,20 @@
+FUNCTION(create_model_test test_name source_file)
+    QT_ADD_EXECUTABLE(${test_name} ${source_file} ../../src/app/util.cpp)
+    TARGET_LINK_LIBRARIES(${test_name} PRIVATE Qt6::Test Qt6::Sql)
+    ADD_TEST(NAME ${test_name} COMMAND ${test_name})
+    QT_ADD_RESOURCES(
+        ${test_name} "test-resources"
+        PREFIX "/"
+        BASE "${CMAKE_CURRENT_SOURCE_DIR}/../resources"
+        FILES "${CMAKE_CURRENT_SOURCE_DIR}/../resources/sql/generic/populate_database.sql"
+    )
+    QT_ADD_RESOURCES(
+        ${test_name} "resources"
+        PREFIX "/"
+        BASE "${CMAKE_CURRENT_SOURCE_DIR}/../../"
+        FILES "${CMAKE_CURRENT_SOURCE_DIR}/../../resources/sql/generic/create_tables.sql"
+    )
+ENDFUNCTION()
+
+
+CREATE_MODEL_TEST(test_tag_models testtagmodels.cpp)
