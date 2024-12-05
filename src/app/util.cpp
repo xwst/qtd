@@ -24,3 +24,18 @@ QSqlQuery Util::get_sql_query(const QString& sql_filename, const QString& connec
     auto connection = QSqlDatabase::database(connection_name);
     return QSqlQuery(Util::get_sql_query_string(sql_filename), connection);
 }
+
+bool Util::create_tables_if_not_exist(QString& connection_name) {
+    // The "if not exist"-part is governed by the SQL commands.
+    QString all_queries_str = Util::get_sql_query_string("create_tables.sql");
+    auto connection = QSqlDatabase::database(connection_name);
+
+    QSqlQuery query(connection);
+    bool no_error = connection.transaction();
+    for (QString& query_str : Util::split_queries(all_queries_str))
+        no_error &= query.exec(query_str);
+
+    if (no_error) connection.commit();
+    else connection.rollback();
+    return no_error;
+}

@@ -18,7 +18,6 @@ private:
     TagItemModel* m_tags_model;
     FlatteningProxyModel* m_flat_tags_model;
 
-    bool create_tables_if_not_exist(QString& connection_name);
     void open_database(QString& connection_name);
 
 public:
