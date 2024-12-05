@@ -87,7 +87,7 @@ GridLayout {
                 DelayButton {
                         id: delete_button
 
-                        delay: tag_form_container.has_children ? 0 : 700
+                        delay: tag_form_container.has_children ? 0 : 1000
                         leftPadding: tag_form_container.control_font.pointSize
                         rightPadding: tag_form_container.control_font.pointSize
                         text: "Delete"
