@@ -9,7 +9,6 @@ class FlatteningProxyModel : public QIdentityProxyModel
     Q_OBJECT
 
 public:
-    int count_source_model_rows(const QModelIndex& index = QModelIndex()) const;
     QModelIndex find_source_model_index(int proxy_row, int column = 0) const;
 
 public:

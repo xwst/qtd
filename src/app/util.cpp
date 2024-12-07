@@ -39,3 +39,11 @@ bool Util::create_tables_if_not_exist(const QString& connection_name) {
     else connection.rollback();
     return no_error;
 }
+
+int Util::count_model_rows(const QAbstractItemModel* model, const QModelIndex &index) {
+    auto result = index.isValid() ? 1 : 0;
+    auto column = index.isValid() ? index.column() : 0;
+    for (int i=0; i<model->rowCount(index); i++)
+        result += count_model_rows(model, model->index(i, column, index));
+    return result;
+}

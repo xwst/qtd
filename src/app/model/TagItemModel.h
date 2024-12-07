@@ -1,7 +1,6 @@
 #ifndef TAGITEMMODEL_H
 #define TAGITEMMODEL_H
 
-#include <deque>
 #include <memory>
 
 #include <QAbstractItemModel>
@@ -18,9 +17,9 @@ public:
     explicit TagItemModel(QString connection_name, QObject* parent = nullptr);
 
     // Required for read-only access:
-    int rowCount(const QModelIndex& parent) const override;
-    int columnCount(const QModelIndex& parent) const override;
-    QModelIndex parent(const QModelIndex& index) const override;
+    int rowCount(const QModelIndex& parent = QModelIndex()) const override;
+    int columnCount(const QModelIndex& parent = QModelIndex()) const override;
+    QModelIndex parent(const QModelIndex& index = QModelIndex()) const override;
     QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const override;
     QVariant data(const QModelIndex& index, int role) const override;
 

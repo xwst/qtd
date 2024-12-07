@@ -4,6 +4,7 @@
 #include <QSqlQuery>
 
 #include "../testhelpers.h"
+#include "../../src/app/util.h"
 
 TestTagModels::TestTagModels(QObject *parent)
     : QObject{parent}
@@ -30,6 +31,16 @@ void TestTagModels::cleanup() {
 }
 
 void TestTagModels::initial_dataset_represented_correctly() {
+    QCOMPARE(2, this->model->rowCount());
+    for (int row=0; row<this->model->rowCount(); row++) {
+        auto row_index = this->model->index(row, 0);
+        if (row_index.data() == "Fruits")
+            QCOMPARE(4, this->model->rowCount(row_index));
+        else if (row_index.data() == "Vegetables")
+            QCOMPARE(2, this->model->rowCount(row_index));
+        else QFAIL("Unexpected model entry at top level!");
+    }
+    QCOMPARE(10, Util::count_model_rows(this->model.get()));
 }
 
 QTEST_MAIN(TestTagModels)
