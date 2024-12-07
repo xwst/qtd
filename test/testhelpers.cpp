@@ -18,7 +18,7 @@ void TestHelpers::assert_table_exists(const QString& table_name) {
 }
 
 void TestHelpers::populate_database() {
-    QFile f(":/test-resources/sql/generic/populate_database.sql");
+    QFile f(":/resources/sql/generic/populate_database.sql");
     f.open(QFile::ReadOnly | QFile::Text);
     QTextStream in(&f);
     QString all_queries_str = in.readAll();

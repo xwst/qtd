@@ -10,13 +10,13 @@ FIND_PACKAGE(Qt6 REQUIRED COMPONENTS Widgets Core Gui Quick QuickControls2 Sql T
 QT_STANDARD_PROJECT_SETUP(REQUIRES 6.7)
 
 
-ADD_SUBDIRECTORY(src/qmltexteditor)
-ADD_SUBDIRECTORY(src/app)
-ADD_SUBDIRECTORY(test/ModelTests)
-
 FILE(GLOB_RECURSE RESOURCE_FILES
      LIST_DIRECTORIES false
      "${CMAKE_CURRENT_SOURCE_DIR}/resources/*.sql")
+
+ADD_SUBDIRECTORY(src/qmltexteditor)
+ADD_SUBDIRECTORY(src/app)
+ADD_SUBDIRECTORY(test/ModelTests)
 
 QT_ADD_RESOURCES(
     qtd "resources"

@@ -22,7 +22,7 @@ FUNCTION(create_model_test test_name source_file)
         ${test_name} "resources"
         PREFIX "/"
         BASE "${CMAKE_CURRENT_SOURCE_DIR}/../../"
-        FILES "${CMAKE_CURRENT_SOURCE_DIR}/../../resources/sql/generic/create_tables.sql"
+        FILES ${RESOURCE_FILES}
     )
 ENDFUNCTION()
 

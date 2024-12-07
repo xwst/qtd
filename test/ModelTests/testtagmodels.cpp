@@ -29,7 +29,6 @@ void TestTagModels::cleanup() {
     this->model.release();
 }
 
-
 void TestTagModels::initial_dataset_represented_correctly() {
 }
 
