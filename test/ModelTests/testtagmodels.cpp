@@ -3,17 +3,15 @@
 #include <QSqlDataBase>
 #include <QSqlQuery>
 
-#include "../../src/app/util.h"
+#include "../testhelpers.h"
 
 TestTagModels::TestTagModels(QObject *parent)
     : QObject{parent}
 {}
 
 void TestTagModels::initTestCase() {
-    auto db = QSqlDatabase::addDatabase("QSQLITE");
-    db.setDatabaseName(":memory:");
-
-    Util::create_tables_if_not_exist(db.connectionName());
+    TestHelpers::setup_database();
+    TestHelpers::assert_table_exists("tags");
 }
 
 void TestTagModels::cleanupTestCase() {
@@ -21,18 +19,18 @@ void TestTagModels::cleanupTestCase() {
 }
 
 void TestTagModels::init() {
-
+    TestHelpers::populate_database();
+    QString connection_name = QSqlDatabase::database().connectionName();
+    this->model = std::make_unique<TagItemModel>(connection_name);
 }
 
 void TestTagModels::cleanup() {
-
+    QSqlQuery("TRUNCATE TABLE tags");
+    this->model.release();
 }
 
 
-void TestTagModels::tag_table_exists() {
-    QSqlQuery query;
-    bool result = query.exec("SELECT COUNT(*) FROM tags");
-    QVERIFY2(result, "The 'tags'-table was not created!");
+void TestTagModels::initial_dataset_represented_correctly() {
 }
 
 QTEST_MAIN(TestTagModels)
