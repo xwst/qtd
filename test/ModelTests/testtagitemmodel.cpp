@@ -1,5 +1,6 @@
 #include "testtagitemmodel.h"
 
+#include <QAbstractItemModelTester>
 #include <QSqlDataBase>
 #include <QSqlQuery>
 #include <QTest>
@@ -24,6 +25,7 @@ void TestTagItemModel::init() {
     TestHelpers::populate_database();
     QString connection_name = QSqlDatabase::database().connectionName();
     this->model = std::make_unique<TagItemModel>(connection_name);
+    new QAbstractItemModelTester(this->model.get(), this->model.get());
 }
 
 void TestTagItemModel::cleanup() {

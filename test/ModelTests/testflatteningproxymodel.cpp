@@ -1,5 +1,6 @@
 #include "testflatteningproxymodel.h"
 
+#include <QAbstractItemModelTester>
 #include <QSqlDataBase>
 #include <QSqlQuery>
 #include <QTest>
@@ -26,6 +27,7 @@ void TestFlatteningProxyModel::init() {
     this->tag_model = std::make_unique<TagItemModel>(connection_name);
     this->model = std::make_unique<FlatteningProxyModel>();
     this->model->setSourceModel(this->tag_model.get());
+    new QAbstractItemModelTester(this->model.get(), this->model.get());
 }
 
 void TestFlatteningProxyModel::cleanup() {
