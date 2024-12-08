@@ -1,16 +1,15 @@
-#ifndef TESTTAGMODELS_H
-#define TESTTAGMODELS_H
+#ifndef TESTTAGITEMMODEL_H
+#define TESTTAGITEMMODEL_H
 
 #include <memory>
-#include <QTest>
 
 #include "../../src/app/model/TagItemModel.h"
 
-class TestTagModels : public QObject
+class TestTagItemModel : public QObject
 {
     Q_OBJECT
 public:
-    explicit TestTagModels(QObject *parent = nullptr);
+    explicit TestTagItemModel(QObject *parent = nullptr);
 
 private:
     std::unique_ptr<TagItemModel> model;
@@ -24,4 +23,4 @@ private slots:
     void initial_dataset_represented_correctly();
 };
 
-#endif // TESTTAGMODELS_H
+#endif // TESTTAGITEMMODEL_H

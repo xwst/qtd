@@ -1,36 +1,37 @@
-#include "testtagmodels.h"
+#include "testtagitemmodel.h"
 
 #include <QSqlDataBase>
 #include <QSqlQuery>
+#include <QTest>
 
 #include "../testhelpers.h"
 #include "../../src/app/util.h"
 
-TestTagModels::TestTagModels(QObject *parent)
+TestTagItemModel::TestTagItemModel(QObject *parent)
     : QObject{parent}
 {}
 
-void TestTagModels::initTestCase() {
+void TestTagItemModel::initTestCase() {
     TestHelpers::setup_database();
     TestHelpers::assert_table_exists("tags");
 }
 
-void TestTagModels::cleanupTestCase() {
+void TestTagItemModel::cleanupTestCase() {
     QSqlDatabase::database().close();
 }
 
-void TestTagModels::init() {
+void TestTagItemModel::init() {
     TestHelpers::populate_database();
     QString connection_name = QSqlDatabase::database().connectionName();
     this->model = std::make_unique<TagItemModel>(connection_name);
 }
 
-void TestTagModels::cleanup() {
+void TestTagItemModel::cleanup() {
     QSqlQuery("TRUNCATE TABLE tags");
     this->model.release();
 }
 
-void TestTagModels::initial_dataset_represented_correctly() {
+void TestTagItemModel::initial_dataset_represented_correctly() {
     QCOMPARE(2, this->model->rowCount());
     for (int row=0; row<this->model->rowCount(); row++) {
         auto row_index = this->model->index(row, 0);
@@ -43,4 +44,4 @@ void TestTagModels::initial_dataset_represented_correctly() {
     QCOMPARE(10, Util::count_model_rows(this->model.get()));
 }
 
-QTEST_MAIN(TestTagModels)
+QTEST_MAIN(TestTagItemModel)

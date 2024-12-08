@@ -27,4 +27,5 @@ FUNCTION(create_model_test test_name source_file)
 ENDFUNCTION()
 
 
-CREATE_MODEL_TEST(test_tag_models testtagmodels.cpp)
+CREATE_MODEL_TEST(test_tagitemmodel testtagitemmodel.cpp)
+CREATE_MODEL_TEST(test_flatteningproxymodel testflatteningproxymodel.cpp)
