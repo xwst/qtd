@@ -25,5 +25,5 @@ void TestHelpers::populate_database() {
 
     QSqlQuery query;
     for (QString& query_str : Util::split_queries(all_queries_str))
-        QVERIFY2(query.exec(query_str), "Error while populating test databaes");
+        QVERIFY2(query.exec(query_str), "Error while populating test database");
 }

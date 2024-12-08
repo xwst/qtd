@@ -21,6 +21,7 @@ private slots:
     void cleanup();
 
     void initial_dataset_represented_correctly();
+    void remove_rows();
 };
 
 #endif // TESTTAGITEMMODEL_H

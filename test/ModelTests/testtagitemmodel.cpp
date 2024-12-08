@@ -27,7 +27,11 @@ void TestTagItemModel::init() {
 }
 
 void TestTagItemModel::cleanup() {
-    QSqlQuery("TRUNCATE TABLE tags");
+    QSqlQuery query;
+    query.exec("DELETE FROM tags");
+    query.exec("SELECT COUNT(*) FROM tags");
+    query.first();
+    QCOMPARE(0, query.value(0));
     this->model.release();
 }
 
@@ -42,6 +46,29 @@ void TestTagItemModel::initial_dataset_represented_correctly() {
         else QFAIL("Unexpected model entry at top level!");
     }
     QCOMPARE(10, Util::count_model_rows(this->model.get()));
+}
+
+void TestTagItemModel::remove_rows() {
+    int total_rows = Util::count_model_rows(this->model.get());
+    QModelIndex index_without_child = QModelIndex();
+    while (this->model->hasChildren(index_without_child))
+        index_without_child = this->model->index(0, 0, index_without_child);
+
+    this->model->removeRow(
+        index_without_child.row(),
+        index_without_child.parent()
+    ); // Remove first row without children
+    QCOMPARE(total_rows - 1, Util::count_model_rows(this->model.get()));
+
+    auto first_toplevel_index = this->model->index(0, 0);
+    this->model->removeRows(
+        0,
+        this->model->rowCount(first_toplevel_index),
+        first_toplevel_index
+    ); // Remove multiple rows including children
+    QCOMPARE(4, Util::count_model_rows(this->model.get()));
+
+    // todo: Check that the correct rows were removed.
 }
 
 QTEST_MAIN(TestTagItemModel)

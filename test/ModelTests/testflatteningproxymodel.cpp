@@ -29,7 +29,11 @@ void TestFlatteningProxyModel::init() {
 }
 
 void TestFlatteningProxyModel::cleanup() {
-    QSqlQuery("TRUNCATE TABLE tags");
+    QSqlQuery query;
+    query.exec("DELETE FROM tags");
+    query.exec("SELECT COUNT(*) FROM tags");
+    query.first();
+    QCOMPARE(0, query.value(0));
     this->model.release();
     this->tag_model.release();
 }
@@ -45,6 +49,29 @@ void TestFlatteningProxyModel::initial_dataset_represented_correctly() {
         auto row_index = this->model->index(row, 0);
         QCOMPARE(0, this->model->rowCount(row_index));
     }
+}
+
+void TestFlatteningProxyModel::remove_rows() {
+    int total_rows = Util::count_model_rows(this->model.get());
+    QModelIndex index_without_child = QModelIndex();
+    while (this->tag_model->hasChildren(index_without_child))
+        index_without_child = this->tag_model->index(0, 0, index_without_child);
+
+    this->tag_model->removeRow(
+        index_without_child.row(),
+        index_without_child.parent()
+        ); // Remove first row without children
+    QCOMPARE(total_rows - 1, Util::count_model_rows(this->model.get()));
+
+    auto first_toplevel_index = this->tag_model->index(0, 0);
+    this->tag_model->removeRows(
+        0,
+        this->tag_model->rowCount(first_toplevel_index),
+        first_toplevel_index
+        ); // Remove multiple rows including children
+    QCOMPARE(4, Util::count_model_rows(this->model.get()));
+
+    // todo: Check that the correct rows were removed.
 }
 
 QTEST_MAIN(TestFlatteningProxyModel)
