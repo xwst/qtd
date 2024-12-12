@@ -45,13 +45,16 @@ void TestTagItemModels::test_initial_dataset_represented_correctly() {
     this->assert_initial_dataset_representation_flat_model();
 }
 
-void TestTagItemModels::test_remove_rows() {
+void TestTagItemModels::test_remove_single_row() {
     auto base_model = this->model.get();
     int initial_row_number = Util::count_model_rows(base_model);
     remove_single_row_without_children(*base_model);
     QCOMPARE(initial_row_number - 1, Util::count_model_rows(base_model));
     QCOMPARE(initial_row_number - 1, Util::count_model_rows(this->flat_model.get()));
+}
 
+void TestTagItemModels::test_remove_single_row_with_children() {
+    auto base_model = this->model.get();
     this->remove_first_top_level_row(*base_model);
     QCOMPARE(4, Util::count_model_rows(base_model));
     QCOMPARE(4, Util::count_model_rows(this->flat_model.get()));
