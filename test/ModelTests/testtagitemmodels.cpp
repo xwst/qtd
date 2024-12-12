@@ -40,12 +40,12 @@ void TestTagItemModels::cleanup() {
 
 }
 
-void TestTagItemModels::initial_dataset_represented_correctly() {
+void TestTagItemModels::test_initial_dataset_represented_correctly() {
     this->assert_initial_dataset_representation_base_model();
     this->assert_initial_dataset_representation_flat_model();
 }
 
-void TestTagItemModels::remove_rows() {
+void TestTagItemModels::test_remove_rows() {
     auto base_model = this->model.get();
     int initial_row_number = Util::count_model_rows(base_model);
     remove_single_row_without_children(*base_model);

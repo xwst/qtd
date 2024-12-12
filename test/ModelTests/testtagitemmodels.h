@@ -30,8 +30,8 @@ private slots:
     void cleanup();
 
     // Test functions:
-    void initial_dataset_represented_correctly();
-    void remove_rows();
+    void test_initial_dataset_represented_correctly();
+    void test_remove_rows();
 };
 
 #endif // TESTTAGITEMMODELST_H
