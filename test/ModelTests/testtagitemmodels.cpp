@@ -34,7 +34,7 @@ void TestTagItemModels::cleanup() {
     query.exec("DELETE FROM tags");
     query.exec("SELECT COUNT(*) FROM tags");
     query.first();
-    QCOMPARE(0, query.value(0));
+    QCOMPARE(query.value(0), 0);
     this->model.release();
     this->flat_model.release();
 
@@ -49,46 +49,46 @@ void TestTagItemModels::test_remove_single_row() {
     auto base_model = this->model.get();
     int initial_row_number = Util::count_model_rows(base_model);
     remove_single_row_without_children(*base_model);
-    QCOMPARE(initial_row_number - 1, Util::count_model_rows(base_model));
-    QCOMPARE(initial_row_number - 1, Util::count_model_rows(this->flat_model.get()));
+    QCOMPARE(Util::count_model_rows(base_model), initial_row_number - 1);
+    QCOMPARE(Util::count_model_rows(this->flat_model.get()), initial_row_number - 1);
 }
 
 void TestTagItemModels::test_remove_rows_with_children() {
     auto base_model = this->model.get();
     this->remove_children_of_first_top_level_index(*base_model);
-    QCOMPARE(4, Util::count_model_rows(base_model));
-    QCOMPARE(4, Util::count_model_rows(this->flat_model.get()));
+    QCOMPARE(Util::count_model_rows(base_model), 4);
+    QCOMPARE(Util::count_model_rows(this->flat_model.get()), 4);
 
     QSet<QString> remaining_expected = {"Fruits", "Vegetables", "Carrots", "Chickpeas"};
     auto remaining = TestHelpers::get_display_roles(*base_model);
     auto remaining_flat = TestHelpers::get_display_roles(*this->flat_model.get());
-    QCOMPARE(remaining_expected, remaining);
-    QCOMPARE(remaining_expected, remaining_flat);
+    QCOMPARE(remaining, remaining_expected);
+    QCOMPARE(remaining, remaining_expected);
 }
 
 void TestTagItemModels::assert_initial_dataset_representation_base_model() {
-    QCOMPARE(2, this->model->rowCount());
+    QCOMPARE(this->model->rowCount(), 2);
     for (int row=0; row<this->model->rowCount(); row++) {
         auto row_index = this->model->index(row, 0);
         if (row_index.data() == "Fruits")
-            QCOMPARE(4, this->model->rowCount(row_index));
+            QCOMPARE(this->model->rowCount(row_index), 4);
         else if (row_index.data() == "Vegetables")
-            QCOMPARE(2, this->model->rowCount(row_index));
+            QCOMPARE(this->model->rowCount(row_index), 2);
         else QFAIL("Unexpected model entry at top level!");
     }
-    QCOMPARE(10, Util::count_model_rows(this->model.get()));
+    QCOMPARE(Util::count_model_rows(this->model.get()), 10);
 }
 
 void TestTagItemModels::assert_initial_dataset_representation_flat_model() {
     int total_source_rows = Util::count_model_rows(this->model.get());
     int total_rows = Util::count_model_rows(this->flat_model.get());
     int top_level_rows = this->flat_model->rowCount();
-    QCOMPARE(total_source_rows, total_rows);
-    QCOMPARE(total_source_rows, top_level_rows);
+    QCOMPARE(total_rows, total_source_rows);
+    QCOMPARE(top_level_rows, total_source_rows);
 
     for (int row=0; row<this->flat_model->rowCount(); row++) {
         auto row_index = this->flat_model->index(row, 0);
-        QCOMPARE(0, this->flat_model->rowCount(row_index));
+        QCOMPARE(this->flat_model->rowCount(row_index), 0);
     }
 }
 
