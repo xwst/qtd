@@ -10,7 +10,7 @@
 #include <QTextStream>
 #include <QUuid>
 
-#include <util.h>
+#include "../util.h"
 
 /** @var TagItemModel::root
  *  @brief Auxiliary root item of the internal tree structure.

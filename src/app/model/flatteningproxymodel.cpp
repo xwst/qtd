@@ -1,12 +1,6 @@
 #include "flatteningproxymodel.h"
 
-int FlatteningProxyModel::count_source_model_rows(const QModelIndex &index) const {
-    auto result = index.isValid() ? 1 : 0;
-    auto column = index.isValid() ? index.column() : 0;
-    for (int i=0; i<sourceModel()->rowCount(index); i++)
-        result += count_source_model_rows(sourceModel()->index(i, column, index));
-    return result;
-}
+#include "../util.h"
 
 bool is_last_child(QModelIndex& index) {
     auto parent = index.parent();
@@ -103,7 +97,7 @@ QModelIndex FlatteningProxyModel::sibling(int row, int column, const QModelIndex
 }
 
 int FlatteningProxyModel::rowCount(const QModelIndex &parent) const {
-    return parent.isValid() ? 0 : count_source_model_rows();
+    return parent.isValid() ? 0 : Util::count_model_rows(this->sourceModel());
 }
 
 int FlatteningProxyModel::columnCount(const QModelIndex &parent) const {

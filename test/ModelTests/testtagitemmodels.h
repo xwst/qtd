@@ -1,0 +1,39 @@
+#ifndef TESTTAGITEMMODELS_H
+#define TESTTAGITEMMODELS_H
+
+#include <memory>
+
+#include "../../src/app/model/flatteningproxymodel.h"
+#include "../../src/app/model/TagItemModel.h"
+
+class TestTagItemModels : public QObject
+{
+    Q_OBJECT
+
+public:
+    explicit TestTagItemModels(QObject *parent = nullptr);
+
+private:
+    std::unique_ptr<TagItemModel> model;
+    std::unique_ptr<FlatteningProxyModel> flat_model;
+
+    // Helper functions:
+    void assert_initial_dataset_representation_base_model();
+    void assert_initial_dataset_representation_flat_model();
+    static void remove_single_row_without_children(QAbstractItemModel& model);
+    static void remove_children_of_first_top_level_index(QAbstractItemModel& model);
+
+private slots:
+    // Test setup/cleanup:
+    void initTestCase();
+    void cleanupTestCase();
+    void init();
+    void cleanup();
+
+    // Test functions:
+    void test_initial_dataset_represented_correctly();
+    void test_remove_single_row();
+    void test_remove_rows_with_children();
+};
+
+#endif // TESTTAGITEMMODELST_H

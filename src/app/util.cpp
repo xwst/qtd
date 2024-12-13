@@ -25,7 +25,7 @@ QSqlQuery Util::get_sql_query(const QString& sql_filename, const QString& connec
     return QSqlQuery(Util::get_sql_query_string(sql_filename), connection);
 }
 
-bool Util::create_tables_if_not_exist(QString& connection_name) {
+bool Util::create_tables_if_not_exist(const QString& connection_name) {
     // The "if not exist"-part is governed by the SQL commands.
     QString all_queries_str = Util::get_sql_query_string("create_tables.sql");
     auto connection = QSqlDatabase::database(connection_name);
@@ -38,4 +38,12 @@ bool Util::create_tables_if_not_exist(QString& connection_name) {
     if (no_error) connection.commit();
     else connection.rollback();
     return no_error;
+}
+
+int Util::count_model_rows(const QAbstractItemModel* model, const QModelIndex &index) {
+    auto result = index.isValid() ? 1 : 0;
+    auto column = index.isValid() ? index.column() : 0;
+    for (int i=0; i<model->rowCount(index); i++)
+        result += count_model_rows(model, model->index(i, column, index));
+    return result;
 }
