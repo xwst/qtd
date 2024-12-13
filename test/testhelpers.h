@@ -3,6 +3,7 @@
 
 #include <QAbstractItemModel>
 #include <QAbstractItemModelTester>
+#include <QSet>
 #include <QString>
 
 class TestHelpers
@@ -32,6 +33,11 @@ public:
         model->setSourceModel(source_model);
         new QAbstractItemModelTester(model.get(), source_model);
     }
+
+    static QSet<QString> get_display_roles(
+        const QAbstractItemModel& model,
+        const QModelIndex& parent = QModelIndex()
+    );
 };
 
 #endif // TESTHELPERS_H

@@ -9,6 +9,7 @@
 class TestTagItemModels : public QObject
 {
     Q_OBJECT
+
 public:
     explicit TestTagItemModels(QObject *parent = nullptr);
 
@@ -20,7 +21,7 @@ private:
     void assert_initial_dataset_representation_base_model();
     void assert_initial_dataset_representation_flat_model();
     static void remove_single_row_without_children(QAbstractItemModel& model);
-    static void remove_first_top_level_row(QAbstractItemModel& model);
+    static void remove_children_of_first_top_level_index(QAbstractItemModel& model);
 
 private slots:
     // Test setup/cleanup:
@@ -32,7 +33,7 @@ private slots:
     // Test functions:
     void test_initial_dataset_represented_correctly();
     void test_remove_single_row();
-    void test_remove_single_row_with_children();
+    void test_remove_rows_with_children();
 };
 
 #endif // TESTTAGITEMMODELST_H

@@ -53,13 +53,17 @@ void TestTagItemModels::test_remove_single_row() {
     QCOMPARE(initial_row_number - 1, Util::count_model_rows(this->flat_model.get()));
 }
 
-void TestTagItemModels::test_remove_single_row_with_children() {
+void TestTagItemModels::test_remove_rows_with_children() {
     auto base_model = this->model.get();
-    this->remove_first_top_level_row(*base_model);
+    this->remove_children_of_first_top_level_index(*base_model);
     QCOMPARE(4, Util::count_model_rows(base_model));
     QCOMPARE(4, Util::count_model_rows(this->flat_model.get()));
 
-    // todo: Check that the correct rows were removed.
+    QSet<QString> remaining_expected = {"Fruits", "Vegetables", "Carrots", "Chickpeas"};
+    auto remaining = TestHelpers::get_display_roles(*base_model);
+    auto remaining_flat = TestHelpers::get_display_roles(*this->flat_model.get());
+    QCOMPARE(remaining_expected, remaining);
+    QCOMPARE(remaining_expected, remaining_flat);
 }
 
 void TestTagItemModels::assert_initial_dataset_representation_base_model() {
@@ -99,7 +103,7 @@ void TestTagItemModels::remove_single_row_without_children(QAbstractItemModel& m
         ); // Remove first row without children
 }
 
-void TestTagItemModels::remove_first_top_level_row(QAbstractItemModel& model) {
+void TestTagItemModels::remove_children_of_first_top_level_index(QAbstractItemModel& model) {
     auto first_toplevel_index = model.index(0, 0);
     model.removeRows(
         0,

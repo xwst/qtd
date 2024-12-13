@@ -27,3 +27,16 @@ void TestHelpers::populate_database() {
     for (QString& query_str : Util::split_queries(all_queries_str))
         QVERIFY2(query.exec(query_str), "Error while populating test database");
 }
+
+QSet<QString> TestHelpers::get_display_roles(
+    const QAbstractItemModel& model,
+    const QModelIndex& parent
+) {
+    QSet<QString> result;
+    if (parent.isValid()) result.insert(parent.data().toString());
+
+    auto column = parent.isValid() ? parent.column() : 0;
+    for (int i=0; i<model.rowCount(parent); i++)
+        result.unite(get_display_roles(model, model.index(i, column, parent)));
+    return result;
+}
