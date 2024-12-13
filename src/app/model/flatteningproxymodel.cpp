@@ -39,6 +39,37 @@ QModelIndex FlatteningProxyModel::find_source_model_index(int proxy_row, int col
 FlatteningProxyModel::FlatteningProxyModel(QObject *parent)
     : QIdentityProxyModel(parent) {}
 
+void FlatteningProxyModel::setSourceModel(QAbstractItemModel* model) {
+    QObject::connect(
+        model,
+        SIGNAL(rowsAboutToBeRemoved(const QModelIndex&, int, int)),
+        this,
+        SLOT(on_rows_about_to_be_removed(const QModelIndex&, int, int))
+    );
+    QObject::connect(
+        model,
+        SIGNAL(rowsRemoved(const QModelIndex&, int, int)),
+        this,
+        SLOT(on_rows_removed(const QModelIndex&, int, int))
+        );
+    QIdentityProxyModel::setSourceModel(model);
+}
+
+void FlatteningProxyModel::on_rows_about_to_be_removed(const QModelIndex& parent, int first, int last) {
+    auto proxy_parent = this->mapFromSource(parent);
+    this->beginRemoveRows(
+        proxy_parent,
+        proxy_parent.row() + 1 + first,
+        proxy_parent.row() + 1 + last
+    );
+}
+
+void FlatteningProxyModel::on_rows_removed(const QModelIndex& parent, int first, int last) {
+    std::ignore = parent;
+    std::ignore = first;
+    std::ignore = last;
+    this->endRemoveRows();
+}
 
 QModelIndex FlatteningProxyModel::mapFromSource(const QModelIndex &sourceIndex) const {
     if (!sourceIndex.isValid()) return QModelIndex();
