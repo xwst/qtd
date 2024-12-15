@@ -1,6 +1,7 @@
 #include "testtagitemmodels.h"
 
 #include <QAbstractItemModelTester>
+#include <QLoggingCategory>
 #include <QSqlDataBase>
 #include <QSqlQuery>
 #include <QTest>
@@ -13,6 +14,9 @@ TestTagItemModels::TestTagItemModels(QObject *parent)
 {}
 
 void TestTagItemModels::initTestCase() {
+
+    QLoggingCategory::setFilterRules("qt.modeltest.debug=true");
+
     TestHelpers::setup_database();
     TestHelpers::assert_table_exists("tags");
 }
@@ -27,6 +31,7 @@ void TestTagItemModels::init() {
 
     TestHelpers::setup_item_model(this->model, connection_name);
     TestHelpers::setup_proxy_item_model(this->flat_model, this->model.get());
+    // Proxy model will be deleted by base model destructor
 }
 
 void TestTagItemModels::cleanup() {
@@ -35,8 +40,7 @@ void TestTagItemModels::cleanup() {
     query.exec("SELECT COUNT(*) FROM tags");
     query.first();
     QCOMPARE(query.value(0), 0);
-    this->model.release();
-    this->flat_model.release();
+    this->model.reset();
 
 }
 

@@ -14,7 +14,7 @@ QModelIndex next_row_index_depth_first(QModelIndex& current_index, QAbstractItem
     if (model->hasChildren(current_index))
         return model->index(0, current_index.column(), current_index);
 
-    // Traverse upwards until nicht "depth first"-row is found:
+    // Traverse upwards until next "depth first"-row is found:
     while (current_index.isValid() && is_last_child(current_index))
         current_index = current_index.parent();
 
@@ -31,31 +31,29 @@ QModelIndex FlatteningProxyModel::find_source_model_index(int proxy_row, int col
 }
 
 FlatteningProxyModel::FlatteningProxyModel(QObject *parent)
-    : QIdentityProxyModel(parent) {}
+    : QAbstractProxyModel(parent) {}
 
 void FlatteningProxyModel::setSourceModel(QAbstractItemModel* model) {
     QObject::connect(
-        model,
-        SIGNAL(rowsAboutToBeRemoved(const QModelIndex&, int, int)),
-        this,
-        SLOT(on_rows_about_to_be_removed(const QModelIndex&, int, int))
+        model, SIGNAL(rowsAboutToBeRemoved(const QModelIndex&, int, int)),
+        this, SLOT(on_rows_about_to_be_removed(const QModelIndex&, int, int))
     );
     QObject::connect(
-        model,
-        SIGNAL(rowsRemoved(const QModelIndex&, int, int)),
-        this,
-        SLOT(on_rows_removed(const QModelIndex&, int, int))
-        );
-    QIdentityProxyModel::setSourceModel(model);
+        model, SIGNAL(rowsRemoved(const QModelIndex&, int, int)),
+        this, SLOT(on_rows_removed(const QModelIndex&, int, int))
+    );
+    QAbstractProxyModel::setSourceModel(model);
 }
 
 void FlatteningProxyModel::on_rows_about_to_be_removed(const QModelIndex& parent, int first, int last) {
     auto proxy_parent = this->mapFromSource(parent);
-    this->beginRemoveRows(
-        proxy_parent,
-        proxy_parent.row() + 1 + first,
-        proxy_parent.row() + 1 + last
-    );
+    int first_proxy_row = proxy_parent.row() + 1 + first;
+
+    auto last_src_index = this->sourceModel()->index(last, 0, parent);
+    int last_src_index_child_count = this->sourceModel()->rowCount(last_src_index);
+    int last_proxy_row = this->mapFromSource(last_src_index).row() + last_src_index_child_count;
+
+    this->beginRemoveRows(QModelIndex(), first_proxy_row, last_proxy_row);
 }
 
 void FlatteningProxyModel::on_rows_removed(const QModelIndex& parent, int first, int last) {

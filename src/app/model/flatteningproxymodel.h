@@ -1,10 +1,10 @@
 #ifndef FLATTENINGPROXYMODEL_H
 #define FLATTENINGPROXYMODEL_H
 
-#include <QIdentityProxyModel>
+#include <QAbstractProxyModel>
 #include <QObject>
 
-class FlatteningProxyModel : public QIdentityProxyModel
+class FlatteningProxyModel : public QAbstractProxyModel
 {
     Q_OBJECT
 

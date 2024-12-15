@@ -32,6 +32,7 @@ public:
         model = std::make_unique<T>(constructor_parameters...);
         model->setSourceModel(source_model);
         new QAbstractItemModelTester(model.get(), source_model);
+        // ModelTester will be deleted by the models destructor.
     }
 
     static QSet<QString> get_display_roles(
