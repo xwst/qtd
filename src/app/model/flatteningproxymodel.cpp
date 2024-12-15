@@ -2,29 +2,10 @@
 
 #include "../util.h"
 
-bool is_last_child(QModelIndex& index) {
-    auto parent = index.parent();
-    return index.row() == index.model()->rowCount(parent) - 1;
-}
-
-/**
- * @brief Return the model index that corresponds to the next row in a depth first search.
- */
-QModelIndex next_row_index_depth_first(QModelIndex& current_index, QAbstractItemModel* model) {
-    if (model->hasChildren(current_index))
-        return model->index(0, current_index.column(), current_index);
-
-    // Traverse upwards until next "depth first"-row is found:
-    while (current_index.isValid() && is_last_child(current_index))
-        current_index = current_index.parent();
-
-    return current_index.isValid() ? current_index.siblingAtRow(current_index.row()+1) : QModelIndex();
-}
-
 QModelIndex FlatteningProxyModel::find_source_model_index(int proxy_row, int column) const {
     QModelIndex current_index = sourceModel()->index(0, column);
     while (proxy_row > 0) {
-        current_index = next_row_index_depth_first(current_index, sourceModel());
+        current_index = Util::next_row_index_depth_first(sourceModel(), current_index);
         proxy_row--;
     }
     return current_index;
