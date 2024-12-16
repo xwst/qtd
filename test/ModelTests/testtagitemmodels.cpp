@@ -70,6 +70,12 @@ void TestTagItemModels::test_remove_rows_with_children() {
     QCOMPARE(remaining, remaining_expected);
 }
 
+void TestTagItemModels::test_remove_single_row_with_nested_children() {
+    this->model.get()->removeRow(0, QModelIndex());
+    QCOMPARE(Util::count_model_rows(this->model.get()), 3);
+    QCOMPARE(this->model->rowCount(), 1);
+}
+
 void TestTagItemModels::assert_initial_dataset_representation_base_model() {
     QCOMPARE(this->model->rowCount(), 2);
     for (int row=0; row<this->model->rowCount(); row++) {

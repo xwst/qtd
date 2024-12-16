@@ -31,7 +31,7 @@ void FlatteningProxyModel::on_rows_about_to_be_removed(const QModelIndex& parent
     int first_proxy_row = proxy_parent.row() + 1 + first;
 
     auto last_src_index = this->sourceModel()->index(last, 0, parent);
-    int last_src_index_child_count = this->sourceModel()->rowCount(last_src_index);
+    int last_src_index_child_count = Util::count_model_rows(this->sourceModel(), last_src_index) - 1;
     int last_proxy_row = this->mapFromSource(last_src_index).row() + last_src_index_child_count;
 
     this->beginRemoveRows(QModelIndex(), first_proxy_row, last_proxy_row);

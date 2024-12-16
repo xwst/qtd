@@ -34,6 +34,7 @@ private slots:
     void test_initial_dataset_represented_correctly();
     void test_remove_single_row();
     void test_remove_rows_with_children();
+    void test_remove_single_row_with_nested_children();
 };
 
 #endif // TESTTAGITEMMODELST_H
