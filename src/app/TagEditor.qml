@@ -26,8 +26,8 @@ Dialog {
     }
 
     function delete_tag_and_children() {
+        tag_editor.destroy()
         tag_index.model.removeRows(tag_index.row, 1, tag_index.parent);
-        tag_editor.close()
     }
 
     Dialog {
