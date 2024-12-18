@@ -76,6 +76,41 @@ void TestTagItemModels::test_remove_single_row_with_nested_children() {
     QCOMPARE(this->model->rowCount(), 1);
 }
 
+void TestTagItemModels::test_create_tag() {
+    int old_row_count = this->model->rowCount();
+    int old_row_count_flat_model = this->flat_model->rowCount();
+    QString tag1_name = "new tag #1";
+    QCOMPARE(this->model->create_tag(tag1_name), true);
+
+    QCOMPARE(this->model->rowCount(), old_row_count + 1);
+    QCOMPARE(this->flat_model->rowCount(), old_row_count_flat_model + 1);
+
+    auto tag1_index = this->model->index(this->model->rowCount(), 0);
+    QCOMPARE(tag1_index.data(), tag1_name);
+
+    auto vegetable_index = this->model->index(1, 0);
+    int vegetable_row_count = this->model->rowCount(vegetable_index);
+    QCOMPARE(vegetable_index.data(), "Vegetables");
+
+    QString tag2_name = "new tag #2";
+    QColor tag2_color = QColor::fromString("#1234AB");
+    QCOMPARE(this->model->create_tag(tag2_name, tag2_color, vegetable_index), true);
+    QCOMPARE(this->model->rowCount(), old_row_count + 1);
+    QCOMPARE(this->flat_model->rowCount(), old_row_count_flat_model + 2);
+    QCOMPARE(this->model->rowCount(vegetable_index), vegetable_row_count + 1);
+
+    old_row_count = this->model->rowCount(vegetable_index);
+    QVERIFY2(this->model->insertRows(1, 3, vegetable_index), "Could not insert rows beneath 'Vegetables'!");
+    QCOMPARE(this->model->rowCount(vegetable_index), old_row_count + 3);
+    QCOMPARE(this->flat_model->rowCount(), old_row_count_flat_model + 11);
+
+    auto tag2_index = this->model->index(vegetable_row_count, 0, vegetable_index);
+    QCOMPARE(tag2_index.data(), "tag2_name");
+    QCOMPARE(tag2_index.data(Qt::DecorationRole), tag2_color);
+    auto tag2_uuid = QUuid::fromString(tag2_index.data(TagItemModel::uuid_role).toString());
+    QVERIFY(!tag2_uuid.isNull());
+}
+
 void TestTagItemModels::assert_initial_dataset_representation_base_model() {
     QCOMPARE(this->model->rowCount(), 2);
     for (int row=0; row<this->model->rowCount(); row++) {

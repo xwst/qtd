@@ -14,6 +14,8 @@ class TagItemModel : public QAbstractItemModel
     Q_OBJECT
 
 public:
+    static constexpr auto uuid_role = Qt::UserRole;
+
     explicit TagItemModel(QString connection_name, QObject* parent = nullptr);
 
     // Required for read-only access:
@@ -24,6 +26,11 @@ public:
     QVariant data(const QModelIndex& index, int role) const override;
 
     // Required for editable items:
+    bool create_tag(
+        const QString& name,
+        const QColor& color = QColor(),
+        const QModelIndex& parent = QModelIndex()
+    );
 
     // Required for resizabilty and layout changes:
     bool removeRows(int row, int count, const QModelIndex &parent) override;

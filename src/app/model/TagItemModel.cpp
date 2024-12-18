@@ -82,6 +82,10 @@ QVariant TagItemModel::data(const QModelIndex &index, int role) const {
     else return QVariant();
 }
 
+bool TagItemModel::create_tag(const QString& name, const QColor& color, const QModelIndex& parent) {
+    return false;
+}
+
 bool TagItemModel::removeRows(int row, int count, const QModelIndex &parent) {
     auto remove_query = Util::get_sql_query_string("delete_tags.sql");
     Tag* parent_tag = (parent.internalPointer() == 0)

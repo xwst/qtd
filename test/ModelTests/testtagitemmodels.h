@@ -35,6 +35,7 @@ private slots:
     void test_remove_single_row();
     void test_remove_rows_with_children();
     void test_remove_single_row_with_nested_children();
+    void test_create_tag();
 };
 
 #endif // TESTTAGITEMMODELST_H
