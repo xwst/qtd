@@ -111,6 +111,29 @@ void TestTagItemModels::test_create_tag() {
     QVERIFY(!tag2_uuid.isNull());
 }
 
+void TestTagItemModels::test_data_change() {
+    auto top_level_index = this->model->index(0, 0);
+    auto child_index = this->model->index(2, 0, top_level_index);
+
+    auto green = QColor(Qt::green);
+    QString new_display_role = "new name";
+    this->model->setData(top_level_index, new_display_role, Qt::DisplayRole);
+    this->model->setData(top_level_index, green, Qt::DecorationRole);
+    QCOMPARE(top_level_index.data(), new_display_role);
+    QCOMPARE(this->model->data(top_level_index, Qt::DecorationRole), green);
+
+    auto flat_top_level_index = this->flat_model->mapFromSource(top_level_index);
+    QCOMPARE(flat_top_level_index.data(), new_display_role);
+    QCOMPARE(flat_top_level_index.data(Qt::DecorationRole), green);
+
+    auto new_uuid = QUuid::createUuid();
+    this->model->setData(child_index, new_uuid, TagItemModel::uuid_role);
+    QCOMPARE(child_index.data(TagItemModel::uuid_role), new_uuid);
+
+    auto flat_child_index = this->flat_model->mapFromSource(child_index);
+    QCOMPARE(flat_child_index.data(TagItemModel::uuid_role), new_uuid);
+}
+
 void TestTagItemModels::assert_initial_dataset_representation_base_model() {
     QCOMPARE(this->model->rowCount(), 2);
     for (int row=0; row<this->model->rowCount(); row++) {
