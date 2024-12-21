@@ -126,12 +126,20 @@ void TestTagItemModels::test_data_change() {
     QCOMPARE(flat_top_level_index.data(), new_display_role);
     QCOMPARE(flat_top_level_index.data(Qt::DecorationRole), green);
 
+    auto old_uuid = child_index.data(TagItemModel::uuid_role).toUuid();
     auto new_uuid = QUuid::createUuid();
-    this->model->setData(child_index, new_uuid, TagItemModel::uuid_role);
-    QCOMPARE(child_index.data(TagItemModel::uuid_role), new_uuid);
+    QVERIFY(!this->model->setData(child_index, new_uuid, TagItemModel::uuid_role));
+    QCOMPARE(
+        child_index.data(TagItemModel::uuid_role).toString(),
+        old_uuid.toString(QUuid::WithoutBraces)
+    );
 
-    auto flat_child_index = this->flat_model->mapFromSource(child_index);
-    QCOMPARE(flat_child_index.data(TagItemModel::uuid_role), new_uuid);
+    QVERIFY(this->model->setData(child_index, new_display_role, Qt::DisplayRole));
+    QCOMPARE(child_index.data(), new_display_role);
+    QCOMPARE(
+        this->flat_model->mapFromSource(child_index).data(),
+        new_display_role
+    );
 }
 
 void TestTagItemModels::assert_initial_dataset_representation_base_model() {

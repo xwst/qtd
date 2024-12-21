@@ -52,3 +52,11 @@ int Tag::get_row() const {
         else result++;
     return -1; // Should not happen
 }
+
+void Tag::set_name(const QString &name) {
+    this->name = name;
+}
+
+void Tag::set_color(const QColor& color) {
+    this->color = color;
+}

@@ -26,6 +26,7 @@ public:
     QVariant data(const QModelIndex& index, int role) const override;
 
     // Required for editable items:
+    bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole) override;
     bool create_tag(
         const QString& name,
         const QColor& color = QColor(),
@@ -33,7 +34,7 @@ public:
     );
 
     // Required for resizabilty and layout changes:
-    bool removeRows(int row, int count, const QModelIndex &parent) override;
+    bool removeRows(int row, int count, const QModelIndex& parent) override;
 
 private:
     QString connection_name;

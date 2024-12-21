@@ -22,6 +22,9 @@ public:
     QColor get_color() const;
     int get_row() const;
 
+    void set_name(const QString& name);
+    void set_color(const QColor& color);
+
 private:
     Tag* parent;
     QString name;

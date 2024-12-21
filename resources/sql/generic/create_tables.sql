@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS users (
 
 CREATE TABLE IF NOT EXISTS tags (
     uuid VARCHAR(36) PRIMARY KEY,
-    name VARCHAR(128) UNIQUE NOT NULL,
+    name VARCHAR(128) NOT NULL,
     color VARCHAR(6),
     parent_uuid VARCHAR(36),
     FOREIGN KEY(parent_uuid) REFERENCES tags(uuid)
