@@ -106,12 +106,7 @@ bool TagItemModel::setData(const QModelIndex& index, const QVariant& value, int 
     query.bindValue(0, update_value);
     query.bindValue(1, uuid);
 
-    if (!query.exec()) {
-        qDebug() << query.lastQuery();
-        qDebug() << query.boundValues();
-        qDebug() << "Last SQL error: " << query.lastError() << "\n";
-        return false;
-    }
+    if (!Util::execute_sql_query(query)) return false;
 
     if (role == Qt::DisplayRole) tag->set_name(value.toString());
     else tag->set_color(value.value<QColor>());
@@ -134,13 +129,10 @@ bool TagItemModel::removeRows(int row, int count, const QModelIndex &parent) {
         uuids_to_remove << parent_tag->get_child(i)->get_uuid_string();
 
     QSqlQuery q(QSqlDatabase::database(this->connection_name));
-    if (!q.prepare(remove_query)) return false;
+    q.prepare(remove_query);
     q.addBindValue(uuids_to_remove);
 
-    if (!q.execBatch()) {
-        qDebug() << q.lastError() << "\n";
-        return false;
-    }
+    if (!Util::execute_sql_query(q)) return false;
 
     TagItemModel::beginRemoveRows(parent, row, row+count-1);
     parent_tag->remove_children(row, count);
