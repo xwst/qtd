@@ -16,12 +16,16 @@ FlatteningProxyModel::FlatteningProxyModel(QObject *parent)
 
 void FlatteningProxyModel::setSourceModel(QAbstractItemModel* model) {
     QObject::connect(
-        model, SIGNAL(rowsAboutToBeRemoved(const QModelIndex&, int, int)),
-        this, SLOT(on_rows_about_to_be_removed(const QModelIndex&, int, int))
+        model, &QAbstractItemModel::rowsAboutToBeRemoved,
+        this, &FlatteningProxyModel::on_rows_about_to_be_removed
     );
     QObject::connect(
-        model, SIGNAL(rowsRemoved(const QModelIndex&, int, int)),
-        this, SLOT(on_rows_removed(const QModelIndex&, int, int))
+        model, &QAbstractItemModel::rowsRemoved,
+        this, &FlatteningProxyModel::on_rows_removed
+    );
+    QObject::connect(
+        model, &QAbstractItemModel::dataChanged,
+        this, &FlatteningProxyModel::on_data_changed
     );
     QAbstractProxyModel::setSourceModel(model);
 }
@@ -42,6 +46,18 @@ void FlatteningProxyModel::on_rows_removed(const QModelIndex& parent, int first,
     std::ignore = first;
     std::ignore = last;
     this->endRemoveRows();
+}
+
+void FlatteningProxyModel::on_data_changed(
+    const QModelIndex& topLeft,
+    const QModelIndex& bottomRight,
+    const QList<int> &roles
+) {
+    emit this->dataChanged(
+        this->mapFromSource(topLeft),
+        this->mapFromSource(bottomRight),
+        roles
+    );
 }
 
 QModelIndex FlatteningProxyModel::mapFromSource(const QModelIndex &sourceIndex) const {
