@@ -49,6 +49,18 @@ void TestTagItemModels::test_initial_dataset_represented_correctly() {
     this->assert_initial_dataset_representation_flat_model();
 }
 
+
+void TestTagItemModels::test_proxy_mapping() {
+    for (int row=0; row<this->flat_model->rowCount(); row++) {
+        auto proxy_index = this->flat_model->index(row, 0);
+        auto source_index = this->flat_model->mapToSource(proxy_index);
+        QCOMPARE(proxy_index.internalPointer(), source_index.internalPointer());
+    }
+
+    this->assert_correct_from_source_mapping_recursively(QModelIndex());
+}
+
+
 void TestTagItemModels::test_remove_single_row() {
     auto base_model = this->model.get();
     int initial_row_number = Util::count_model_rows(base_model);
@@ -67,7 +79,7 @@ void TestTagItemModels::test_remove_rows_with_children() {
     auto remaining = TestHelpers::get_display_roles(*base_model);
     auto remaining_flat = TestHelpers::get_display_roles(*this->flat_model.get());
     QCOMPARE(remaining, remaining_expected);
-    QCOMPARE(remaining, remaining_expected);
+    QCOMPARE(remaining, remaining_flat);
 }
 
 void TestTagItemModels::test_remove_single_row_with_nested_children() {
@@ -155,6 +167,21 @@ void TestTagItemModels::assert_initial_dataset_representation_base_model() {
     QCOMPARE(Util::count_model_rows(this->model.get()), 10);
 }
 
+void TestTagItemModels::assert_correct_from_source_mapping_recursively(
+    const QModelIndex& source_index,
+    int expected_proxy_row
+) {
+    auto proxy_index = this->flat_model->mapFromSource(source_index);
+    QCOMPARE(proxy_index.internalPointer(), source_index.internalPointer());
+    QCOMPARE(proxy_index.row(), expected_proxy_row);
+
+    for (int row=0; row<this->model->rowCount(source_index); row++) {
+        auto child_index = this->model->index(row, 0, source_index);
+        this->assert_correct_from_source_mapping_recursively(child_index, expected_proxy_row+1);
+        expected_proxy_row += Util::count_model_rows(this->model.get(), child_index);
+    }
+}
+
 void TestTagItemModels::assert_initial_dataset_representation_flat_model() {
     int total_source_rows = Util::count_model_rows(this->model.get());
     int total_rows = Util::count_model_rows(this->flat_model.get());
@@ -176,7 +203,7 @@ void TestTagItemModels::remove_single_row_without_children(QAbstractItemModel& m
     model.removeRow(
         index_without_child.row(),
         index_without_child.parent()
-        ); // Remove first row without children
+    ); // Remove first row without children
 }
 
 void TestTagItemModels::remove_children_of_first_top_level_index(QAbstractItemModel& model) {
@@ -185,7 +212,7 @@ void TestTagItemModels::remove_children_of_first_top_level_index(QAbstractItemMo
         0,
         model.rowCount(first_toplevel_index),
         first_toplevel_index
-        ); // Remove multiple rows including children
+    ); // Remove multiple rows including children
 }
 
 QTEST_MAIN(TestTagItemModels)
