@@ -62,9 +62,12 @@ void FlatteningProxyModel::on_data_changed(
 
 QModelIndex FlatteningProxyModel::mapFromSource(const QModelIndex &sourceIndex) const {
     if (!sourceIndex.isValid()) return QModelIndex();
-    int proxy_row = sourceIndex.row();
-    for (auto parent=sourceIndex.parent(); parent.isValid(); parent=parent.parent())
-        proxy_row += parent.row() + 1;
+    auto proxy_parent = this->mapFromSource(sourceIndex.parent());
+    int proxy_row = proxy_parent.row() + 1;
+    for (int i=0; i<sourceIndex.row(); i++) {
+        auto previous_sibling = sourceIndex.siblingAtRow(i);
+        proxy_row += Util::count_model_rows(this->sourceModel(), previous_sibling);
+    }
 
     return createIndex(proxy_row, sourceIndex.column(), sourceIndex.internalPointer());
 }
