@@ -97,12 +97,16 @@ void TestTagItemModels::test_create_tag() {
     QCOMPARE(this->model->rowCount(), old_row_count + 1);
     QCOMPARE(this->flat_model->rowCount(), old_row_count_flat_model + 1);
 
-    auto tag1_index = this->model->index(this->model->rowCount(), 0);
-    QCOMPARE(tag1_index.data(), tag1_name);
+    auto tag1_index = this->model->index(this->model->rowCount()-1, 0);
+    QCOMPARE(tag1_index.data().toString(), tag1_name);
+    QColor tag1_color = tag1_index.data(Qt::DecorationRole).value<QColor>();
+    QVERIFY(!tag1_color.isValid());
+    auto tag1_uuid_str = tag1_index.data(TagItemModel::uuid_role).toString();
+    QVERIFY(!QUuid::fromString(tag1_uuid_str).isNull());
 
     auto vegetable_index = this->model->index(1, 0);
     int vegetable_row_count = this->model->rowCount(vegetable_index);
-    QCOMPARE(vegetable_index.data(), "Vegetables");
+    QCOMPARE(vegetable_index.data().toString(), "Vegetables");
 
     QString tag2_name = "new tag #2";
     QColor tag2_color = QColor::fromString("#1234AB");
@@ -111,16 +115,16 @@ void TestTagItemModels::test_create_tag() {
     QCOMPARE(this->flat_model->rowCount(), old_row_count_flat_model + 2);
     QCOMPARE(this->model->rowCount(vegetable_index), vegetable_row_count + 1);
 
-    old_row_count = this->model->rowCount(vegetable_index);
-    QVERIFY2(this->model->insertRows(1, 3, vegetable_index), "Could not insert rows beneath 'Vegetables'!");
-    QCOMPARE(this->model->rowCount(vegetable_index), old_row_count + 3);
-    QCOMPARE(this->flat_model->rowCount(), old_row_count_flat_model + 11);
-
     auto tag2_index = this->model->index(vegetable_row_count, 0, vegetable_index);
-    QCOMPARE(tag2_index.data(), "tag2_name");
+    QCOMPARE(tag2_index.data().toString(), tag2_name);
     QCOMPARE(tag2_index.data(Qt::DecorationRole), tag2_color);
+    QCOMPARE(tag2_index.parent(), vegetable_index);
     auto tag2_uuid = QUuid::fromString(tag2_index.data(TagItemModel::uuid_role).toString());
     QVERIFY(!tag2_uuid.isNull());
+
+    auto tag2 = static_cast<Tag*>(tag2_index.internalPointer());
+    auto vegetable_uuid_str = vegetable_index.data(TagItemModel::uuid_role).toString();
+    QCOMPARE(tag2->get_parent()->get_uuid_string(), vegetable_uuid_str);
 }
 
 void TestTagItemModels::test_data_change() {

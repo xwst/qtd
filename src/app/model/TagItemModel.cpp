@@ -116,7 +116,27 @@ bool TagItemModel::setData(const QModelIndex& index, const QVariant& value, int 
 }
 
 bool TagItemModel::create_tag(const QString& name, const QColor& color, const QModelIndex& parent) {
-    return false;
+    Tag* parent_tag = parent.isValid()
+                    ? static_cast<Tag*>(parent.internalPointer())
+                    : this->root.get();
+    auto new_tag = std::make_unique<Tag>(name, color);
+
+    auto query_str = Util::get_sql_query_string("create_tag.sql");
+    auto query = QSqlQuery(QSqlDatabase::database(this->connection_name));
+    query.prepare(query_str);
+
+    query.bindValue(0, new_tag->get_uuid_string());
+    query.bindValue(1, new_tag->get_name());
+    query.bindValue(2, new_tag->get_color());
+    if (parent.isValid()) query.bindValue(3, parent_tag->get_uuid_string());
+    else query.bindValue(3, QVariant(QMetaType::fromType<QString>()));
+
+    if (!Util::execute_sql_query(query)) return false;
+    this->beginInsertRows(parent, parent_tag->get_child_count(), parent_tag->get_child_count());
+    parent_tag->add_child(std::move(new_tag));
+    this->endInsertRows();
+
+    return true;
 }
 
 bool TagItemModel::removeRows(int row, int count, const QModelIndex &parent) {
