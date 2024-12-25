@@ -62,7 +62,7 @@ QModelIndex TagItemModel::parent(const QModelIndex& index) const {
     return this->createIndex(parent->get_row(), 0, parent);
 }
 
-QModelIndex TagItemModel::index(int row, int column, const QModelIndex &index) const {
+QModelIndex TagItemModel::index(int row, int column, const QModelIndex& index) const {
     if (column != 0 || row < 0) return QModelIndex();
 
     auto* tag = static_cast<Tag*>(
@@ -73,13 +73,70 @@ QModelIndex TagItemModel::index(int row, int column, const QModelIndex &index) c
     return this->createIndex(row, column, tag->get_child(row));
 }
 
-QVariant TagItemModel::data(const QModelIndex &index, int role) const {
+QVariant TagItemModel::data(const QModelIndex& index, int role) const {
     if (!index.isValid()) return QVariant();
 
     auto* tag = static_cast<Tag*>(index.internalPointer());
-    if (role == Qt::DisplayRole) return tag->get_name();
-    else if (role == Qt::DecorationRole) return tag->get_color();
-    else return QVariant();
+    switch (role) {
+        case Qt::DisplayRole: return tag->get_name();
+        case Qt::DecorationRole: return tag->get_color();
+        case TagItemModel::uuid_role: return tag->get_uuid_string();
+        default: return QVariant();
+    }
+}
+
+bool TagItemModel::setData(const QModelIndex& index, const QVariant& value, int role) {
+    Tag* tag = static_cast<Tag*>(index.internalPointer());
+    QString uuid = tag->get_uuid_string();
+
+    auto update_query_str = Util::get_sql_query_string("update_tag.sql");
+    auto query = QSqlQuery(QSqlDatabase::database(this->connection_name));
+
+    QString column_name, update_value;
+    if (role == Qt::DisplayRole) {
+        column_name = "name";
+        update_value = value.toString();
+    } else if (role == Qt::DecorationRole) {
+        column_name = "color";
+        update_value = value.value<QColor>().name();
+    } else return false;
+
+    update_query_str = update_query_str.replace("#column_name#", column_name);
+    query.prepare(update_query_str);
+    query.bindValue(0, update_value);
+    query.bindValue(1, uuid);
+
+    if (!Util::execute_sql_query(query)) return false;
+
+    if (role == Qt::DisplayRole) tag->set_name(value.toString());
+    else tag->set_color(value.value<QColor>());
+
+    emit this->dataChanged(index, index, {role});
+    return true;
+}
+
+bool TagItemModel::create_tag(const QString& name, const QColor& color, const QModelIndex& parent) {
+    Tag* parent_tag = parent.isValid()
+                    ? static_cast<Tag*>(parent.internalPointer())
+                    : this->root.get();
+    auto new_tag = std::make_unique<Tag>(name, color);
+
+    auto query_str = Util::get_sql_query_string("create_tag.sql");
+    auto query = QSqlQuery(QSqlDatabase::database(this->connection_name));
+    query.prepare(query_str);
+
+    query.bindValue(0, new_tag->get_uuid_string());
+    query.bindValue(1, new_tag->get_name());
+    query.bindValue(2, new_tag->get_color());
+    if (parent.isValid()) query.bindValue(3, parent_tag->get_uuid_string());
+    else query.bindValue(3, QVariant(QMetaType::fromType<QString>()));
+
+    if (!Util::execute_sql_query(query)) return false;
+    this->beginInsertRows(parent, parent_tag->get_child_count(), parent_tag->get_child_count());
+    parent_tag->add_child(std::move(new_tag));
+    this->endInsertRows();
+
+    return true;
 }
 
 bool TagItemModel::removeRows(int row, int count, const QModelIndex &parent) {
@@ -92,13 +149,10 @@ bool TagItemModel::removeRows(int row, int count, const QModelIndex &parent) {
         uuids_to_remove << parent_tag->get_child(i)->get_uuid_string();
 
     QSqlQuery q(QSqlDatabase::database(this->connection_name));
-    if (!q.prepare(remove_query)) return false;
+    q.prepare(remove_query);
     q.addBindValue(uuids_to_remove);
 
-    if (!q.execBatch()) {
-        qDebug() << q.lastError() << "\n";
-        return false;
-    }
+    if (!Util::execute_sql_query(q)) return false;
 
     TagItemModel::beginRemoveRows(parent, row, row+count-1);
     parent_tag->remove_children(row, count);

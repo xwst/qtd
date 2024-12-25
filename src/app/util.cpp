@@ -2,6 +2,7 @@
 
 #include <QFile>
 #include <QRegularExpression>
+#include <QSqlError>
 
 /**
  * @brief Util::split_queries Splits a string of queries at semicolons at the end of a line.
@@ -23,6 +24,16 @@ QString Util::get_sql_query_string(const QString& sql_filename) {
 QSqlQuery Util::get_sql_query(const QString& sql_filename, const QString& connection_name) {
     auto connection = QSqlDatabase::database(connection_name);
     return QSqlQuery(Util::get_sql_query_string(sql_filename), connection);
+}
+
+bool Util::execute_sql_query(QSqlQuery& query) {
+    if (!query.exec()) {
+        qDebug() << "Last SQL query: " << query.lastQuery();
+        qDebug() << "Bound values: " << query.boundValues();
+        qDebug() << "Last SQL error: " << query.lastError() << "\n";
+        return false;
+    }
+    return true;
 }
 
 bool Util::create_tables_if_not_exist(const QString& connection_name) {

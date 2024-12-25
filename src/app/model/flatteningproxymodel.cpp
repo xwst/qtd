@@ -16,17 +16,33 @@ FlatteningProxyModel::FlatteningProxyModel(QObject *parent)
 
 void FlatteningProxyModel::setSourceModel(QAbstractItemModel* model) {
     QObject::connect(
-        model, SIGNAL(rowsAboutToBeRemoved(const QModelIndex&, int, int)),
-        this, SLOT(on_rows_about_to_be_removed(const QModelIndex&, int, int))
+        model, &QAbstractItemModel::rowsAboutToBeRemoved,
+        this, &FlatteningProxyModel::on_rows_about_to_be_removed
     );
     QObject::connect(
-        model, SIGNAL(rowsRemoved(const QModelIndex&, int, int)),
-        this, SLOT(on_rows_removed(const QModelIndex&, int, int))
+        model, &QAbstractItemModel::rowsRemoved,
+        this, &FlatteningProxyModel::on_rows_removed
     );
+    QObject::connect(
+        model, &QAbstractItemModel::dataChanged,
+        this, &FlatteningProxyModel::on_data_changed
+    );
+    QObject::connect(
+        model, &QAbstractItemModel::rowsAboutToBeInserted,
+        this, &FlatteningProxyModel::on_rows_about_to_be_inserted
+    );
+    QObject::connect(
+        model, &QAbstractItemModel::rowsInserted,
+        this, &FlatteningProxyModel::on_rows_inserted
+        );
     QAbstractProxyModel::setSourceModel(model);
 }
 
-void FlatteningProxyModel::on_rows_about_to_be_removed(const QModelIndex& parent, int first, int last) {
+void FlatteningProxyModel::on_rows_about_to_be_removed(
+    const QModelIndex& parent,
+    int first,
+    int last
+) {
     auto proxy_parent = this->mapFromSource(parent);
     int first_proxy_row = proxy_parent.row() + 1 + first;
 
@@ -37,18 +53,69 @@ void FlatteningProxyModel::on_rows_about_to_be_removed(const QModelIndex& parent
     this->beginRemoveRows(QModelIndex(), first_proxy_row, last_proxy_row);
 }
 
-void FlatteningProxyModel::on_rows_removed(const QModelIndex& parent, int first, int last) {
+void FlatteningProxyModel::on_rows_removed(
+    const QModelIndex& parent,
+    int first,
+    int last
+) {
     std::ignore = parent;
     std::ignore = first;
     std::ignore = last;
     this->endRemoveRows();
 }
 
+void FlatteningProxyModel::on_data_changed(
+    const QModelIndex& topLeft,
+    const QModelIndex& bottomRight,
+    const QList<int> &roles
+) {
+    emit this->dataChanged(
+        this->mapFromSource(topLeft),
+        this->mapFromSource(bottomRight),
+        roles
+    );
+}
+
+void FlatteningProxyModel::on_rows_about_to_be_inserted(
+    const QModelIndex& parent,
+    int first,
+    int last
+) {
+    QModelIndex src_index_before_insert;
+    if (first >= this->sourceModel()->rowCount(parent))
+        src_index_before_insert = this->sourceModel()->index(first-1, 0, parent);
+    else if(first > 0)
+        src_index_before_insert = this->sourceModel()->index(first, 0, parent);
+    else src_index_before_insert = parent;
+
+    auto mapped_index_before_insert = this->mapFromSource(
+        src_index_before_insert
+    );
+    int child_count = -1 + Util::count_model_rows(
+        this->sourceModel(), src_index_before_insert
+    );
+    int proxy_first = mapped_index_before_insert.row() + child_count + 1;
+    this->beginInsertRows(
+        QModelIndex(), proxy_first, proxy_first + (last - first)
+    );
+}
+
+void FlatteningProxyModel::on_rows_inserted(
+    const QModelIndex& parent,
+    int first,
+    int last
+) {
+    this->endInsertRows();
+}
+
 QModelIndex FlatteningProxyModel::mapFromSource(const QModelIndex &sourceIndex) const {
     if (!sourceIndex.isValid()) return QModelIndex();
-    int proxy_row = sourceIndex.row();
-    for (auto parent=sourceIndex.parent(); parent.isValid(); parent=parent.parent())
-        proxy_row += parent.row() + 1;
+    auto proxy_parent = this->mapFromSource(sourceIndex.parent());
+    int proxy_row = proxy_parent.row() + 1;
+    for (int i=0; i<sourceIndex.row(); i++) {
+        auto previous_sibling = sourceIndex.siblingAtRow(i);
+        proxy_row += Util::count_model_rows(this->sourceModel(), previous_sibling);
+    }
 
     return createIndex(proxy_row, sourceIndex.column(), sourceIndex.internalPointer());
 }

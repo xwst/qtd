@@ -20,6 +20,10 @@ private:
     // Helper functions:
     void assert_initial_dataset_representation_base_model();
     void assert_initial_dataset_representation_flat_model();
+    void assert_correct_from_source_mapping_recursively(
+        const QModelIndex& source_index = QModelIndex(),
+        int expected_proxy_row = -1
+    );
     static void remove_single_row_without_children(QAbstractItemModel& model);
     static void remove_children_of_first_top_level_index(QAbstractItemModel& model);
 
@@ -32,9 +36,12 @@ private slots:
 
     // Test functions:
     void test_initial_dataset_represented_correctly();
+    void test_proxy_mapping();
     void test_remove_single_row();
     void test_remove_rows_with_children();
     void test_remove_single_row_with_nested_children();
+    void test_create_tag();
+    void test_data_change();
 };
 
 #endif // TESTTAGITEMMODELST_H
