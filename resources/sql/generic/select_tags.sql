@@ -8,4 +8,4 @@ WITH RECURSIVE cte AS (
         INNER JOIN cte ON cte.uuid = tags.parent_uuid
 )
 SELECT uuid, name, color, parent_uuid FROM cte
-ORDER BY lvl;
+ORDER BY lvl, name;

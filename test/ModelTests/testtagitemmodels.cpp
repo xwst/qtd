@@ -35,31 +35,20 @@ void TestTagItemModels::init() {
 }
 
 void TestTagItemModels::cleanup() {
+    this->assert_correctness_of_proxy_models();
+
     QSqlQuery query;
     query.exec("DELETE FROM tags");
     query.exec("SELECT COUNT(*) FROM tags");
     query.first();
     QCOMPARE(query.value(0), 0);
     this->model.reset();
-
 }
 
 void TestTagItemModels::test_initial_dataset_represented_correctly() {
     this->assert_initial_dataset_representation_base_model();
     this->assert_initial_dataset_representation_flat_model();
 }
-
-
-void TestTagItemModels::test_proxy_mapping() {
-    for (int row=0; row<this->flat_model->rowCount(); row++) {
-        auto proxy_index = this->flat_model->index(row, 0);
-        auto source_index = this->flat_model->mapToSource(proxy_index);
-        QCOMPARE(proxy_index.internalPointer(), source_index.internalPointer());
-    }
-
-    this->assert_correct_from_source_mapping_recursively(QModelIndex());
-}
-
 
 void TestTagItemModels::test_remove_single_row() {
     auto base_model = this->model.get();
@@ -75,7 +64,7 @@ void TestTagItemModels::test_remove_rows_with_children() {
     QCOMPARE(Util::count_model_rows(base_model), 4);
     QCOMPARE(Util::count_model_rows(this->flat_model.get()), 4);
 
-    QSet<QString> remaining_expected = {"Fruits", "Vegetables", "Carrots", "Chickpeas"};
+    QStringList remaining_expected = {"Fruits", "Vegetables", "Carrots", "Chickpeas"};
     auto remaining = TestHelpers::get_display_roles(*base_model);
     auto remaining_flat = TestHelpers::get_display_roles(*this->flat_model.get());
     QCOMPARE(remaining, remaining_expected);
@@ -195,6 +184,16 @@ void TestTagItemModels::assert_correct_from_source_mapping_recursively(
     }
 }
 
+void TestTagItemModels::assert_correct_proxy_mapping() {
+    for (int row=0; row<this->flat_model->rowCount(); row++) {
+        auto proxy_index = this->flat_model->index(row, 0);
+        auto source_index = this->flat_model->mapToSource(proxy_index);
+        QCOMPARE(proxy_index.internalPointer(), source_index.internalPointer());
+    }
+
+    this->assert_correct_from_source_mapping_recursively(QModelIndex());
+}
+
 void TestTagItemModels::assert_initial_dataset_representation_flat_model() {
     int total_source_rows = Util::count_model_rows(this->model.get());
     int total_rows = Util::count_model_rows(this->flat_model.get());
@@ -206,6 +205,18 @@ void TestTagItemModels::assert_initial_dataset_representation_flat_model() {
         auto row_index = this->flat_model->index(row, 0);
         QCOMPARE(this->flat_model->rowCount(row_index), 0);
     }
+}
+
+void TestTagItemModels::assert_correctness_of_proxy_models() {
+    int model_size = Util::count_model_rows(this->model.get());
+    QCOMPARE(Util::count_model_rows(this->flat_model.get()), model_size);
+    QCOMPARE(this->flat_model->rowCount(), model_size);
+
+    auto tag_names = TestHelpers::get_display_roles(*this->model.get());
+    auto proxy_tag_names = TestHelpers::get_display_roles(*this->flat_model.get());
+    QCOMPARE(tag_names, proxy_tag_names);
+
+    this->assert_correct_proxy_mapping();
 }
 
 void TestTagItemModels::remove_single_row_without_children(QAbstractItemModel& model) {

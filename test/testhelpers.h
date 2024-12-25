@@ -3,8 +3,8 @@
 
 #include <QAbstractItemModel>
 #include <QAbstractItemModelTester>
-#include <QSet>
 #include <QString>
+#include <QStringList>
 
 class TestHelpers
 {
@@ -35,7 +35,7 @@ public:
         // ModelTester will be deleted by the models destructor.
     }
 
-    static QSet<QString> get_display_roles(
+    static QStringList get_display_roles(
         const QAbstractItemModel& model,
         const QModelIndex& parent = QModelIndex()
     );
