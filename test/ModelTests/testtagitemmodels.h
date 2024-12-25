@@ -40,8 +40,10 @@ private slots:
     void test_remove_single_row();
     void test_remove_rows_with_children();
     void test_remove_single_row_with_nested_children();
-    void test_create_tag();
-    void test_data_change();
+    void test_create_toplevel_tag();
+    void test_create_tag_with_parent();
+    void test_data_change_of_toplevel_item();
+    void test_data_change_of_child_item();
 };
 
 #endif // TESTTAGITEMMODELST_H
