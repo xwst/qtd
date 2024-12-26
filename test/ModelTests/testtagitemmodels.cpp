@@ -36,6 +36,7 @@ void TestTagItemModels::init() {
 
 void TestTagItemModels::cleanup() {
     this->assert_correctness_of_proxy_models();
+    this->assert_model_persistence();
 
     QSqlQuery query;
     query.exec("DELETE FROM tags");
@@ -217,6 +218,18 @@ void TestTagItemModels::assert_correctness_of_proxy_models() {
     QCOMPARE(tag_names, proxy_tag_names);
 
     this->assert_correct_proxy_mapping();
+}
+
+void TestTagItemModels::assert_model_persistence() {
+    std::unique_ptr<TagItemModel> model_reloaded_from_db;
+    QString connection_name = QSqlDatabase::database().connectionName();
+
+    TestHelpers::setup_item_model(model_reloaded_from_db, connection_name);
+    TestHelpers::assert_model_equality(
+        *model_reloaded_from_db.get(),
+        *this->model.get(),
+        {Qt::DisplayRole, Qt::DecorationRole, TagItemModel::uuid_role}
+    );
 }
 
 void TestTagItemModels::remove_single_row_without_children(QAbstractItemModel& model) {

@@ -26,6 +26,7 @@ private:
     );
     void assert_correct_proxy_mapping();
     void assert_correctness_of_proxy_models();
+    void assert_model_persistence();
     static void remove_single_row_without_children(QAbstractItemModel& model);
     static void remove_children_of_first_top_level_index(QAbstractItemModel& model);
 

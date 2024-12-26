@@ -28,6 +28,49 @@ void TestHelpers::populate_database() {
         QVERIFY2(query.exec(query_str), "Error while populating test database");
 }
 
+void TestHelpers::assert_model_equality(
+    const QAbstractItemModel& model_under_test,
+    const QAbstractItemModel& model_expectation,
+    const QSet<Qt::ItemDataRole>& roles_to_check,
+    const QModelIndex& index_of_model_under_test,
+    const QModelIndex& index_of_model_expectation
+) {
+    QCOMPARE_NE(&model_under_test, &model_expectation);
+    QVERIFY(model_expectation.checkIndex(index_of_model_expectation));
+    QVERIFY(model_under_test.checkIndex(index_of_model_under_test));
+
+    QCOMPARE(
+        index_of_model_under_test.isValid(),
+        index_of_model_expectation.isValid()
+    );
+    for (auto item_data_role : roles_to_check)
+        QCOMPARE(
+            index_of_model_under_test.data(item_data_role),
+            index_of_model_expectation.data(item_data_role)
+        );
+
+    int row_count_test_model = model_under_test.rowCount(index_of_model_under_test);
+    int column_count_test_model = model_under_test.columnCount(index_of_model_under_test);
+    QCOMPARE(
+        row_count_test_model,
+        model_expectation.rowCount(index_of_model_expectation)
+    );
+    QCOMPARE(
+        column_count_test_model,
+        model_expectation.columnCount(index_of_model_expectation)
+    );
+
+    for (int row=0; row<row_count_test_model; row++)
+        for (int column=0; column<column_count_test_model; column++)
+            TestHelpers::assert_model_equality(
+                model_expectation,
+                model_under_test,
+                roles_to_check,
+                model_expectation.index(row, column, index_of_model_expectation),
+                model_under_test.index(row, column, index_of_model_under_test)
+            );
+}
+
 QStringList TestHelpers::get_display_roles(
     const QAbstractItemModel& model,
     const QModelIndex& parent

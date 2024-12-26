@@ -12,6 +12,13 @@ public:
     static void setup_database();
     static void assert_table_exists(const QString& table_name);
     static void populate_database();
+    static void assert_model_equality(
+        const QAbstractItemModel& model_under_test,
+        const QAbstractItemModel& model_expectation,
+        const QSet<Qt::ItemDataRole>& roles_to_check,
+        const QModelIndex& index_of_model_under_test = QModelIndex(),
+        const QModelIndex& index_of_model_expectation = QModelIndex()
+    );
 
     template <typename T, typename... Types>
     static void setup_item_model(
