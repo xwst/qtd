@@ -149,10 +149,10 @@ bool TagItemModel::removeRows(int row, int count, const QModelIndex &parent) {
         uuids_to_remove << parent_tag->get_child(i)->get_uuid_string();
 
     QSqlQuery q(QSqlDatabase::database(this->connection_name));
-    q.prepare(remove_query);
+    if (!q.prepare(remove_query)) return false;
     q.addBindValue(uuids_to_remove);
 
-    if (!Util::execute_sql_query(q)) return false;
+    if (!Util::execute_sql_query(q, true)) return false;
 
     TagItemModel::beginRemoveRows(parent, row, row+count-1);
     parent_tag->remove_children(row, count);
