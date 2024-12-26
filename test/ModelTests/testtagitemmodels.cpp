@@ -225,10 +225,16 @@ void TestTagItemModels::assert_model_persistence() {
     QString connection_name = QSqlDatabase::database().connectionName();
 
     TestHelpers::setup_item_model(model_reloaded_from_db, connection_name);
+
+    auto cmp = [](const QModelIndex& index_1, const QModelIndex& index_2) {
+        return index_1.data(TagItemModel::uuid_role).toString()
+               < index_2.data(TagItemModel::uuid_role).toString();
+    };
     TestHelpers::assert_model_equality(
         *model_reloaded_from_db.get(),
         *this->model.get(),
-        {Qt::DisplayRole, Qt::DecorationRole, TagItemModel::uuid_role}
+        {Qt::DisplayRole, Qt::DecorationRole, TagItemModel::uuid_role},
+        cmp
     );
 }
 

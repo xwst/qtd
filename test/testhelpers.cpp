@@ -1,5 +1,6 @@
 #include "testhelpers.h"
 
+#include <vector>
 #include <QTest>
 
 #include "../src/app/util.h"
@@ -28,17 +29,37 @@ void TestHelpers::populate_database() {
         QVERIFY2(query.exec(query_str), "Error while populating test database");
 }
 
+std::vector<QModelIndex> TestHelpers::get_sorted_children(
+    const QAbstractItemModel& model,
+    const QModelIndex& parent,
+    const std::function<bool(const QModelIndex&, const QModelIndex&)>& item_sort_comparator
+) {
+    std::vector<QModelIndex> result;
+    int number_of_children = model.rowCount(parent);
+    int column = parent.isValid() ? parent.column() : 0;
+
+    result.reserve(number_of_children);
+    for (int row=0; row<number_of_children; row++)
+        result.push_back(model.index(row, column, parent));
+    std::sort(result.begin(), result.end(), item_sort_comparator);
+
+    return result;
+}
+
 void TestHelpers::assert_model_equality(
     const QAbstractItemModel& model_under_test,
     const QAbstractItemModel& model_expectation,
     const QSet<Qt::ItemDataRole>& roles_to_check,
+    const std::function<bool(const QModelIndex&, const QModelIndex&)>& item_sort_comparator,
     const QModelIndex& index_of_model_under_test,
     const QModelIndex& index_of_model_expectation
 ) {
+    // Sanity checks:
     QCOMPARE_NE(&model_under_test, &model_expectation);
     QVERIFY(model_expectation.checkIndex(index_of_model_expectation));
     QVERIFY(model_under_test.checkIndex(index_of_model_under_test));
 
+    // Index data equality:
     QCOMPARE(
         index_of_model_under_test.isValid(),
         index_of_model_expectation.isValid()
@@ -49,6 +70,7 @@ void TestHelpers::assert_model_equality(
             index_of_model_expectation.data(item_data_role)
         );
 
+    // Dimension equality:
     int row_count_test_model = model_under_test.rowCount(index_of_model_under_test);
     int column_count_test_model = model_under_test.columnCount(index_of_model_under_test);
     QCOMPARE(
@@ -60,15 +82,24 @@ void TestHelpers::assert_model_equality(
         model_expectation.columnCount(index_of_model_expectation)
     );
 
-    for (int row=0; row<row_count_test_model; row++)
-        for (int column=0; column<column_count_test_model; column++)
-            TestHelpers::assert_model_equality(
-                model_expectation,
-                model_under_test,
-                roles_to_check,
-                model_expectation.index(row, column, index_of_model_expectation),
-                model_under_test.index(row, column, index_of_model_under_test)
-            );
+    // Sort children by uuid:
+    auto children_under_test = TestHelpers::get_sorted_children(
+        model_under_test, index_of_model_under_test, item_sort_comparator
+    );
+    auto children_expectation = TestHelpers::get_sorted_children(
+        model_expectation, index_of_model_expectation, item_sort_comparator
+    );
+
+    // Children equality (recursion):
+    for (int i=0; i<children_under_test.size(); i++)
+        TestHelpers::assert_model_equality(
+            model_under_test,
+            model_expectation,
+            roles_to_check,
+            item_sort_comparator,
+            children_under_test[i],
+            children_expectation[i]
+        );
 }
 
 QStringList TestHelpers::get_display_roles(
