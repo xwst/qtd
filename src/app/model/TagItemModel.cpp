@@ -31,7 +31,7 @@ TagItemModel::TagItemModel(QString connection_name, QObject* parent)
         // 0: uuid, 1: name, 2: color, 3: parent_uuid
         auto tag = std::make_unique<Tag>(
             query.value(1).toString(),
-            QColor::fromString("#" + query.value(2).toString()),
+            QColor::fromString(query.value(2).toString()),
             QUuid(query.value(0).toString()),
             nullptr // parent will be set when adding the tag as a child below
         );
@@ -98,7 +98,8 @@ bool TagItemModel::setData(const QModelIndex& index, const QVariant& value, int 
         update_value = value.toString();
     } else if (role == Qt::DecorationRole) {
         column_name = "color";
-        update_value = value.value<QColor>().name();
+        QColor color = value.value<QColor>();
+        update_value = color.isValid() ? color.name(QColor::HexArgb) : "";
     } else return false;
 
     update_query_str = update_query_str.replace("#column_name#", column_name);
@@ -127,7 +128,7 @@ bool TagItemModel::create_tag(const QString& name, const QColor& color, const QM
 
     query.bindValue(0, new_tag->get_uuid_string());
     query.bindValue(1, new_tag->get_name());
-    query.bindValue(2, new_tag->get_color());
+    query.bindValue(2, color.isValid() ? color.name(QColor::HexArgb) : "");
     if (parent.isValid()) query.bindValue(3, parent_tag->get_uuid_string());
     else query.bindValue(3, QVariant(QMetaType::fromType<QString>()));
 
