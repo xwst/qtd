@@ -26,8 +26,9 @@ QSqlQuery Util::get_sql_query(const QString& sql_filename, const QString& connec
     return QSqlQuery(Util::get_sql_query_string(sql_filename), connection);
 }
 
-bool Util::execute_sql_query(QSqlQuery& query) {
-    if (!query.exec()) {
+bool Util::execute_sql_query(QSqlQuery& query, bool batch) {
+    bool exec_result = batch ? query.execBatch() : query.exec();
+    if (!exec_result) {
         qDebug() << "Last SQL query: " << query.lastQuery();
         qDebug() << "Bound values: " << query.boundValues();
         qDebug() << "Last SQL error: " << query.lastError() << "\n";

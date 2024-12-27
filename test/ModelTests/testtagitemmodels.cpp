@@ -35,31 +35,21 @@ void TestTagItemModels::init() {
 }
 
 void TestTagItemModels::cleanup() {
+    this->assert_correctness_of_proxy_models();
+    this->assert_model_persistence();
+
     QSqlQuery query;
     query.exec("DELETE FROM tags");
     query.exec("SELECT COUNT(*) FROM tags");
     query.first();
     QCOMPARE(query.value(0), 0);
     this->model.reset();
-
 }
 
 void TestTagItemModels::test_initial_dataset_represented_correctly() {
     this->assert_initial_dataset_representation_base_model();
     this->assert_initial_dataset_representation_flat_model();
 }
-
-
-void TestTagItemModels::test_proxy_mapping() {
-    for (int row=0; row<this->flat_model->rowCount(); row++) {
-        auto proxy_index = this->flat_model->index(row, 0);
-        auto source_index = this->flat_model->mapToSource(proxy_index);
-        QCOMPARE(proxy_index.internalPointer(), source_index.internalPointer());
-    }
-
-    this->assert_correct_from_source_mapping_recursively(QModelIndex());
-}
-
 
 void TestTagItemModels::test_remove_single_row() {
     auto base_model = this->model.get();
@@ -75,7 +65,7 @@ void TestTagItemModels::test_remove_rows_with_children() {
     QCOMPARE(Util::count_model_rows(base_model), 4);
     QCOMPARE(Util::count_model_rows(this->flat_model.get()), 4);
 
-    QSet<QString> remaining_expected = {"Fruits", "Vegetables", "Carrots", "Chickpeas"};
+    QStringList remaining_expected = {"Fruits", "Vegetables", "Carrots", "Chickpeas"};
     auto remaining = TestHelpers::get_display_roles(*base_model);
     auto remaining_flat = TestHelpers::get_display_roles(*this->flat_model.get());
     QCOMPARE(remaining, remaining_expected);
@@ -85,75 +75,84 @@ void TestTagItemModels::test_remove_rows_with_children() {
 void TestTagItemModels::test_remove_single_row_with_nested_children() {
     this->model.get()->removeRow(0, QModelIndex());
     QCOMPARE(Util::count_model_rows(this->model.get()), 3);
+    QCOMPARE(Util::count_model_rows(this->flat_model.get()), 3);
     QCOMPARE(this->model->rowCount(), 1);
 }
 
-void TestTagItemModels::test_create_tag() {
+void TestTagItemModels::test_create_toplevel_tag() {
     int old_row_count = this->model->rowCount();
     int old_row_count_flat_model = this->flat_model->rowCount();
-    QString tag1_name = "new tag #1";
-    QCOMPARE(this->model->create_tag(tag1_name), true);
+    QString new_tag_name = "new tag name";
+    QCOMPARE(this->model->create_tag(new_tag_name), true);
 
     QCOMPARE(this->model->rowCount(), old_row_count + 1);
     QCOMPARE(this->flat_model->rowCount(), old_row_count_flat_model + 1);
 
-    auto tag1_index = this->model->index(this->model->rowCount()-1, 0);
-    QCOMPARE(tag1_index.data().toString(), tag1_name);
-    QColor tag1_color = tag1_index.data(Qt::DecorationRole).value<QColor>();
+    auto new_tag_index = this->model->index(this->model->rowCount()-1, 0);
+    QCOMPARE(new_tag_index.data().toString(), new_tag_name);
+    QColor tag1_color = new_tag_index.data(Qt::DecorationRole).value<QColor>();
     QVERIFY(!tag1_color.isValid());
-    auto tag1_uuid_str = tag1_index.data(TagItemModel::uuid_role).toString();
+    auto tag1_uuid_str = new_tag_index.data(TagItemModel::uuid_role).toString();
     QVERIFY(!QUuid::fromString(tag1_uuid_str).isNull());
+}
 
+void TestTagItemModels::test_create_tag_with_parent() {
+    int old_row_count = this->model->rowCount();
+    int old_row_count_flat_model = this->flat_model->rowCount();
     auto vegetable_index = this->model->index(1, 0);
     int vegetable_row_count = this->model->rowCount(vegetable_index);
     QCOMPARE(vegetable_index.data().toString(), "Vegetables");
 
-    QString tag2_name = "new tag #2";
-    QColor tag2_color = QColor::fromString("#1234AB");
-    QCOMPARE(this->model->create_tag(tag2_name, tag2_color, vegetable_index), true);
-    QCOMPARE(this->model->rowCount(), old_row_count + 1);
-    QCOMPARE(this->flat_model->rowCount(), old_row_count_flat_model + 2);
+    QString new_tag_name = "new tag name";
+    QColor new_tag_color = QColor::fromString("#1234AB");
+    QCOMPARE(this->model->create_tag(new_tag_name, new_tag_color, vegetable_index), true);
+    QCOMPARE(this->model->rowCount(), old_row_count);
+    QCOMPARE(this->flat_model->rowCount(), old_row_count_flat_model + 1);
     QCOMPARE(this->model->rowCount(vegetable_index), vegetable_row_count + 1);
 
-    auto tag2_index = this->model->index(vegetable_row_count, 0, vegetable_index);
-    QCOMPARE(tag2_index.data().toString(), tag2_name);
-    QCOMPARE(tag2_index.data(Qt::DecorationRole), tag2_color);
-    QCOMPARE(tag2_index.parent(), vegetable_index);
-    auto tag2_uuid = QUuid::fromString(tag2_index.data(TagItemModel::uuid_role).toString());
-    QVERIFY(!tag2_uuid.isNull());
+    auto new_tag_index = this->model->index(vegetable_row_count, 0, vegetable_index);
+    QCOMPARE(new_tag_index.data().toString(), new_tag_name);
+    QCOMPARE(new_tag_index.data(Qt::DecorationRole), new_tag_color);
+    QCOMPARE(new_tag_index.parent(), vegetable_index);
+    auto new_tag_uuid = QUuid::fromString(new_tag_index.data(TagItemModel::uuid_role).toString());
+    QVERIFY(!new_tag_uuid.isNull());
 
-    auto tag2 = static_cast<Tag*>(tag2_index.internalPointer());
+    auto new_tag = static_cast<Tag*>(new_tag_index.internalPointer());
     auto vegetable_uuid_str = vegetable_index.data(TagItemModel::uuid_role).toString();
-    QCOMPARE(tag2->get_parent()->get_uuid_string(), vegetable_uuid_str);
+    QCOMPARE(new_tag->get_parent()->get_uuid_string(), vegetable_uuid_str);
 }
 
-void TestTagItemModels::test_data_change() {
-    auto top_level_index = this->model->index(0, 0);
-    auto child_index = this->model->index(2, 0, top_level_index);
+void TestTagItemModels::test_data_change_of_toplevel_item() {
+    auto index = this->model->index(0, 0);
 
     auto green = QColor(Qt::green);
     QString new_display_role = "new name";
-    this->model->setData(top_level_index, new_display_role, Qt::DisplayRole);
-    this->model->setData(top_level_index, green, Qt::DecorationRole);
-    QCOMPARE(top_level_index.data(), new_display_role);
-    QCOMPARE(this->model->data(top_level_index, Qt::DecorationRole), green);
+    this->model->setData(index, new_display_role, Qt::DisplayRole);
+    this->model->setData(index, green, Qt::DecorationRole);
+    QCOMPARE(index.data(), new_display_role);
+    QCOMPARE(this->model->data(index, Qt::DecorationRole), green);
 
-    auto flat_top_level_index = this->flat_model->mapFromSource(top_level_index);
-    QCOMPARE(flat_top_level_index.data(), new_display_role);
-    QCOMPARE(flat_top_level_index.data(Qt::DecorationRole), green);
+    auto flat_proxy_index = this->flat_model->mapFromSource(index);
+    QCOMPARE(flat_proxy_index.data(), new_display_role);
+    QCOMPARE(flat_proxy_index.data(Qt::DecorationRole), green);
+}
 
-    auto old_uuid = child_index.data(TagItemModel::uuid_role).toUuid();
+void TestTagItemModels::test_data_change_of_child_item() {
+    auto index = this->model->index(2, 0, this->model->index(0, 0));
+    QString new_display_role = "new name";
+
+    auto old_uuid = index.data(TagItemModel::uuid_role).toUuid();
     auto new_uuid = QUuid::createUuid();
-    QVERIFY(!this->model->setData(child_index, new_uuid, TagItemModel::uuid_role));
+    QVERIFY(!this->model->setData(index, new_uuid, TagItemModel::uuid_role));
     QCOMPARE(
-        child_index.data(TagItemModel::uuid_role).toString(),
+        index.data(TagItemModel::uuid_role).toString(),
         old_uuid.toString(QUuid::WithoutBraces)
     );
 
-    QVERIFY(this->model->setData(child_index, new_display_role, Qt::DisplayRole));
-    QCOMPARE(child_index.data(), new_display_role);
+    QVERIFY(this->model->setData(index, new_display_role, Qt::DisplayRole));
+    QCOMPARE(index.data(), new_display_role);
     QCOMPARE(
-        this->flat_model->mapFromSource(child_index).data(),
+        this->flat_model->mapFromSource(index).data(),
         new_display_role
     );
 }
@@ -186,6 +185,16 @@ void TestTagItemModels::assert_correct_from_source_mapping_recursively(
     }
 }
 
+void TestTagItemModels::assert_correct_proxy_mapping() {
+    for (int row=0; row<this->flat_model->rowCount(); row++) {
+        auto proxy_index = this->flat_model->index(row, 0);
+        auto source_index = this->flat_model->mapToSource(proxy_index);
+        QCOMPARE(proxy_index.internalPointer(), source_index.internalPointer());
+    }
+
+    this->assert_correct_from_source_mapping_recursively(QModelIndex());
+}
+
 void TestTagItemModels::assert_initial_dataset_representation_flat_model() {
     int total_source_rows = Util::count_model_rows(this->model.get());
     int total_rows = Util::count_model_rows(this->flat_model.get());
@@ -197,6 +206,36 @@ void TestTagItemModels::assert_initial_dataset_representation_flat_model() {
         auto row_index = this->flat_model->index(row, 0);
         QCOMPARE(this->flat_model->rowCount(row_index), 0);
     }
+}
+
+void TestTagItemModels::assert_correctness_of_proxy_models() {
+    int model_size = Util::count_model_rows(this->model.get());
+    QCOMPARE(Util::count_model_rows(this->flat_model.get()), model_size);
+    QCOMPARE(this->flat_model->rowCount(), model_size);
+
+    auto tag_names = TestHelpers::get_display_roles(*this->model.get());
+    auto proxy_tag_names = TestHelpers::get_display_roles(*this->flat_model.get());
+    QCOMPARE(tag_names, proxy_tag_names);
+
+    this->assert_correct_proxy_mapping();
+}
+
+void TestTagItemModels::assert_model_persistence() {
+    std::unique_ptr<TagItemModel> model_reloaded_from_db;
+    QString connection_name = QSqlDatabase::database().connectionName();
+
+    TestHelpers::setup_item_model(model_reloaded_from_db, connection_name);
+
+    auto cmp = [](const QModelIndex& index_1, const QModelIndex& index_2) {
+        return index_1.data(TagItemModel::uuid_role).toString()
+               < index_2.data(TagItemModel::uuid_role).toString();
+    };
+    TestHelpers::assert_model_equality(
+        *model_reloaded_from_db.get(),
+        *this->model.get(),
+        {Qt::DisplayRole, Qt::DecorationRole, TagItemModel::uuid_role},
+        cmp
+    );
 }
 
 void TestTagItemModels::remove_single_row_without_children(QAbstractItemModel& model) {
