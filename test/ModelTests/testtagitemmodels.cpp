@@ -117,9 +117,13 @@ void TestTagItemModels::test_create_tag_with_parent() {
     auto new_tag_uuid = QUuid::fromString(new_tag_index.data(TagItemModel::uuid_role).toString());
     QVERIFY(!new_tag_uuid.isNull());
 
-    auto new_tag = static_cast<Tag*>(new_tag_index.internalPointer());
-    auto vegetable_uuid_str = vegetable_index.data(TagItemModel::uuid_role).toString();
-    QCOMPARE(new_tag->get_parent()->get_uuid_string(), vegetable_uuid_str);
+    auto new_tag_item = static_cast<TreeItem*>(
+        new_tag_index.internalPointer()
+    );
+    QCOMPARE(
+        new_tag_item->get_parent()->get_data(TagItemModel::uuid_role),
+        vegetable_index.data(TagItemModel::uuid_role)
+    );
 }
 
 void TestTagItemModels::test_data_change_of_toplevel_item() {
