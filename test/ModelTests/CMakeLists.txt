@@ -4,12 +4,14 @@ FUNCTION(create_model_test test_name source_file)
         ${source_file}
         ../testhelpers.cpp
     )
+    TARGET_COMPILE_OPTIONS(${test_name} PRIVATE -O0 --coverage)
     TARGET_LINK_LIBRARIES(${test_name}
         PRIVATE
         Qt6::Gui
         Qt6::Test
         Qt6::Sql
-        models
+        gcov
+        models_internal
     )
     ADD_TEST(NAME ${test_name} COMMAND ${test_name})
     QT_ADD_RESOURCES(
