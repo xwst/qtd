@@ -14,6 +14,7 @@ FUNCTION(create_model_test test_name source_file)
         models_internal
     )
     ADD_TEST(NAME ${test_name} COMMAND ${test_name})
+    ADD_DEPENDENCIES(all_tests ${test_name})
     QT_ADD_RESOURCES(
         ${test_name} "test-resources"
         PREFIX "/"
@@ -27,6 +28,26 @@ FUNCTION(create_model_test test_name source_file)
         FILES ${RESOURCE_FILES}
     )
 ENDFUNCTION()
+
+ADD_CUSTOM_TARGET(all_tests ALL)
+
+FIND_PROGRAM(GCOVR NAMES gcovr)
+IF(GCOVR)
+    ADD_CUSTOM_TARGET(
+        coverage
+        ${CMAKE_CTEST_COMMAND} --output-on-failure
+        COMMAND
+        ${GCOVR}
+            -r ${CMAKE_SOURCE_DIR}
+            --filter ${CMAKE_SOURCE_DIR}/src
+            --html-nested ${CMAKE_BINARY_DIR}/coverage.html
+            --exclude-throw-branches
+            --exclude-unreachable-branches
+        DEPENDS all_tests
+        BYPRODUCTS ${CMAKE_BINARY_DIR}/coverage.html
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    )
+ENDIF()
 
 
 CREATE_MODEL_TEST(test_tagitemmodels testtagitemmodels.cpp)
