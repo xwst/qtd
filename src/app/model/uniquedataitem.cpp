@@ -4,6 +4,8 @@
 
 #include <QVariant>
 
+#include "model_constants.h"
+
 UniqueDataItem::UniqueDataItem(QString uuid_str) {
     if (uuid_str.isEmpty()) this->uuid = QUuid::createUuid();
     else {
@@ -18,7 +20,7 @@ QString UniqueDataItem::get_uuid_string() const {
 }
 
 QVariant UniqueDataItem::get_data(int role) const {
-    if (role == this->uuid_role) return this->get_uuid_string();
+    if (role == uuid_role) return this->get_uuid_string();
     else return QVariant();
 }
 

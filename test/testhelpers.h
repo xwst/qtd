@@ -21,7 +21,7 @@ public:
     static void assert_model_equality(
         const QAbstractItemModel& model_under_test,
         const QAbstractItemModel& model_expectation,
-        const QSet<Qt::ItemDataRole>& roles_to_check,
+        const QSet<int>& roles_to_check,
         const std::function<bool(const QModelIndex&, const QModelIndex&)>& item_sort_comparator,
         const QModelIndex& index_of_model_under_test = QModelIndex(),
         const QModelIndex& index_of_model_expectation = QModelIndex()

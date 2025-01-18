@@ -15,7 +15,6 @@ private:
     std::shared_ptr<UniqueDataItem> data;
 
 public:
-    static constexpr auto uuid_role = UniqueDataItem::uuid_role;
 
     TreeItem(
         std::shared_ptr<UniqueDataItem> data,

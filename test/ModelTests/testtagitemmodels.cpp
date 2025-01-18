@@ -7,6 +7,7 @@
 #include <QTest>
 
 #include "../testhelpers.h"
+#include "../../src/app/model/model_constants.h"
 #include "../../src/app/util.h"
 
 TestTagItemModels::TestTagItemModels(QObject *parent)
@@ -92,7 +93,7 @@ void TestTagItemModels::test_create_toplevel_tag() {
     QCOMPARE(new_tag_index.data().toString(), new_tag_name);
     QColor tag1_color = new_tag_index.data(Qt::DecorationRole).value<QColor>();
     QVERIFY(!tag1_color.isValid());
-    auto tag1_uuid_str = new_tag_index.data(TagItemModel::uuid_role).toString();
+    auto tag1_uuid_str = new_tag_index.data(uuid_role).toString();
     QVERIFY(!QUuid::fromString(tag1_uuid_str).isNull());
 }
 
@@ -114,15 +115,15 @@ void TestTagItemModels::test_create_tag_with_parent() {
     QCOMPARE(new_tag_index.data().toString(), new_tag_name);
     QCOMPARE(new_tag_index.data(Qt::DecorationRole), new_tag_color);
     QCOMPARE(new_tag_index.parent(), vegetable_index);
-    auto new_tag_uuid = QUuid::fromString(new_tag_index.data(TagItemModel::uuid_role).toString());
+    auto new_tag_uuid = QUuid::fromString(new_tag_index.data(uuid_role).toString());
     QVERIFY(!new_tag_uuid.isNull());
 
     auto new_tag_item = static_cast<TreeItem*>(
         new_tag_index.internalPointer()
     );
     QCOMPARE(
-        new_tag_item->get_parent()->get_data(TagItemModel::uuid_role),
-        vegetable_index.data(TagItemModel::uuid_role)
+        new_tag_item->get_parent()->get_data(uuid_role),
+        vegetable_index.data(uuid_role)
     );
 }
 
@@ -145,11 +146,11 @@ void TestTagItemModels::test_data_change_of_child_item() {
     auto index = this->model->index(2, 0, this->model->index(0, 0));
     QString new_display_role = "new name";
 
-    auto old_uuid = index.data(TagItemModel::uuid_role).toUuid();
+    auto old_uuid = index.data(uuid_role).toUuid();
     auto new_uuid = QUuid::createUuid();
-    QVERIFY(!this->model->setData(index, new_uuid, TagItemModel::uuid_role));
+    QVERIFY(!this->model->setData(index, new_uuid, uuid_role));
     QCOMPARE(
-        index.data(TagItemModel::uuid_role).toString(),
+        index.data(uuid_role).toString(),
         old_uuid.toString(QUuid::WithoutBraces)
     );
 
@@ -231,13 +232,13 @@ void TestTagItemModels::assert_model_persistence() {
     TestHelpers::setup_item_model(model_reloaded_from_db, connection_name);
 
     auto cmp = [](const QModelIndex& index_1, const QModelIndex& index_2) {
-        return index_1.data(TagItemModel::uuid_role).toString()
-               < index_2.data(TagItemModel::uuid_role).toString();
+        return index_1.data(uuid_role).toString()
+               < index_2.data(uuid_role).toString();
     };
     TestHelpers::assert_model_equality(
         *model_reloaded_from_db.get(),
         *this->model.get(),
-        {Qt::DisplayRole, Qt::DecorationRole, TagItemModel::uuid_role},
+        {Qt::DisplayRole, Qt::DecorationRole, uuid_role},
         cmp
     );
 }

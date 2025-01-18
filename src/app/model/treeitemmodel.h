@@ -6,6 +6,7 @@
 #include <QAbstractItemModel>
 #include <QMultiHash>
 
+#include "model_constants.h"
 #include "treeitem.h"
 
 template <typename T>
@@ -24,7 +25,6 @@ protected:
     QModelIndex uuid_to_index(QString uuid_str);
 
 public:
-    static constexpr auto uuid_role = TreeItem::uuid_role;
 
     explicit TreeItemModel(QObject *parent = nullptr);
 
@@ -80,7 +80,7 @@ void TreeItemModel<T>::remove_item_ignoring_mirrors(TreeItem* item) {
     auto parent_index = this->parent(index);
 
     this->uuid_item_map.remove(
-        item->get_data(TreeItem::uuid_role).toString(), item
+        item->get_data(uuid_role).toString(), item
     );
 
     this->beginRemoveRows(parent_index, index.row(), index.row());
@@ -155,7 +155,7 @@ bool TreeItemModel<T>::removeRows(int row, int count, const QModelIndex &parent)
 
     for (int i=row; i<row+count; i++) {
         auto child = parent_item->get_child(i);
-        QString uuid_str = child->get_data(TreeItem::uuid_role).toString();
+        QString uuid_str = child->get_data(uuid_role).toString();
         this->uuid_item_map.remove(uuid_str, child);
         for (auto mirrored : this->uuid_item_map.values(uuid_str))
             this->remove_item_ignoring_mirrors(mirrored);

@@ -10,6 +10,7 @@
 #include <QTextStream>
 #include <QUuid>
 
+#include "model_constants.h"
 #include "../util.h"
 
 TagItemModel::TagItemModel(QString connection_name, QObject* parent)
@@ -29,7 +30,7 @@ TagItemModel::TagItemModel(QString connection_name, QObject* parent)
 }
 
 bool TagItemModel::setData(const QModelIndex& index, const QVariant& value, int role) {
-    QString uuid = index.data(this->uuid_role).toString();
+    QString uuid = index.data(uuid_role).toString();
 
     auto update_query_str = Util::get_sql_query_string("update_tag.sql");
     auto query = QSqlQuery(QSqlDatabase::database(this->connection_name));
@@ -66,7 +67,7 @@ bool TagItemModel::create_tag(const QString& name, const QColor& color, const QM
     query.bindValue(1, new_tag->get_name());
     query.bindValue(2, color.isValid() ? color.name(QColor::HexArgb) : "");
     if (parent.isValid())
-        query.bindValue(3, parent.data(this->uuid_role));
+        query.bindValue(3, parent.data(uuid_role));
     else query.bindValue(3, QVariant(QMetaType::fromType<QString>()));
 
     if (!Util::execute_sql_query(query)) return false;
@@ -79,7 +80,7 @@ bool TagItemModel::removeRows(int row, int count, const QModelIndex &parent) {
 
     QVariantList uuids_to_remove;
     for (int i=row; i<row+count; i++)
-        uuids_to_remove << this->index(i, 0, parent).data(this->uuid_role);
+        uuids_to_remove << this->index(i, 0, parent).data(uuid_role);
 
     QSqlQuery q(QSqlDatabase::database(this->connection_name));
     if (!q.prepare(remove_query)) return false;

@@ -10,8 +10,6 @@ private:
     QUuid uuid;
 
 public:
-    static constexpr auto uuid_role = Qt::UserRole;
-
     UniqueDataItem(QString uuid_str = "");
     QString get_uuid_string() const;
 
