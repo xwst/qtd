@@ -2,7 +2,7 @@
 
 #include <QAbstractItemModelTester>
 #include <QLoggingCategory>
-#include <QSqlDataBase>
+#include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QTest>
 
