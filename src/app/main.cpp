@@ -2,17 +2,18 @@
 #include <QQmlApplicationEngine>
 #include <QtQml/QQmlExtensionPlugin>
 
-#include "model/settings.h"
+#include "qmlinterface.h"
 
 Q_IMPORT_QML_PLUGIN(src_qmltexteditorPlugin)
+
 
 int main(int argc, char *argv[]) {
 
     QGuiApplication app(argc, argv);
     QQmlApplicationEngine engine;
 
-    auto* models = engine.singletonInstance<Settings*>("src.app", "Settings");
-    models->set_up_models();
+    auto* models = engine.singletonInstance<QmlInterface*>("src.app", "QmlInterface");
+    models->set_up(&app);
 
     QObject::connect(
         &engine,

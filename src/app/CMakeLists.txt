@@ -1,5 +1,6 @@
 QT_ADD_EXECUTABLE(qtd
     main.cpp
+    globaleventfilter.cpp
 )
 
 ADD_SUBDIRECTORY(model)
@@ -12,7 +13,7 @@ QT_ADD_QML_MODULE(qtd
     URI src.app
     QML_FILES
         Main.qml
-        SOURCES model/settings.cpp
+        SOURCES qmlinterface.cpp
         QML_FILES TagEditor.qml
         QML_FILES LineEdit.qml
         QML_FILES TagForm.qml

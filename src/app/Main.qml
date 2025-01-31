@@ -20,13 +20,10 @@ ApplicationWindow {
 
     property var tag_editor_component: Qt.createComponent("qrc:/qt/qml/src/app/TagEditor.qml")
 
-    MouseArea {
-        anchors.fill: parent
-        onWheel: (wheel) => {
-            if (wheel.modifiers & Qt.ControlModifier) {
-                font_size_slider.value += wheel.angleDelta.y / 400
-                wheel.accepted = true
-            } else wheel.accepted = false
+    Connections {
+        target: QmlInterface.global_event_filter
+        function onZoomChanged(value_difference) {
+            font_size_slider.value += value_difference
         }
     }
 
@@ -159,7 +156,7 @@ ApplicationWindow {
                         alternatingRows: false
                         Component.onCompleted: tag_view.expandRecursively()
 
-                        model: Settings.tags_model
+                        model: QmlInterface.tags_model
                         selectionModel: ItemSelectionModel {}
 
                         delegate: TreeViewDelegate {

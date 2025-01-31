@@ -44,7 +44,7 @@ GridLayout {
         Layout.fillWidth: true
         Layout.fillHeight: true
         id: parent_input
-        model: Settings.flat_tags_model
+        model: QmlInterface.flat_tags_model
         editable: true
         textRole: "display"
         font: tag_form_container.control_font
