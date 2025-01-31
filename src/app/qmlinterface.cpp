@@ -26,4 +26,9 @@ void QmlInterface::set_up(QGuiApplication* app) {
 
     this->m_global_event_filter = new GlobalEventFilter(this);
     app->installEventFilter(this->m_global_event_filter);
+    this->connect(
+        this->m_global_event_filter, &GlobalEventFilter::quit,
+        app, &QGuiApplication::quit,
+        Qt::QueuedConnection
+    );
 }
