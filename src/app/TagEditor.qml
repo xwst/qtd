@@ -1,22 +1,17 @@
 import QtQuick
 import QtQuick.Controls
 
-Dialog {
+Window {
     id: tag_editor
     required property var tag_index
     required property font control_font
 
     title: "Tag editor - " + tag_index.model.data(tag_index)
+    color: active ? palette.active.window : palette.inactive.window
+    flags: Qt.Dialog
 
-    x: (parent.width - width) / 2
-    y: (parent.height - height) / 2
-    topPadding: control_font.pointSize
-    bottomPadding: control_font.pointSize
-    leftPadding: control_font.pointSize * 1.5
-    rightPadding: control_font.pointSize * 1.5
-
-    modal: false
-    popupType: Popup.Window
+    width: Math.max(270, 350 * control_font.pointSize / 12)
+    height: Math.max(120, 180 * control_font.pointSize / 12)
 
     function count_children(index) {
         var result = index.model.rowCount(index);
@@ -49,8 +44,6 @@ Dialog {
         name: tag_editor.tag_index.model.data(tag_index, Qt.DisplayRole)
         control_font: tag_editor.control_font
         parent_name: tag_editor.tag_index.model.hasChildren(tag_index)
-        //required property list parents
-        //required property int current_parent_index
         tag_color: tag_editor.tag_index.model.data(tag_index, Qt.DecorationRole)
         is_new: false
         has_children: tag_editor.tag_index.model.hasChildren(tag_index)

@@ -7,8 +7,6 @@ GridLayout {
 
     required property string name
     required property font control_font
-    //required property list parents
-    //required property int current_parent_index
     required property string parent_name
     required property color tag_color
     required property bool is_new
@@ -17,87 +15,93 @@ GridLayout {
     signal deleteActivated
     signal closeClicked
 
-        anchors.fill: parent
-        columnSpacing: control_font.pointSize
-        rowSpacing: control_font.pointSize / 2
+    width: parent.width * 0.9
+    height: parent.height * 0.9
+    anchors.centerIn: parent
+    columnSpacing: control_font.pointSize
+    rowSpacing: control_font.pointSize / 2
 
-        columns: 2
-        Label {
-            id: name_label
-            text: "Name:"
-            font: tag_form_container.control_font
-        }
-        LineEdit {
+    columns: 2
+    Label {
+        id: name_label
+        text: "Name:"
+        font: tag_form_container.control_font
+    }
+    LineEdit {
+        Layout.fillWidth: true
+        Layout.fillHeight: true
+        Layout.minimumWidth: name_label.width * 2
+        id: name_input
+        text: tag_form_container.name
+        font: tag_form_container.control_font
+    }
+
+    Label {
+        text: "Parent:"
+        font: tag_form_container.control_font
+    }
+    ComboBox {
+        Layout.fillWidth: true
+        Layout.fillHeight: true
+        id: parent_input
+        model: Settings.flat_tags_model
+        editable: true
+        textRole: "display"
+        font: tag_form_container.control_font
+    }
+
+    Label {
+        text: "Color:"
+        font: tag_form_container.control_font
+    }
+    LineEdit {
+        Layout.fillWidth: true
+        Layout.fillHeight: true
+        id: color_input
+        text: tag_form_container.tag_color
+        font: tag_form_container.control_font
+    }
+
+    RowLayout {
+        Layout.columnSpan: 2
+        Layout.fillWidth: true
+
+        DialogButtonBox {
             Layout.fillWidth: true
-            Layout.minimumWidth: name_label.width * 2
-            id: name_input
-            text: tag_form_container.name
-            font: tag_form_container.control_font
-        }
+            alignment: Qt.AlignRight
+            spacing: tag_form_container.control_font.pointSize / 2
 
-        Label {
-            text: "Parent:"
-            font: tag_form_container.control_font
-        }
-        ComboBox {
-            Layout.fillWidth: true
-            id: parent_input
-            model: Settings.flat_tags_model
-            editable: true
-            textRole: "display"
-            font: tag_form_container.control_font
-        }
+            Button {
+                text: "Cancel"
+                leftPadding: tag_form_container.control_font.pointSize
+                rightPadding: tag_form_container.control_font.pointSize
+                font.pointSize: tag_form_container.control_font.pointSize
+                DialogButtonBox.buttonRole: DialogButtonBox.RejectRole
+                onClicked: tag_form_container.closeClicked()
+            }
 
-        Label {
-            text: "Color:"
-            font: tag_form_container.control_font
-        }
-        LineEdit {
-            Layout.fillWidth: true
-            id: color_input
-            text: tag_form_container.tag_color
-            font: tag_form_container.control_font
-        }
+            Button {
+                text: "Save"
+                leftPadding: tag_form_container.control_font.pointSize
+                rightPadding: tag_form_container.control_font.pointSize
+                font.pointSize: tag_form_container.control_font.pointSize
+                DialogButtonBox.buttonRole: DialogButtonBox.ApplyRole
+            }
 
-        RowLayout {
-            Layout.columnSpan: 2
+            DelayButton {
+                    id: delete_button
 
-            DialogButtonBox {
-                Layout.fillWidth: true
-                alignment: Qt.AlignRight
-                spacing: tag_form_container.control_font.pointSize / 2
-
-                Button {
-                    text: "Cancel"
+                    delay: tag_form_container.has_children ? 0 : 1000
                     leftPadding: tag_form_container.control_font.pointSize
                     rightPadding: tag_form_container.control_font.pointSize
+                    text: "Delete"
                     font.pointSize: tag_form_container.control_font.pointSize
-                    DialogButtonBox.buttonRole: DialogButtonBox.RejectRole
-                    onClicked: tag_form_container.closeClicked()
-                }
-
-                Button {
-                    text: "Save"
-                    leftPadding: tag_form_container.control_font.pointSize
-                    rightPadding: tag_form_container.control_font.pointSize
-                    font.pointSize: tag_form_container.control_font.pointSize
-                    DialogButtonBox.buttonRole: DialogButtonBox.ApplyRole
-                }
-
-                DelayButton {
-                        id: delete_button
-
-                        delay: tag_form_container.has_children ? 0 : 1000
-                        leftPadding: tag_form_container.control_font.pointSize
-                        rightPadding: tag_form_container.control_font.pointSize
-                        text: "Delete"
-                        font.pointSize: tag_form_container.control_font.pointSize
-                        palette.buttonText: "red"
-                        DialogButtonBox.buttonRole: DialogButtonBox.ResetRole
-                        onActivated: tag_form_container.deleteActivated()
-                }
+                    palette.buttonText: "red"
+                    DialogButtonBox.buttonRole: DialogButtonBox.ResetRole
+                    onActivated: tag_form_container.deleteActivated()
             }
         }
     }
+}
 
 

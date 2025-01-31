@@ -22,9 +22,9 @@ ApplicationWindow {
 
     MouseArea {
         anchors.fill: parent
-        onWheel: (wheel)=> {
+        onWheel: (wheel) => {
             if (wheel.modifiers & Qt.ControlModifier) {
-                font_size_slider.value += wheel.angleDelta.y / 120
+                font_size_slider.value += wheel.angleDelta.y / 400
                 wheel.accepted = true
             } else wheel.accepted = false
         }
@@ -178,12 +178,15 @@ ApplicationWindow {
                                     var tag_editor = main_window.tag_editor_component.createObject(
                                                 main_window.contentItem,
                                                 {
-                                                    parent: main_window.contentItem,
                                                     tag_index: tag_view.index(parent.row, 0),
-                                                    control_font: main_window.control_font
+                                                    control_font: Qt.binding(
+                                                        function() {
+                                                            return main_window.control_font
+                                                        }
+                                                    )
                                                 }
                                     )
-                                    tag_editor.open()
+                                    tag_editor.show()
                                 }
                             }
                             rightPadding: main_window.control_font.pointSize
