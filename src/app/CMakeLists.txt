@@ -14,9 +14,12 @@ QT_ADD_QML_MODULE(qtd
     QML_FILES
         Main.qml
         SOURCES qmlinterface.cpp
-        QML_FILES TagEditor.qml
-        QML_FILES LineEdit.qml
-        QML_FILES TagForm.qml
+        QML_FILES
+            TagOutline.qml
+            TagEditor.qml
+            LineEdit.qml
+            TagForm.qml
+            TaskPage.qml
 )
 
 TARGET_LINK_LIBRARIES(qtd
