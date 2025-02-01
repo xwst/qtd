@@ -17,6 +17,7 @@ class QmlInterface : public QObject
 
 private:
     const QString local_database_name = "qtd.sqlite";
+    QString m_application_dir;
     TagItemModel* m_tags_model;
     FlatteningProxyModel* m_flat_tags_model;
     GlobalEventFilter* m_global_event_filter;
@@ -24,6 +25,7 @@ private:
     void open_database(QString& connection_name);
 
 public:
+    Q_PROPERTY(QString application_dir MEMBER m_application_dir CONSTANT)
     Q_PROPERTY(TagItemModel* tags_model MEMBER m_tags_model CONSTANT)
     Q_PROPERTY(FlatteningProxyModel* flat_tags_model MEMBER m_flat_tags_model CONSTANT)
     Q_PROPERTY(GlobalEventFilter* global_event_filter MEMBER m_global_event_filter CONSTANT)

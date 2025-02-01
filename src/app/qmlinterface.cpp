@@ -18,6 +18,8 @@ void QmlInterface::open_database(QString& connection_name) {
 }
 
 void QmlInterface::set_up(QGuiApplication* app) {
+    this->m_application_dir = app->applicationDirPath();
+
     QString connection_name = "local";
     this->open_database(connection_name);
     this->m_tags_model = new TagItemModel(connection_name, this);

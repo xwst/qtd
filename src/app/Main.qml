@@ -25,6 +25,13 @@ ApplicationWindow {
         , { name: "Archive",    tag_model: QmlInterface.tags_model, task_model: "" }
     ]
 
+    FontLoader {
+        id: symbol_font
+        source: Qt.resolvedUrl(
+            "file://" + QmlInterface.application_dir + "/Font Awesome 6 Free-Solid-900.otf"
+        )
+    }
+
     Connections {
         target: QmlInterface.global_event_filter
         function onZoomChanged(value_difference) {
@@ -69,18 +76,22 @@ ApplicationWindow {
         id: main_layout
 
         RowLayout {
+            spacing: 2 + main_window.control_font.pointSize / 4
             Item {}
 
             Button {
                 id: add_task_button
-                text: '+'
-                font: main_window.control_font
+                text: '\u002b'
+                font.pointSize: main_window.control_font.pointSize
+                font.family: symbol_font.name
                 implicitWidth: height
             }
             Button {
                 id: delay_task_button
-                text: 'delay'
+                text: '\uf252'
                 font: main_window.control_font
+                implicitWidth: height
+                implicitHeight: add_task_button.height
             }
 
             Item { Layout.fillWidth: true }
@@ -106,15 +117,18 @@ ApplicationWindow {
 
             Button {
                 id: search_button
-                text: 's'
-                font: main_window.control_font
+                text: '\uf002'
+                font.pointSize: main_window.control_font.pointSize
+                font.family: symbol_font.name
                 implicitWidth: height
+                implicitHeight: add_task_button.height
             }
             Button {
                 id: properties_button
-                text: '|||'
+                text: '\uf0c9'
                 font: main_window.control_font
                 implicitWidth: height
+                implicitHeight: add_task_button.height
                 onClicked: {
                     properties_menu.x = x + width - properties_menu.width
                     properties_menu.y = y + height
