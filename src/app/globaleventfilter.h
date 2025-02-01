@@ -16,6 +16,7 @@ private:
     bool process_key_event(QObject* dest, QKeyEvent* event);
 signals:
     void zoomChanged(double value_diff);
+    void zoomReset();
     void quit();
 };
 

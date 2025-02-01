@@ -26,11 +26,23 @@ bool GlobalEventFilter::process_wheel_event(QObject *dest, QWheelEvent *wheel_ev
 }
 
 bool GlobalEventFilter::process_key_event(QObject *dest, QKeyEvent *key_event) {
-    if (
-        (key_event->modifiers() == Qt::ControlModifier)
-        && (key_event->key() == Qt::Key_Q)
-    ) {
-        emit this->quit();
+    if (key_event->modifiers() == Qt::ControlModifier) {
+        switch (key_event->key()) {
+        case Qt::Key_Q:
+            emit this->quit();
+            break;
+        case Qt::Key_0:
+            emit this->zoomReset();
+            break;
+        case Qt::Key_Plus:
+            emit this->zoomChanged(1);
+            break;
+        case Qt::Key_Minus:
+            emit this->zoomChanged(-1);
+            break;
+        default:
+            return false;
+        }
         return true;
     }
     return false;

@@ -39,6 +39,13 @@ ApplicationWindow {
         }
     }
 
+    Connections {
+        target: QmlInterface.global_event_filter
+        function onZoomReset() {
+            font_size_slider.value = main_window.default_control_font_size
+        }
+    }
+
     Menu {
         id: properties_menu
         implicitWidth: 300 * main_window.control_font.pointSize / main_window.default_control_font_size
