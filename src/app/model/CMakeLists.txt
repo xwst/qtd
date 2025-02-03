@@ -4,6 +4,8 @@ QT_ADD_LIBRARY(
     tag.cpp
     treeitem.h treeitem.cpp
     uniquedataitem.h uniquedataitem.cpp
+    task.h task.cpp
+    taskitemmodel.h taskitemmodel.cpp
 )
 
 TARGET_LINK_LIBRARIES(models

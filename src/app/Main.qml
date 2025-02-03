@@ -3,6 +3,7 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Controls 2.15
 import QtQuick.Layouts
+import Qt.labs.qmlmodels
 
 ApplicationWindow {
     id: main_window
@@ -76,6 +77,9 @@ ApplicationWindow {
                 text: '+'
                 font: main_window.control_font
                 implicitWidth: height
+                onClicked: Settings.task_model.create_task(
+                    "", task_view.selectionModel.selectedIndexes
+                )
             }
             Button {
                 id: delay_task_button
@@ -152,43 +156,21 @@ ApplicationWindow {
                     color: "white"
                     SplitView.preferredWidth: tag_view.contentWidth
 
-                    TreeView {
+                    SelectableTreeView {
                         id: tag_view
-                        anchors.fill: parent
-                        clip: true
-                        alternatingRows: false
-                        Component.onCompleted: tag_view.expandRecursively()
-
                         model: Settings.tags_model
-                        selectionModel: ItemSelectionModel {}
+                        control_font: main_window.control_font
 
-                        delegate: TreeViewDelegate {
-                            MouseArea {
-                                anchors.fill: parent
-                                onClicked: (click) => {
-                                   if (click.modifiers & Qt.ControlModifier)
-                                       tag_view.selectionModel.select(tag_view.index(parent.row, 0),  ItemSelectionModel.Toggle | ItemSelectionModel.Rows)
-                                    else {
-                                        tag_view.selectionModel.clear()
-                                        tag_view.selectionModel.select(tag_view.index(parent.row, 0),  ItemSelectionModel.Select | ItemSelectionModel.Rows)
-                                    }
-                                    click.accepted = true
+                        onRowDoubleClicked: (row) => {
+                            var tag_editor = main_window.tag_editor_component.createObject(
+                                main_window.contentItem,
+                                {
+                                    parent: main_window.contentItem,
+                                    tag_index: tag_view.index(row, 0),
+                                    control_font: main_window.control_font
                                 }
-                                onDoubleClicked: {
-                                    var tag_editor = main_window.tag_editor_component.createObject(
-                                                main_window.contentItem,
-                                                {
-                                                    parent: main_window.contentItem,
-                                                    tag_index: tag_view.index(parent.row, 0),
-                                                    control_font: main_window.control_font
-                                                }
-                                    )
-                                    tag_editor.open()
-                                }
-                            }
-                            rightPadding: main_window.control_font.pointSize
-                            implicitHeight: main_window.control_font.pointSize * 2
-                            font: main_window.control_font
+                            )
+                            tag_editor.open()
                         }
                     }
                 }
@@ -201,11 +183,16 @@ ApplicationWindow {
                             font: main_window.control_font
                         }
                     }
-                    Label {
+                    Rectangle {
                         Layout.fillWidth: true
                         Layout.fillHeight: true
-                        text: "Task View (Open)"
-                        font: main_window.control_font
+                        color: "white"
+
+                        SelectableTreeView {
+                            id: task_view
+                            model: Settings.task_model
+                            control_font: main_window.control_font
+                        }
                     }
                 }
             }

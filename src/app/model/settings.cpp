@@ -21,4 +21,5 @@ void Settings::set_up_models() {
     this->m_tags_model = new TagItemModel(connection_name, this);
     this->m_flat_tags_model = new FlatteningProxyModel(this);
     this->m_flat_tags_model->setSourceModel(this->m_tags_model);
+    this->m_task_model = new TaskItemModel(connection_name, this);
 }
