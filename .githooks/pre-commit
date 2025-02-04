@@ -2,7 +2,8 @@
 
 echo "Stashing changes not staged for commit."
 git stash --keep-index --quiet
-FILES=$(git diff --staged --name-status | egrep "*.h$|*.cpp$" | cut -f 2)
+FILES=$(git diff --staged --name-status | egrep "*\.h$|*\.cpp$" | cut -f 2)
+RESULT=0
 if [ -n "$FILES" ]; then
 	clang-tidy -p build/ --config-file .clang-tidy "$FILES"
 	RESULT=$?
