@@ -1,15 +1,22 @@
 #include "treeitem.h"
 
+TreeItem::TreeItem(std::shared_ptr<UniqueDataItem> data, TreeItem* parent)
+    : data(data), parent(parent)
+{
+    this->children = std::make_shared<std::deque<std::unique_ptr<TreeItem>>>();
+}
+
 /**
  * @brief Create a new TreeItem with the given data item.
  *
  * Use this function, if no other TreeItem with the given data item exists.
  * @sa TreeItem::create_mirrored
  */
-TreeItem::TreeItem(std::shared_ptr<UniqueDataItem> data, TreeItem* parent)
-    : data(data), parent(parent)
-{
-    this->children = std::make_shared<std::deque<std::unique_ptr<TreeItem>>>();
+std::unique_ptr<TreeItem> TreeItem::create(
+    std::unique_ptr<UniqueDataItem>&& data,
+    TreeItem* parent
+) {
+    return std::unique_ptr<TreeItem>(new TreeItem(std::move(data), parent));
 }
 
 /**
@@ -18,13 +25,13 @@ TreeItem::TreeItem(std::shared_ptr<UniqueDataItem> data, TreeItem* parent)
  * Use this function, if the new and the provided TreeItem should be identical
  * except for the parent TreeItem. This can be used, to allow a TreeItem to
  * appear multiple times in the tree hierarchy.
- * @sa TreeItem::TreeItem
+ * @sa TreeItem::create
  */
 std::unique_ptr<TreeItem> TreeItem::create_mirrored(
     TreeItem* to_be_mirrored,
     TreeItem* parent
 ) {
-    auto result = std::make_unique<TreeItem>(to_be_mirrored->data, parent);
+    auto result = std::unique_ptr<TreeItem>(new TreeItem(to_be_mirrored->data, parent));
     result->children = to_be_mirrored->children;
     return result;
 }
@@ -37,8 +44,8 @@ TreeItem* TreeItem::get_child(int row) const {
     return this->children->at(row).get();
 }
 
-void TreeItem::add_child(const std::shared_ptr<UniqueDataItem>& child_data) {
-    auto new_child = std::make_unique<TreeItem>(child_data, this);
+void TreeItem::add_child(std::unique_ptr<UniqueDataItem>&& child_data) {
+    auto new_child = TreeItem::create(std::move(child_data), this);
     this->children->push_back(std::move(new_child));
 }
 

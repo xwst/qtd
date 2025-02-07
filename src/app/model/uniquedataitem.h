@@ -11,6 +11,7 @@ private:
 
 public:
     UniqueDataItem(QString uuid_str = "");
+    virtual ~UniqueDataItem() {};
     QString get_uuid_string() const;
 
     virtual QVariant get_data(int role) const;

@@ -14,10 +14,12 @@ private:
     std::shared_ptr<std::deque<std::unique_ptr<TreeItem>>> children;
     std::shared_ptr<UniqueDataItem> data;
 
+    TreeItem(std::shared_ptr<UniqueDataItem> data, TreeItem* parent);
+
 public:
 
-    TreeItem(
-        std::shared_ptr<UniqueDataItem> data,
+    static std::unique_ptr<TreeItem> create(
+        std::unique_ptr<UniqueDataItem>&& data,
         TreeItem* parent = nullptr
     );
     static std::unique_ptr<TreeItem> create_mirrored(
@@ -27,7 +29,7 @@ public:
 
     TreeItem* get_parent() const;
     TreeItem* get_child(int row) const;
-    void add_child(const std::shared_ptr<UniqueDataItem>& child_data);
+    void add_child(std::unique_ptr<UniqueDataItem>&& child_data);
     void add_child(std::unique_ptr<TreeItem>&& new_child);
     int get_child_count() const;
 

@@ -19,13 +19,13 @@ TagItemModel::TagItemModel(QString connection_name, QObject* parent)
     auto query = Util::get_sql_query("select_tags.sql", this->connection_name);
     while (query.next()) {
         // 0: uuid, 1: name, 2: color, 3: parent_uuid
-        auto tag = std::make_shared<Tag>(
+        auto tag = std::make_unique<Tag>(
             query.value(1).toString(),
             QColor::fromString(query.value(2).toString()),
             query.value(0).toString()
         );
         auto parent_index = this->uuid_to_index(query.value(3).toString());
-        this->add_tree_item(tag, parent_index);
+        this->add_tree_item(std::move(tag), parent_index);
     }
 }
 
@@ -57,7 +57,7 @@ bool TagItemModel::setData(const QModelIndex& index, const QVariant& value, int 
 }
 
 bool TagItemModel::create_tag(const QString& name, const QColor& color, const QModelIndex& parent) {
-    auto new_tag = std::make_shared<Tag>(name, color);
+    auto new_tag = std::make_unique<Tag>(name, color);
 
     auto query_str = Util::get_sql_query_string("create_tag.sql");
     auto query = QSqlQuery(QSqlDatabase::database(this->connection_name));
@@ -71,7 +71,7 @@ bool TagItemModel::create_tag(const QString& name, const QColor& color, const QM
     else query.bindValue(3, QVariant(QMetaType::fromType<QString>()));
 
     if (!Util::execute_sql_query(query)) return false;
-    this->add_tree_item(new_tag, parent);
+    this->add_tree_item(std::move(new_tag), parent);
     return true;
 }
 

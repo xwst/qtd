@@ -20,6 +20,7 @@ private:
     TreeItem* get_raw_item_pointer(const QModelIndex& index) const;
     QModelIndex item_to_index(const TreeItem* item) const;
     void remove_item_ignoring_mirrors(TreeItem* item);
+    bool add_tree_item(std::unique_ptr<TreeItem>&& new_item, const QModelIndex& parent);
 
 protected:
     QModelIndex uuid_to_index(QString uuid_str);
@@ -44,7 +45,11 @@ public:
     // Required for resizabilty and layout changes:
     bool removeRows(int row, int count, const QModelIndex& parent) override;
     bool add_tree_item(
-        std::shared_ptr<T> data_item,
+        std::unique_ptr<T> data_item,
+        const QModelIndex& parent = QModelIndex()
+    );
+    bool add_mirrored_tree_item(
+        const QString& uuid,
         const QModelIndex& parent = QModelIndex()
     );
 };
@@ -55,8 +60,8 @@ template <typename T>
 TreeItemModel<T>::TreeItemModel(QObject *parent)
     : QAbstractItemModel{parent}
 {
-    auto root_data = std::make_shared<UniqueDataItem>();
-    this->root = std::make_unique<TreeItem>(root_data);
+    auto root_data = std::make_unique<UniqueDataItem>();
+    this->root = TreeItem::create(std::move(root_data));
 }
 
 template <typename T>
@@ -86,6 +91,20 @@ void TreeItemModel<T>::remove_item_ignoring_mirrors(TreeItem* item) {
     this->beginRemoveRows(parent_index, index.row(), index.row());
     item->get_parent()->remove_children(index.row(), 1);
     this->endRemoveRows();
+}
+
+template <typename T>
+bool TreeItemModel<T>::add_tree_item(
+    std::unique_ptr<TreeItem>&& new_item,
+    const QModelIndex& parent
+) {
+    auto parent_item = this->get_raw_item_pointer(parent);
+
+    this->beginInsertRows(parent, parent_item->get_child_count(), parent_item->get_child_count());
+    this->uuid_item_map.insert(new_item->get_data(uuid_role).toString(), new_item.get());
+    parent_item->add_child(std::move(new_item));
+    this->endInsertRows();
+    return true;
 }
 
 template <typename T>
@@ -168,22 +187,24 @@ bool TreeItemModel<T>::removeRows(int row, int count, const QModelIndex &parent)
 }
 
 template <typename T>
-bool TreeItemModel<T>::add_tree_item(
-    std::shared_ptr<T> data_item,
-    const QModelIndex& parent
-) {
+bool TreeItemModel<T>::add_tree_item(std::unique_ptr<T> data_item, const QModelIndex& parent) {
     auto parent_item = this->get_raw_item_pointer(parent);
     QString uuid = data_item->get_uuid_string();
     auto new_item = this->uuid_item_map.contains(uuid)
         ? TreeItem::create_mirrored(this->uuid_item_map.value(uuid), parent_item)
-        : std::make_unique<TreeItem>(data_item, parent_item);
+        : TreeItem::create(std::move(data_item), parent_item);
 
-    this->beginInsertRows(parent, parent_item->get_child_count(), parent_item->get_child_count());
-    this->uuid_item_map.insert(uuid, new_item.get());
-    parent_item->add_child(std::move(new_item));
-    this->endInsertRows();
-    return true;
+    return this->add_tree_item(std::move(new_item), parent);
 }
 
+template <typename T>
+bool TreeItemModel<T>::add_mirrored_tree_item(const QString& uuid, const QModelIndex& parent) {
+    if (!this->uuid_item_map.contains(uuid))
+        return false;
+
+    auto parent_item = this->get_raw_item_pointer(parent);
+    auto new_item = TreeItem::create_mirrored(this->uuid_item_map.value(uuid), parent_item);
+    return this->add_tree_item(std::move(new_item), parent);
+}
 
 #endif // TREEITEMMODEL_H
