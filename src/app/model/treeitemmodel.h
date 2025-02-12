@@ -19,7 +19,7 @@ private:
 
     TreeItem* get_raw_item_pointer(const QModelIndex& index) const;
     QModelIndex item_to_index(const TreeItem* item) const;
-    void remove_item_ignoring_mirrors(TreeItem* item);
+    void remove_recursively_from_item_map(TreeItem* item);
     bool add_tree_item(std::unique_ptr<TreeItem>&& new_item, const QModelIndex& parent);
 
 protected:
@@ -43,7 +43,7 @@ public:
     bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole) override;
 
     // Required for resizabilty and layout changes:
-    bool removeRows(int row, int count, const QModelIndex& parent) override;
+    bool removeRows(int row, int count, const QModelIndex& parent = QModelIndex()) override;
     bool add_tree_item(
         std::unique_ptr<T> data_item,
         const QModelIndex& parent = QModelIndex()
@@ -60,16 +60,16 @@ template <typename T>
 TreeItemModel<T>::TreeItemModel(QObject *parent)
     : QAbstractItemModel{parent}
 {
-    auto root_data = std::make_unique<UniqueDataItem>();
-    this->root = TreeItem::create(std::move(root_data));
+    this->root = TreeItem::create(
+        std::make_unique<UniqueDataItem>()
+    );
 }
 
 template <typename T>
-TreeItem* TreeItemModel<T>::get_raw_item_pointer(
-    const QModelIndex& index
-    ) const {
-    if (!index.isValid()) return this->root.get();
-    else return static_cast<TreeItem*>(index.internalPointer());
+TreeItem* TreeItemModel<T>::get_raw_item_pointer(const QModelIndex& index) const {
+    return index.isValid()
+        ? static_cast<TreeItem*>(index.internalPointer())
+        : this->root.get();
 }
 
 template <typename T>
@@ -80,17 +80,13 @@ QModelIndex TreeItemModel<T>::item_to_index(const TreeItem* item) const {
 }
 
 template <typename T>
-void TreeItemModel<T>::remove_item_ignoring_mirrors(TreeItem* item) {
-    auto index = this->item_to_index(item);
-    auto parent_index = this->parent(index);
-
+void TreeItemModel<T>::remove_recursively_from_item_map(TreeItem* item) {
     this->uuid_item_map.remove(
         item->get_data(uuid_role).toString(), item
     );
 
-    this->beginRemoveRows(parent_index, index.row(), index.row());
-    item->get_parent()->remove_children(index.row(), 1);
-    this->endRemoveRows();
+    for (int i=0; i<item->get_child_count(); i++)
+        this->remove_recursively_from_item_map(item->get_child(i));
 }
 
 template <typename T>
@@ -172,13 +168,8 @@ template <typename T>
 bool TreeItemModel<T>::removeRows(int row, int count, const QModelIndex &parent) {
     auto parent_item = this->get_raw_item_pointer(parent);
 
-    for (int i=row; i<row+count; i++) {
-        auto child = parent_item->get_child(i);
-        QString uuid_str = child->get_data(uuid_role).toString();
-        this->uuid_item_map.remove(uuid_str, child);
-        for (auto mirrored : this->uuid_item_map.values(uuid_str))
-            this->remove_item_ignoring_mirrors(mirrored);
-    }
+    for (int i=row; i<row+count; i++)
+        this->remove_recursively_from_item_map(parent_item->get_child(i));
 
     this->beginRemoveRows(parent, row, row+count-1);
     parent_item->remove_children(row, count);
