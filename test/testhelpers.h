@@ -6,6 +6,8 @@
 #include <QString>
 #include <QStringList>
 
+#include "../src/app/model/tag.h"
+
 class TestHelpers
 {
 private:
@@ -15,6 +17,13 @@ private:
         const std::function<bool(const QModelIndex&, const QModelIndex&)>& item_sort_comparator
     );
 public:
+
+    // Inherit QObject to spy on signals:
+    class TestTag : public Tag, public QObject {
+    public:
+        TestTag(QString name) : Tag(name), QObject(nullptr) {};
+    };
+
     static void setup_database();
     static void assert_table_exists(const QString& table_name);
     static void populate_database();

@@ -3,14 +3,8 @@
 #include <QSignalSpy>
 #include <QTest>
 
+#include "../testhelpers.h"
 #include "../../src/app/model/model_constants.h"
-#include "../../src/app/model/tag.h"
-
-// Inherit QObject to spy on signals:
-class TestTag : public Tag, public QObject {
-public:
-    TestTag(QString name) : Tag(name), QObject(nullptr) {};
-};
 
 TestTreeItems::TestTreeItems(QObject *parent)
     : QObject{parent}
@@ -34,7 +28,7 @@ void TestTreeItems::test_remove_single_child() {
     this->root->remove_children(0, 0);
     QCOMPARE(this->root->get_child_count(), initial_child_count);
 
-    auto new_item_data = std::make_unique<TestTag>("about to be deleted");
+    auto new_item_data = std::make_unique<TestHelpers::TestTag>("about to be deleted");
     QObject* data_ptr = new_item_data.get();
     this->root->add_child(std::move(new_item_data));
     QCOMPARE(this->root->get_child_count(), initial_child_count+1);
@@ -51,7 +45,7 @@ void TestTreeItems::test_remove_multiple_children() {
     auto B = this->root->get_child(1);
     QString name_pattern = "B%1";
     for (int i=2; i<10; i++)
-        B->add_child(std::make_unique<TestTag>(name_pattern.arg(i)));
+        B->add_child(std::make_unique<TestHelpers::TestTag>(name_pattern.arg(i)));
     QCOMPARE(B->get_child_count(), 9);
     B->remove_children(3, 5);
     QCOMPARE(B->get_child_count(), 4);
@@ -62,7 +56,7 @@ void TestTreeItems::test_remove_multiple_children() {
 void TestTreeItems::test_remove_child_hierarchy() {
     auto initial_child_count = this->root->get_child_count();
     auto A = this->root->get_child(0);
-    auto new_item_data = std::make_unique<TestTag>("A1");
+    auto new_item_data = std::make_unique<TestHelpers::TestTag>("A1");
 
     auto data_ptr = new_item_data.get();
     QSignalSpy spy(data_ptr, SIGNAL(destroyed(QObject*)));
@@ -78,7 +72,7 @@ void TestTreeItems::test_remove_child_hierarchy() {
 
 void TestTreeItems::test_mirroring() {
     auto root_child_count = this->root->get_child_count();
-    this->root->add_child(std::make_unique<TestTag>("C"));
+    this->root->add_child(std::make_unique<TestHelpers::TestTag>("C"));
     auto B = this->root->get_child(1);
     auto B_child_count = B->get_child_count();
     auto C = this->root->get_child(2);
@@ -93,12 +87,12 @@ void TestTreeItems::test_mirroring() {
     QCOMPARE(C->get_parent(), this->root.get());
     QCOMPARE(C_mirror->get_parent(), B);
 
-    C->add_child(std::make_unique<TestTag>("C1"));
+    C->add_child(std::make_unique<TestHelpers::TestTag>("C1"));
     QCOMPARE(C_mirror->get_child_count(), C->get_child_count());
     QCOMPARE(C_mirror->get_child_count(), 1);
     QCOMPARE(C->get_child(0), C_mirror->get_child(0));
 
-    C_mirror->add_child(std::make_unique<TestTag>("C2"));
+    C_mirror->add_child(std::make_unique<TestHelpers::TestTag>("C2"));
     QCOMPARE(C_mirror->get_child_count(), C->get_child_count());
     QCOMPARE(C_mirror->get_child_count(), 2);
     QCOMPARE(C->get_child(1), C_mirror->get_child(1));
@@ -124,9 +118,9 @@ void TestTreeItems::test_set_data() {
 
 void TestTreeItems::setup_dummies() {
     this->root = TreeItem::create(std::make_unique<UniqueDataItem>());
-    this->root->add_child(std::make_unique<TestTag>("A"));
-    this->root->add_child(TreeItem::create(std::make_unique<TestTag>("B")));
-    this->root->get_child(1)->add_child(std::make_unique<TestTag>("B1"));
+    this->root->add_child(std::make_unique<TestHelpers::TestTag>("A"));
+    this->root->add_child(TreeItem::create(std::make_unique<TestHelpers::TestTag>("B")));
+    this->root->get_child(1)->add_child(std::make_unique<TestHelpers::TestTag>("B1"));
 }
 
 void TestTreeItems::verify_item(TreeItem* item, QString name, int child_count, TreeItem* parent) {
