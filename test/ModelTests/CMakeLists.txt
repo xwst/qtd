@@ -29,3 +29,4 @@ ENDFUNCTION()
 
 CREATE_MODEL_TEST(test_tagitemmodels testtagitemmodels.cpp)
 CREATE_MODEL_TEST(test_treeitems testtreeitems.cpp)
+CREATE_MODEL_TEST(test_treeitemmodel testtreeitemmodel.cpp)
