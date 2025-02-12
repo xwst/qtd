@@ -24,8 +24,7 @@ TagItemModel::TagItemModel(QString connection_name, QObject* parent)
             QColor::fromString(query.value(2).toString()),
             query.value(0).toString()
         );
-        auto parent_index = this->uuid_to_index(query.value(3).toString());
-        this->add_tree_item(std::move(tag), parent_index);
+        this->add_tree_item(std::move(tag), query.value(3).toString());
     }
 }
 

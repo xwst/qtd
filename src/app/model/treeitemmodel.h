@@ -18,12 +18,8 @@ private:
     QMultiHash<QString, TreeItem*> uuid_item_map;
 
     TreeItem* get_raw_item_pointer(const QModelIndex& index) const;
-    QModelIndex item_to_index(const TreeItem* item) const;
     void remove_recursively_from_item_map(TreeItem* item);
     bool add_tree_item(std::unique_ptr<TreeItem>&& new_item, const QModelIndex& parent);
-
-protected:
-    QModelIndex uuid_to_index(QString uuid_str);
 
 public:
 
@@ -48,6 +44,7 @@ public:
         std::unique_ptr<T> data_item,
         const QModelIndex& parent = QModelIndex()
     );
+    bool add_tree_item(std::unique_ptr<T> data_item, const QString& parent_uuid);
     bool add_mirrored_tree_item(
         const QString& uuid,
         const QModelIndex& parent = QModelIndex()
@@ -73,13 +70,6 @@ TreeItem* TreeItemModel<T>::get_raw_item_pointer(const QModelIndex& index) const
 }
 
 template <typename T>
-QModelIndex TreeItemModel<T>::item_to_index(const TreeItem* item) const {
-    return (item == this->root.get())
-        ? QModelIndex()
-        : this->createIndex(item->get_row_in_parent(), 0, item);
-}
-
-template <typename T>
 void TreeItemModel<T>::remove_recursively_from_item_map(TreeItem* item) {
     this->uuid_item_map.remove(
         item->get_data(uuid_role).toString(), item
@@ -101,13 +91,6 @@ bool TreeItemModel<T>::add_tree_item(
     parent_item->add_child(std::move(new_item));
     this->endInsertRows();
     return true;
-}
-
-template <typename T>
-QModelIndex TreeItemModel<T>::uuid_to_index(QString uuid_str) {
-    return this->item_to_index(
-        this->uuid_item_map.value(uuid_str, this->root.get())
-    );
 }
 
 template <typename T>
@@ -186,6 +169,20 @@ bool TreeItemModel<T>::add_tree_item(std::unique_ptr<T> data_item, const QModelI
         : TreeItem::create(std::move(data_item), parent_item);
 
     return this->add_tree_item(std::move(new_item), parent);
+}
+
+template <typename T>
+bool TreeItemModel<T>::add_tree_item(std::unique_ptr<T> data_item, const QString& parent_uuid) {
+    auto parent_item = this->uuid_item_map.value(parent_uuid, this->root.get());
+    auto parent_index
+        = (parent_item == this->root.get())
+        ? QModelIndex()
+        : this->createIndex(parent_item->get_row_in_parent(), 0, parent_item);
+
+    return this->add_tree_item(
+        std::move(data_item),
+        parent_index
+    );
 }
 
 template <typename T>
