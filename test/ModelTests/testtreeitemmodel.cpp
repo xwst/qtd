@@ -125,17 +125,40 @@ void TestTreeItemModel::test_add_mirrored_tree_item() {
     QCOMPARE(mirror_index.data(), B1_index.data());
     QCOMPARE(mirror_index.parent(), QModelIndex());
 
+    QSignalSpy spy(this->model.get(), SIGNAL(rowsInserted(const QModelIndex&, int, int)));
+
     this->model->add_tree_item(std::make_unique<TestHelpers::TestTag>("child 1"), B1_index);
     QCOMPARE(this->model->rowCount(B1_index), this->model->rowCount(mirror_index));
     QCOMPARE(this->model->rowCount(B1_index), 1);
     for (auto role : {Qt::DisplayRole, static_cast<Qt::ItemDataRole>(uuid_role)})
-        QCOMPARE(this->model->index(0, 0, B1_index).data(role), this->model->index(0, 0, mirror_index).data(role));
+        QCOMPARE(
+            this->model->index(0, 0, B1_index).data(role),
+            this->model->index(0, 0, mirror_index).data(role)
+        );
+    QCOMPARE(spy.count(), 2);
+    QSet<QModelIndex> expected_signalling_indices = {B1_index, mirror_index};
+    QCOMPARE(
+        QSet({
+            spy.takeFirst().at(0).toModelIndex(),
+            spy.takeFirst().at(0).toModelIndex()
+        }),
+        expected_signalling_indices
+    );
 
     this->model->add_tree_item(std::make_unique<TestHelpers::TestTag>("child 2"), mirror_index);
     QCOMPARE(this->model->rowCount(B1_index), this->model->rowCount(mirror_index));
     QCOMPARE(this->model->rowCount(B1_index), 2);
     for (auto role : {Qt::DisplayRole, static_cast<Qt::ItemDataRole>(uuid_role)})
         QCOMPARE(this->model->index(1, 0, B1_index).data(role), this->model->index(1, 0, mirror_index).data(role));
+
+    QCOMPARE(spy.count(), 2);
+    QCOMPARE(
+        QSet({
+            spy.takeFirst().at(0).toModelIndex(),
+            spy.takeFirst().at(0).toModelIndex()
+        }),
+        expected_signalling_indices
+    );
 }
 
 void TestTreeItemModel::test_remove_mirrored_tree_item() {

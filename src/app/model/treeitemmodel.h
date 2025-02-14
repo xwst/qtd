@@ -85,11 +85,21 @@ bool TreeItemModel<T>::add_tree_item(
     const QModelIndex& parent
 ) {
     auto parent_item = this->get_raw_item_pointer(parent);
+    auto parent_mirrors = this->uuid_item_map.values(parent_item->get_data(uuid_role).toString());
 
-    this->beginInsertRows(parent, parent_item->get_child_count(), parent_item->get_child_count());
+    for (auto parent_mirror : parent_mirrors)
+        this->beginInsertRows(
+            this->createIndex(parent_mirror->get_row_in_parent(), 0, parent_mirror),
+            parent_mirror->get_child_count(),
+            parent_mirror->get_child_count()
+        );
+
     this->uuid_item_map.insert(new_item->get_data(uuid_role).toString(), new_item.get());
     parent_item->add_child(std::move(new_item));
-    this->endInsertRows();
+
+    for (auto parent_mirror : parent_mirrors)
+        this->endInsertRows();
+
     return true;
 }
 
