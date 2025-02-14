@@ -137,13 +137,8 @@ void TestTreeItemModel::test_add_mirrored_tree_item() {
         );
     QCOMPARE(spy.count(), 2);
     QSet<QModelIndex> expected_signalling_indices = {B1_index, mirror_index};
-    QCOMPARE(
-        QSet({
-            spy.takeFirst().at(0).toModelIndex(),
-            spy.takeFirst().at(0).toModelIndex()
-        }),
-        expected_signalling_indices
-    );
+    QCOMPARE(this->model_indices_of_row_change_signals(spy), expected_signalling_indices);
+    spy.clear();
 
     this->model->add_tree_item(std::make_unique<TestHelpers::TestTag>("child 2"), mirror_index);
     QCOMPARE(this->model->rowCount(B1_index), this->model->rowCount(mirror_index));
@@ -152,13 +147,7 @@ void TestTreeItemModel::test_add_mirrored_tree_item() {
         QCOMPARE(this->model->index(1, 0, B1_index).data(role), this->model->index(1, 0, mirror_index).data(role));
 
     QCOMPARE(spy.count(), 2);
-    QCOMPARE(
-        QSet({
-            spy.takeFirst().at(0).toModelIndex(),
-            spy.takeFirst().at(0).toModelIndex()
-        }),
-        expected_signalling_indices
-    );
+    QCOMPARE(this->model_indices_of_row_change_signals(spy), expected_signalling_indices);
 }
 
 void TestTreeItemModel::test_remove_mirrored_tree_item() {
@@ -177,6 +166,25 @@ void TestTreeItemModel::test_remove_mirrored_tree_item() {
     QCOMPARE(this->model->index(0, 0, mirror_index).data(), "child 1");
 }
 
+void TestTreeItemModel::test_remove_chiled_of_mirrored_tree_item() {
+    auto B_index = this->model->index(1, 0);
+    auto B1_index = this->model->index(0, 0, B_index);
+    auto B1_uuid = this->model->index(0, 0, B_index).data(uuid_role).toString();
+
+    QVERIFY(this->model->add_mirrored_tree_item(B1_uuid));
+    auto mirror_index = this->model->index(2, 0);
+    this->model->add_tree_item(std::make_unique<TestHelpers::TestTag>("child 1"), B1_index);
+
+    QSignalSpy spy(this->model.get(), SIGNAL(rowsRemoved(const QModelIndex&, int, int)));
+
+    this->model->removeRows(0, 1, mirror_index);
+    QCOMPARE(this->model->rowCount(mirror_index), 0);
+    QCOMPARE(this->model->rowCount(B1_index), 0);
+    QCOMPARE(spy.count(), 2);
+    QSet<QModelIndex> expected_signalling_indices = {B1_index, mirror_index};
+    QCOMPARE(this->model_indices_of_row_change_signals(spy), expected_signalling_indices);
+}
+
 void TestTreeItemModel::verify_item(
     const QModelIndex& item, QString name, int child_count, const QModelIndex& parent
 ) {
@@ -187,6 +195,13 @@ void TestTreeItemModel::verify_item(
     if (parent != QModelIndex()) {
         QCOMPARE(this->model->index(item.row(), 0, parent), item);
     }
+}
+
+QSet<QModelIndex> TestTreeItemModel::model_indices_of_row_change_signals(const QSignalSpy& spy) {
+    QSet<QModelIndex> result;
+    for (auto call_arguments : spy)
+        result.insert(call_arguments.at(0).toModelIndex());
+    return result;
 }
 
 QTEST_MAIN(TestTreeItemModel)

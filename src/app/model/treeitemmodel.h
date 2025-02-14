@@ -164,9 +164,15 @@ bool TreeItemModel<T>::removeRows(int row, int count, const QModelIndex &parent)
     for (int i=row; i<row+count; i++)
         this->remove_recursively_from_item_map(parent_item->get_child(i));
 
-    this->beginRemoveRows(parent, row, row+count-1);
+    auto parent_mirrors = this->uuid_item_map.values(parent_item->get_data(uuid_role).toString());
+    for (auto parent_mirror : parent_mirrors) {
+        auto parent_mirror_index
+            = this->createIndex(parent_mirror->get_row_in_parent(), 0, parent_mirror);
+        this->beginRemoveRows(parent_mirror_index, row, row+count-1);
+    }
     parent_item->remove_children(row, count);
-    this->endRemoveRows();
+    for (auto parent_mirror : parent_mirrors)
+        this->endRemoveRows();
     return true;
 }
 
