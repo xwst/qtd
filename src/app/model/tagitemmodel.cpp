@@ -1,4 +1,4 @@
-#include "TagItemModel.h"
+#include "tagitemmodel.h"
 
 #include <QColor>
 #include <QFile>
@@ -24,7 +24,7 @@ TagItemModel::TagItemModel(QString connection_name, QObject* parent)
             QColor::fromString(query.value(2).toString()),
             query.value(0).toString()
         );
-        this->add_tree_item(std::move(tag), query.value(3).toString());
+        this->create_tree_node(std::move(tag), query.value(3).toUuid());
     }
 }
 
@@ -70,7 +70,7 @@ bool TagItemModel::create_tag(const QString& name, const QColor& color, const QM
     else query.bindValue(3, QVariant(QMetaType::fromType<QString>()));
 
     if (!Util::execute_sql_query(query)) return false;
-    this->add_tree_item(std::move(new_tag), parent);
+    this->create_tree_node(std::move(new_tag), parent.data(uuid_role).toUuid());
     return true;
 }
 

@@ -5,7 +5,7 @@
 #include <QSignalSpy>
 
 #include "../testhelpers.h"
-#include "../../src/app/model/treeitemmodel.h"
+#include "testmodelwrappers.h"
 
 class TestTreeItemModel : public QObject
 {
@@ -14,7 +14,7 @@ public:
     explicit TestTreeItemModel(QObject *parent = nullptr);
 
 private:
-    std::unique_ptr<TreeItemModel<TestHelpers::TestTag>> model;
+    std::unique_ptr<TreeItemModelTestWrapper> model;
 
     void setup_initial_model();
     void verify_item(
@@ -33,9 +33,9 @@ private slots:
     void test_remove_single_row();
     void test_remove_multiple_rows();
     void test_remove_rows_with_children();
-    void test_add_mirrored_tree_item();
-    void test_remove_mirrored_tree_item();
-    void test_remove_chiled_of_mirrored_tree_item();
+    void test_clone_tree_node();
+    void test_remove_clone();
+    void test_remove_child_of_clone();
 };
 
 #endif // TESTTREEITEMMODEL_H

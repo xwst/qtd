@@ -4,7 +4,7 @@
 #include "tag.h"
 #include "treeitemmodel.h"
 
-class TagItemModel : public TreeItemModel<Tag>
+class TagItemModel : public TreeItemModel
 {
     Q_OBJECT
 

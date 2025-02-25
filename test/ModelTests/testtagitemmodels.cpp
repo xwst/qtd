@@ -118,7 +118,7 @@ void TestTagItemModels::test_create_tag_with_parent() {
     auto new_tag_uuid = QUuid::fromString(new_tag_index.data(uuid_role).toString());
     QVERIFY(!new_tag_uuid.isNull());
 
-    auto new_tag_item = static_cast<TreeItem*>(
+    auto new_tag_item = static_cast<TreeNode*>(
         new_tag_index.internalPointer()
     );
     QCOMPARE(

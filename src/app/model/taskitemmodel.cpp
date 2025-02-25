@@ -1,5 +1,18 @@
 #include "taskitemmodel.h"
 
+#include "model_constants.h"
+
+namespace {
+
+QSet<QUuid> get_uuids(const QModelIndexList& indices) {
+    QSet<QUuid> result;
+    for (auto index : indices)
+        result.insert(index.data(uuid_role).toUuid());
+    return result;
+}
+
+}
+
 TaskItemModel::TaskItemModel(QString connection_name, QObject* parent)
     : TreeItemModel(parent), connection_name(connection_name)
 {
@@ -8,13 +21,15 @@ TaskItemModel::TaskItemModel(QString connection_name, QObject* parent)
 
 bool TaskItemModel::create_task(const QString& title, const QModelIndexList& parents) {
     auto new_task = std::make_unique<Task>(title.isEmpty() ? "New Task" : title);
-    auto new_task_uuid = new_task->get_data(uuid_role).toString();
+    auto new_task_uuid = new_task->get_data(uuid_role).toUuid();
 
-    if (parents.isEmpty()) this->add_tree_item(std::move(new_task));
+    if (parents.isEmpty()) this->create_tree_node(std::move(new_task));
     else {
-        this->add_tree_item(std::move(new_task), parents.at(0));
-        for (auto it = parents.begin()++; it != parents.end(); it++)
-            this->add_mirrored_tree_item(new_task_uuid, *it);
+        auto parent_uuids = get_uuids(parents);
+        auto it = parent_uuids.begin();
+        this->create_tree_node(std::move(new_task), *it);
+        for (it++; it != parent_uuids.end(); it++)
+            this->clone_tree_node(new_task_uuid, *it);
     }
     return true;
 }

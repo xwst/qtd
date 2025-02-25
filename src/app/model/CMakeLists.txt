@@ -1,11 +1,12 @@
 QT_ADD_LIBRARY(
     models STATIC
-    TagItemModel.cpp flatteningproxymodel.cpp
+    tagitemmodel.cpp flatteningproxymodel.cpp
     tag.cpp
-    treeitem.h treeitem.cpp
-    uniquedataitem.h uniquedataitem.cpp
-    task.h task.cpp
-    taskitemmodel.h taskitemmodel.cpp
+    treenode.cpp
+    treeitemmodel.cpp
+    uniquedataitem.cpp
+    task.cpp
+    taskitemmodel.cpp
 )
 
 TARGET_LINK_LIBRARIES(models

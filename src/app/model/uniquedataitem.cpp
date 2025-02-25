@@ -15,6 +15,10 @@ UniqueDataItem::UniqueDataItem(QString uuid_str) {
     }
 }
 
+QUuid UniqueDataItem::get_uuid() const {
+    return this->uuid;
+}
+
 QString UniqueDataItem::get_uuid_string() const {
     return this->uuid.toString(QUuid::WithoutBraces);
 }

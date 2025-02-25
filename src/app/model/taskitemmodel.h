@@ -6,7 +6,7 @@
 #include "task.h"
 #include "treeitemmodel.h"
 
-class TaskItemModel : public TreeItemModel<Task>
+class TaskItemModel : public TreeItemModel
 {
     Q_OBJECT
 

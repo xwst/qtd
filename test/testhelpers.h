@@ -21,7 +21,7 @@ public:
     // Inherit QObject to spy on signals:
     class TestTag : public Tag, public QObject {
     public:
-        TestTag(QString name) : Tag(name), QObject(nullptr) {};
+        TestTag(QString name) : Tag(name), QObject(nullptr) {}
     };
 
     static void setup_database();
