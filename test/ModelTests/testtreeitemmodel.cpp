@@ -223,4 +223,4 @@ QSet<QModelIndex> TestTreeItemModel::model_indices_of_row_change_signals(const Q
     return result;
 }
 
-QTEST_MAIN(TestTreeItemModel)
+QTEST_GUILESS_MAIN(TestTreeItemModel)

@@ -62,6 +62,12 @@ public:
         const QAbstractItemModel& model,
         const QModelIndex& parent = QModelIndex()
     );
+
+    static QModelIndex find_model_index_by_display_role(
+        const QAbstractItemModel& model,
+        const QString& display_role,
+        const QModelIndex& parent = QModelIndex()
+    );
 };
 
 #endif // TESTHELPERS_H

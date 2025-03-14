@@ -3,6 +3,7 @@ FUNCTION(create_model_test test_name source_file)
         ${test_name}
         ${source_file}
         ../testhelpers.cpp
+        persistedtreeitemmodelstestbase.cpp
     )
     TARGET_LINK_LIBRARIES(${test_name}
         PRIVATE
@@ -27,6 +28,7 @@ FUNCTION(create_model_test test_name source_file)
 ENDFUNCTION()
 
 
-CREATE_MODEL_TEST(test_tagitemmodels testtagitemmodels.cpp)
 CREATE_MODEL_TEST(test_treenodes testtreenodes.cpp)
 CREATE_MODEL_TEST(test_treeitemmodel testtreeitemmodel.cpp)
+CREATE_MODEL_TEST(test_tagitemmodels testtagitemmodels.cpp)
+CREATE_MODEL_TEST(test_taskitemmodels testtaskitemmodels.cpp)

@@ -132,4 +132,4 @@ void TestTreeNodes::verify_dummies() {
     this->verify_item(B->get_child(0), "B1", 0, B);
 }
 
-QTEST_MAIN(TestTreeNodes)
+QTEST_GUILESS_MAIN(TestTreeNodes)

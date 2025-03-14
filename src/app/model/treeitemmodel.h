@@ -50,11 +50,11 @@ protected:
     bool create_tree_node(
         std::unique_ptr<UniqueDataItem> data_item,
         const QUuid& parent_uuid = QUuid()
-        );
+    );
     bool clone_tree_node(
         const QUuid& uuid,
         const QUuid& parent_uuid = QUuid()
-        );
+    );
 
 public:
 

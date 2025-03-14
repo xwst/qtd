@@ -1,6 +1,8 @@
 #include "testhelpers.h"
 
 #include <vector>
+
+#include <QSqlError>
 #include <QTest>
 
 #include "../src/app/util.h"
@@ -26,7 +28,10 @@ void TestHelpers::populate_database() {
 
     QSqlQuery query;
     for (QString& query_str : Util::split_queries(all_queries_str))
-        QVERIFY2(query.exec(query_str), "Error while populating test database");
+        QVERIFY2(
+            query.exec(query_str),
+            qPrintable("Error while populating test database: " + query.lastError().text())
+        );
 }
 
 std::vector<QModelIndex> TestHelpers::get_sorted_children(
@@ -82,7 +87,7 @@ void TestHelpers::assert_model_equality(
         model_expectation.columnCount(index_of_model_expectation)
     );
 
-    // Sort children by uuid:
+    // Sort children by passed comparator:
     auto children_under_test = TestHelpers::get_sorted_children(
         model_under_test, index_of_model_under_test, item_sort_comparator
     );
@@ -113,4 +118,30 @@ QStringList TestHelpers::get_display_roles(
     for (int i=0; i<model.rowCount(parent); i++)
         result.append(get_display_roles(model, model.index(i, column, parent)));
     return result;
+}
+
+/**
+ * @brief Use a depth-first-search to find a ModelIndex with a given DisplayRole.
+ * @param model the model to traverse
+ * @param display_role the string to look for in the display roles of the indices
+ * @param parent a model index specifying the subtree to traverse
+ * @return the corresponding model index or an invalid model index if no match was found.
+ */
+QModelIndex TestHelpers::find_model_index_by_display_role(
+    const QAbstractItemModel& model,
+    const QString& display_role,
+    const QModelIndex& parent
+) {
+    if (parent.isValid() && parent.data().toString() == display_role) return parent;
+
+    auto column = parent.isValid() ? parent.column() : 0;
+    for (int i=0; i<model.rowCount(parent); i++) {
+        auto child_index = model.index(i, column, parent);
+        auto child_search_result = find_model_index_by_display_role(model, display_role, child_index);
+
+        if (child_search_result.isValid())
+            return child_search_result;
+    }
+
+    return QModelIndex();
 }
