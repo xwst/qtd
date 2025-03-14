@@ -8,14 +8,15 @@ CREATE TABLE IF NOT EXISTS tags (
 
 
 CREATE TABLE IF NOT EXISTS tasks (
-      uuid           VARCHAR(36)   PRIMARY KEY
-    , title          VARCHAR(1024) NOT NULL
-    , status         VARCHAR(6)    NOT NULL  DEFAULT 'open'
-                                   CHECK(status IN ('open', 'closed'))
-    , start_datetime VARCHAR(25)
-    , due_datetime   VARCHAR(25)
-    , content_text   TEXT
-    , content_data   BLOB
+      uuid             VARCHAR(36)   PRIMARY KEY
+    , title            VARCHAR(1024) NOT NULL
+    , status           VARCHAR(6)    NOT NULL  DEFAULT 'open'
+                                     CHECK(status IN ('open', 'closed'))
+    , start_datetime   VARCHAR(25)
+    , due_datetime     VARCHAR(25)
+    , resolve_datetime VARCHAR(25)
+    , content_text     TEXT
+    , content_data     BLOB
 );
 CREATE INDEX IF NOT EXISTS index_tasks_status_due_datetime
     ON tasks (status, due_datetime);

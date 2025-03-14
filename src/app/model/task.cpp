@@ -37,6 +37,10 @@ QDateTime Task::get_due_datetime() const {
     return this->due_date;
 }
 
+QDateTime Task::get_resolve_datetime() const {
+    return this->resolve_date;
+}
+
 void Task::set_title(const QString& title) {
     this->title = title;
 }
@@ -51,6 +55,10 @@ void Task::set_start_datetime(const QDateTime& start_datetime) {
 
 void Task::set_due_datetime(const QDateTime& due_datetime) {
     this->due_date = due_datetime;
+}
+
+void Task::set_resolve_datetime(const QDateTime& resolve_datetime) {
+    this->due_date = resolve_datetime;
 }
 
 QVariant Task::get_data(int role) const {
