@@ -16,7 +16,7 @@ void PersistedTreeItemModelsTestBase::initTestCase() {
 
     QLoggingCategory::setFilterRules("qt.modeltest.debug=true");
 
-    TestHelpers::setup_database();
+    QVERIFY(TestHelpers::setup_database());
     this->db_connection_name = QSqlDatabase::database().connectionName();
 }
 
@@ -39,8 +39,4 @@ void PersistedTreeItemModelsTestBase::clear_table(QString table_name) {
     query.exec("SELECT COUNT(*) FROM " + table_name);
     query.first();
     QCOMPARE(query.value(0), 0);
-}
-
-bool PersistedTreeItemModelsTestBase::compare_indices(const QModelIndex& index_1, const QModelIndex& index_2) {
-    return index_1.data(uuid_role).toString() < index_2.data(uuid_role).toString();
 }

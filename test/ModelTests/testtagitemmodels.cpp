@@ -217,7 +217,7 @@ void TestTagItemModels::assert_model_persistence() {
         *model_reloaded_from_db.get(),
         *this->model.get(),
         {Qt::DisplayRole, Qt::DecorationRole, uuid_role},
-        PersistedTreeItemModelsTestBase::compare_indices
+        TestHelpers::compare_indices_by_uuid
     );
 }
 

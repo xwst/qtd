@@ -24,7 +24,7 @@ public:
         TestTag(QString name) : Tag(name), QObject(nullptr) {}
     };
 
-    static void setup_database();
+    static bool setup_database();
     static void assert_table_exists(const QString& table_name);
     static void populate_database();
     static void assert_model_equality(
@@ -34,6 +34,15 @@ public:
         const std::function<bool(const QModelIndex&, const QModelIndex&)>& item_sort_comparator,
         const QModelIndex& index_of_model_under_test = QModelIndex(),
         const QModelIndex& index_of_model_expectation = QModelIndex()
+    );
+    static void assert_index_equality(
+        const QModelIndex& index1,
+        const QModelIndex& index2,
+        const QSet<int>& roles_to_check
+    );
+    static bool compare_indices_by_uuid(
+        const QModelIndex& index_1,
+        const QModelIndex& index_2
     );
 
     template <typename T, typename... Types>

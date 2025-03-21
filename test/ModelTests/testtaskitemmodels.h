@@ -6,6 +6,7 @@
 #include <QObject>
 
 #include "persistedtreeitemmodelstestbase.h"
+#include "../../src/app/model/task.h"
 #include "../../src/app/model/taskitemmodel.h"
 
 class TestTaskItemModel : public PersistedTreeItemModelsTestBase
@@ -24,7 +25,7 @@ private:
     );
     void find_task_by_title_and_assert_correctness_of_data(
         QString title,
-        bool is_active,
+        Task::Status status,
         QDateTime start_datetime,
         QDateTime due_datetime,
         int number_of_children
@@ -46,6 +47,8 @@ private slots:
     void test_data_change_of_cloned_task();
     void test_remove_rows();
     void test_create_task();
+    void test_add_dependency();
+    void test_can_not_create_dependency_cycle();
 
 };
 

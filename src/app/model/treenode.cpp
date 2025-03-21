@@ -29,6 +29,11 @@ std::unique_ptr<TreeNode> TreeNode::clone(
     TreeNode* parent
 ) {
     auto result = std::unique_ptr<TreeNode>(new TreeNode(to_be_cloned->data, parent));
+    result->children.reserve(to_be_cloned->children.size());
+    for (const auto& child : to_be_cloned->children)
+        result->children.push_back(
+            TreeNode::clone(child.get(), result.get())
+        );
     return result;
 }
 

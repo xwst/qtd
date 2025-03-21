@@ -47,6 +47,13 @@ void TreeItemModel::operate_on_clones(
     return this->operate_on_clones(node_uuid, operation);
 }
 
+bool TreeItemModel::is_nested_child(
+    const QString& parent_uuid,
+    const QString& potential_child_uuid
+) {
+    return false;
+}
+
 /**
  * @brief Adds a tree node as a child of all nodes associated with the given uuid
  *
@@ -61,12 +68,15 @@ void TreeItemModel::operate_on_clones(
 bool TreeItemModel::add_tree_node(
     std::unique_ptr<TreeNode> new_node,
     const QUuid& parent_uuid
-    ) {
+) {
     auto parent_or_root_uuid = parent_uuid.isNull()
                              ? this->root->get_data(uuid_role).toUuid()
                              : parent_uuid;
 
     if (!this->uuid_node_map.contains(parent_or_root_uuid))
+        return false;
+
+    if (this->node_creates_dependency_cycle(new_node.get(), parent_uuid))
         return false;
 
     auto* new_node_raw_ptr = new_node.get();
@@ -81,16 +91,32 @@ bool TreeItemModel::add_tree_node(
             );
 
             auto node_clone = TreeNode::clone(new_node_raw_ptr, parent_node_ptr);
-            this->uuid_node_map.insert(
-                new_node_raw_ptr->get_data(uuid_role).toUuid(),
-                node_clone.get()
-            );
+            this->add_recursively_to_uuid_node_map(node_clone.get());
             parent_node_ptr->add_child(std::move(node_clone));
 
             this->endInsertRows();
         }
-        );
+    );
     return true;
+}
+
+void TreeItemModel::add_recursively_to_uuid_node_map(TreeNode* node) {
+    this->uuid_node_map.insert(node->get_data(uuid_role).toUuid(), node);
+    for (int i=0; i<node->get_child_count(); i++)
+        this->add_recursively_to_uuid_node_map(node->get_child(i));
+}
+
+bool TreeItemModel::node_creates_dependency_cycle(TreeNode* new_node, const QUuid& parent_uuid) {
+    return this->has_nested_child_with_uuid(new_node, parent_uuid);
+}
+
+bool TreeItemModel::has_nested_child_with_uuid(TreeNode* node, const QUuid& uuid) {
+    if (node->get_data(uuid_role).toUuid() == uuid) return true;
+
+    for (int i=0; i<node->get_child_count(); i++)
+        if (this->has_nested_child_with_uuid(node->get_child(i), uuid))
+            return true;
+    return false;
 }
 
 TreeNode* TreeItemModel::get_raw_node_pointer(const QModelIndex& index) const {
@@ -167,7 +193,7 @@ bool TreeItemModel::removeRows(int row, int count, const QModelIndex &parent) {
             node->remove_children(row, count);
             this->endRemoveRows();
         }
-        );
+    );
 
     return true;
 }
@@ -186,16 +212,21 @@ bool TreeItemModel::removeRows(int row, int count, const QModelIndex &parent) {
 bool TreeItemModel::create_tree_node(
     std::unique_ptr<UniqueDataItem> data_item,
     const QUuid& parent_uuid
-    ) {
+) {
     return this->add_tree_node(
         TreeNode::create(std::move(data_item)),
         parent_uuid
-        );
+    );
 }
+
 
 /**
  * @brief Clones an existing tree node such that the corresponding
  *        data item appears multiple times in the tree
+ *
+ * If cloning the tree node would create a dependency cycle, this function
+ * does nothing and returns false.
+ *
  * @param uuid The UUID of the node to be cloned
  * @param parent_uuid the UUID of the tree node that shall become the parent of the clone
  * @return true on success, false otherwise

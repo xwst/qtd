@@ -29,8 +29,9 @@ TagItemModel::TagItemModel(QString connection_name, QObject* parent)
 }
 
 bool TagItemModel::setData(const QModelIndex& index, const QVariant& value, int role) {
-    QString uuid = index.data(uuid_role).toString();
+    if (!index.isValid()) return false;
 
+    QString uuid = index.data(uuid_role).toString();
     auto update_query_str = Util::get_sql_query_string("update_tag.sql");
     auto query = QSqlQuery(QSqlDatabase::database(this->connection_name));
 
@@ -57,6 +58,7 @@ bool TagItemModel::setData(const QModelIndex& index, const QVariant& value, int 
 
 bool TagItemModel::create_tag(const QString& name, const QColor& color, const QModelIndex& parent) {
     auto new_tag = std::make_unique<Tag>(name, color);
+    QVariant parent_uuid = parent.isValid() ? parent.data(uuid_role) : QUuid();
 
     auto query_str = Util::get_sql_query_string("create_tag.sql");
     auto query = QSqlQuery(QSqlDatabase::database(this->connection_name));
@@ -65,12 +67,10 @@ bool TagItemModel::create_tag(const QString& name, const QColor& color, const QM
     query.bindValue(0, new_tag->get_uuid_string());
     query.bindValue(1, new_tag->get_name());
     query.bindValue(2, color.isValid() ? color.name(QColor::HexArgb) : "");
-    if (parent.isValid())
-        query.bindValue(3, parent.data(uuid_role));
-    else query.bindValue(3, QVariant(QMetaType::fromType<QString>()));
+    query.bindValue(3, parent_uuid);
 
     if (!Util::execute_sql_query(query)) return false;
-    this->create_tree_node(std::move(new_tag), parent.data(uuid_role).toUuid());
+    this->create_tree_node(std::move(new_tag), parent_uuid.toUuid());
     return true;
 }
 
@@ -81,11 +81,17 @@ bool TagItemModel::removeRows(int row, int count, const QModelIndex &parent) {
     for (int i=row; i<row+count; i++)
         uuids_to_remove << this->index(i, 0, parent).data(uuid_role);
 
-    QSqlQuery q(QSqlDatabase::database(this->connection_name));
+    auto db = QSqlDatabase::database(this->connection_name);
+
+    if (!db.transaction()) return false;
+    QSqlQuery q(db);
     if (!q.prepare(remove_query)) return false;
     q.addBindValue(uuids_to_remove);
 
-    if (!Util::execute_sql_query(q, true)) return false;
-    TreeItemModel::removeRows(row, count, parent);
+    if (!Util::execute_sql_query(q, true) || !TreeItemModel::removeRows(row, count, parent)) {
+        db.rollback();
+        return false;
+    }
+    db.commit();
     return true;
 }

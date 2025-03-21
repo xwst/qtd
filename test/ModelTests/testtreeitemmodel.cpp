@@ -6,6 +6,7 @@
 #include <QVariant>
 
 #include "../../src/app/model/model_constants.h"
+#include "../../src/app/util.h"
 
 TestTreeItemModel::TestTreeItemModel(QObject *parent)
     : QObject{parent}
@@ -117,30 +118,70 @@ void TestTreeItemModel::test_remove_rows_with_children() {
     QCOMPARE(this->model->index(0, 0).data().toString(), "C");
 }
 
-void TestTreeItemModel::test_clone_tree_node() {
+void TestTreeItemModel::test_clone_tree_node_clones_children_recursiveley() {
+    auto A_index = this->model->index(0, 0);
+    auto B_index = this->model->index(1, 0);
+    auto B1_index = this->model->index(0, 0, B_index);
+    auto B1_uuid = this->model->index(0, 0, B_index).data(uuid_role).toUuid();
+
+    this->model->create_tree_node(
+        std::make_unique<TestHelpers::TestTag>("child 1"), B1_uuid
+    );
+    this->model->create_tree_node(
+        std::make_unique<TestHelpers::TestTag>("child 2"), B1_uuid
+    );
+    this->model->create_tree_node(
+        std::make_unique<TestHelpers::TestTag>("child 1a"),
+        this->model->index(0, 0, B1_index).data(uuid_role).toUuid()
+    );
+
+    QVERIFY(
+        this->model->clone_tree_node(
+            B_index.data(uuid_role).toUuid(),
+            A_index.data(uuid_role).toUuid()
+        )
+    );
+    auto clone_index = this->model->index(0, 0, A_index);
+
+    auto child1a_index = this->model->index(0, 0, this->model->index(0, 0, B1_index));
+    this->model->setData(child1a_index, "modified name for child 1a", Qt::DisplayRole);
+
+    TestHelpers::assert_model_equality(
+        *this->model.get(),
+        *this->model.get(),
+        {Qt::DisplayRole, Qt::DecorationRole, uuid_role},
+        TestHelpers::compare_indices_by_uuid,
+        B_index,
+        clone_index
+    );
+    QCOMPARE(this->model->get_size(), Util::count_model_rows(this->model.get()));
+}
+
+void TestTreeItemModel::test_adding_children_to_clones() {
     auto B_index = this->model->index(1, 0);
     auto B1_index = this->model->index(0, 0, B_index);
     auto B1_uuid = this->model->index(0, 0, B_index).data(uuid_role).toUuid();
 
     QVERIFY(this->model->clone_tree_node(B1_uuid));
     auto clone_index = this->model->index(2, 0);
-    QCOMPARE(clone_index.data(uuid_role).toUuid(), B1_uuid);
-    QCOMPARE(clone_index.data(), B1_index.data());
     QCOMPARE(clone_index.parent(), QModelIndex());
+    TestHelpers::assert_index_equality(
+        B1_index,
+        clone_index,
+        {Qt::DisplayRole, static_cast<Qt::ItemDataRole>(uuid_role)}
+    );
+    QCOMPARE(this->model->rowCount(B1_index), 0);
 
     QSignalSpy spy(this->model.get(), SIGNAL(rowsInserted(const QModelIndex&, int, int)));
-
     this->model->create_tree_node(
-        std::make_unique<TestHelpers::TestTag>("child 1"),
-        B1_index.data(uuid_role).toUuid()
+        std::make_unique<TestHelpers::TestTag>("child 1"), B1_uuid
     );
-    QCOMPARE(this->model->rowCount(B1_index), this->model->rowCount(clone_index));
-    QCOMPARE(this->model->rowCount(B1_index), 1);
-    for (auto role : {Qt::DisplayRole, static_cast<Qt::ItemDataRole>(uuid_role)})
-        QCOMPARE(
-            this->model->index(0, 0, B1_index).data(role),
-            this->model->index(0, 0, clone_index).data(role)
+    TestHelpers::assert_index_equality(
+        B1_index,
+        clone_index,
+        {Qt::DisplayRole, static_cast<Qt::ItemDataRole>(uuid_role)}
         );
+    QCOMPARE(this->model->rowCount(B1_index), 1);
     QCOMPARE(spy.count(), 2);
 
     QSet<QModelIndex> expected_signalling_indices = {B1_index, clone_index};
@@ -150,14 +191,13 @@ void TestTreeItemModel::test_clone_tree_node() {
     this->model->create_tree_node(
         std::make_unique<TestHelpers::TestTag>("child 2"),
         clone_index.data(uuid_role).toUuid()
-    );
-    QCOMPARE(this->model->rowCount(B1_index), this->model->rowCount(clone_index));
-    QCOMPARE(this->model->rowCount(B1_index), 2);
-    for (auto role : {Qt::DisplayRole, static_cast<Qt::ItemDataRole>(uuid_role)})
-        QCOMPARE(
-            this->model->index(1, 0, B1_index).data(role),
-            this->model->index(1, 0, clone_index).data(role)
         );
+    TestHelpers::assert_index_equality(
+        B1_index,
+        clone_index,
+        {Qt::DisplayRole, static_cast<Qt::ItemDataRole>(uuid_role)}
+        );
+    QCOMPARE(this->model->rowCount(B1_index), 2);
 
     QCOMPARE(spy.count(), 2);
     QCOMPARE(this->model_indices_of_row_change_signals(spy), expected_signalling_indices);

@@ -6,11 +6,12 @@
 #include <QTest>
 
 #include "../src/app/util.h"
+#include "../src/app/model/model_constants.h"
 
-void TestHelpers::setup_database() {
+bool TestHelpers::setup_database() {
     auto db = QSqlDatabase::addDatabase("QSQLITE");
     db.setDatabaseName(":memory:");
-    Util::create_tables_if_not_exist(db.connectionName());
+    return Util::create_tables_if_not_exist(db.connectionName());
 }
 
 void TestHelpers::assert_table_exists(const QString& table_name) {
@@ -60,7 +61,13 @@ void TestHelpers::assert_model_equality(
     const QModelIndex& index_of_model_expectation
 ) {
     // Sanity checks:
-    QCOMPARE_NE(&model_under_test, &model_expectation);
+    if (
+        (&model_under_test == &model_expectation)
+        && (index_of_model_under_test == index_of_model_expectation)
+    ) {
+        QFAIL("Sanity check failed: Models or indices should be different!");
+    }
+
     QVERIFY(model_expectation.checkIndex(index_of_model_expectation));
     QVERIFY(model_under_test.checkIndex(index_of_model_under_test));
 
@@ -78,6 +85,9 @@ void TestHelpers::assert_model_equality(
     // Dimension equality:
     int row_count_test_model = model_under_test.rowCount(index_of_model_under_test);
     int column_count_test_model = model_under_test.columnCount(index_of_model_under_test);
+    int row_count_expectation = model_expectation.rowCount(index_of_model_expectation);
+    QString name_test = index_of_model_under_test.data().toString();
+    QString name_expectation = index_of_model_expectation.data().toString();
     QCOMPARE(
         row_count_test_model,
         model_expectation.rowCount(index_of_model_expectation)
@@ -105,6 +115,21 @@ void TestHelpers::assert_model_equality(
             children_under_test[i],
             children_expectation[i]
         );
+}
+
+void TestHelpers::assert_index_equality(
+    const QModelIndex& index1,
+    const QModelIndex& index2,
+    const QSet<int>& roles_to_check
+) {
+    int index1_row_count = index1.model()->rowCount(index1);
+    QCOMPARE(index1_row_count, index2.model()->rowCount(index2));
+    for (int row=0; row<index1_row_count; row++)
+        for (auto role : roles_to_check)
+            QCOMPARE(
+                index1.model()->index(row, index1.column(), index1).data(role),
+                index2.model()->index(row, index2.column(), index2).data(role)
+            );
 }
 
 QStringList TestHelpers::get_display_roles(
@@ -144,4 +169,11 @@ QModelIndex TestHelpers::find_model_index_by_display_role(
     }
 
     return QModelIndex();
+}
+
+bool TestHelpers::compare_indices_by_uuid(
+    const QModelIndex& index_1,
+    const QModelIndex& index_2
+) {
+    return index_1.data(uuid_role).toUuid() < index_2.data(uuid_role).toUuid();
 }

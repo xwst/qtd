@@ -12,9 +12,9 @@ CREATE TABLE IF NOT EXISTS tasks (
     , title            VARCHAR(1024) NOT NULL
     , status           VARCHAR(6)    NOT NULL  DEFAULT 'open'
                                      CHECK(status IN ('open', 'closed'))
-    , start_datetime   VARCHAR(25)
-    , due_datetime     VARCHAR(25)
-    , resolve_datetime VARCHAR(25)
+    , start_datetime   VARCHAR(30)
+    , due_datetime     VARCHAR(30)
+    , resolve_datetime VARCHAR(30)
     , content_text     TEXT
     , content_data     BLOB
 );

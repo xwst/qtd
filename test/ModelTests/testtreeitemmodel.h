@@ -33,7 +33,8 @@ private slots:
     void test_remove_single_row();
     void test_remove_multiple_rows();
     void test_remove_rows_with_children();
-    void test_clone_tree_node();
+    void test_clone_tree_node_clones_children_recursiveley();
+    void test_adding_children_to_clones();
     void test_remove_clone();
     void test_remove_child_of_clone();
 };

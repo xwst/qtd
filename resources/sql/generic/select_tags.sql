@@ -1,3 +1,4 @@
+-- Sort tags hierarchically to guarantee that a tag is selected before all of its children
 WITH RECURSIVE cte AS (
     SELECT 0 AS lvl, tags.*
         FROM tags

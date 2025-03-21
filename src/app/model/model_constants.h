@@ -8,7 +8,8 @@ enum CustomItemDataRole {
     , active_role
     , start_role
     , due_role
-    , document_role
+    , resolve_role
+    , details_role
 };
 
 #endif // MODEL_CONSTANTS_H
