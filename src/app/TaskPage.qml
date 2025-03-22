@@ -26,6 +26,9 @@ SplitView {
     required property font control_font
     required property var tag_model
     required property var task_model
+    required property string name
+
+    property alias task_selection_model: task_view.selectionModel
 
     TagOutline {
         control_font: task_page_container.control_font
@@ -36,15 +39,20 @@ SplitView {
         RowLayout {
             Label {
                 Layout.fillWidth: true
-                text: "Search Bar (Open)"
+                text: "Search Bar"
                 font: task_page_container.control_font
             }
         }
-        Label {
+        Rectangle {
             Layout.fillWidth: true
             Layout.fillHeight: true
-            text: "Task View (Open)"
-            font: task_page_container.control_font
+            color: "white"
+
+            SelectableTreeView {
+                id: task_view
+                model: task_page_container.task_model
+                control_font: task_page_container.control_font
+            }
         }
     }
 }

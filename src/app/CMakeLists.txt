@@ -37,6 +37,8 @@ QT_ADD_QML_MODULE(qtd
             LineEdit.qml
             TagForm.qml
             TaskPage.qml
+            SelectableTreeViewDelegate.qml
+            SelectableTreeView.qml
 )
 
 TARGET_LINK_LIBRARIES(qtd

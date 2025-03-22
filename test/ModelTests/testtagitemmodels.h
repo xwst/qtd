@@ -21,10 +21,11 @@
 
 #include <memory>
 
+#include "persistedtreeitemmodelstestbase.h"
 #include "../../src/app/model/flatteningproxymodel.h"
-#include "../../src/app/model/TagItemModel.h"
+#include "../../src/app/model/tagitemmodel.h"
 
-class TestTagItemModels : public QObject
+class TestTagItemModels : public PersistedTreeItemModelsTestBase
 {
     Q_OBJECT
 
@@ -51,7 +52,6 @@ private:
 private slots:
     // Test setup/cleanup:
     void initTestCase();
-    void cleanupTestCase();
     void init();
     void cleanup();
 

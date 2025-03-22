@@ -25,29 +25,21 @@
 #include <QTest>
 
 #include "../testhelpers.h"
+#include "../../src/app/model/model_constants.h"
 #include "../../src/app/util.h"
 
 TestTagItemModels::TestTagItemModels(QObject *parent)
-    : QObject{parent}
+    : PersistedTreeItemModelsTestBase{parent}
 {}
 
 void TestTagItemModels::initTestCase() {
-
-    QLoggingCategory::setFilterRules("qt.modeltest.debug=true");
-
-    TestHelpers::setup_database();
+    PersistedTreeItemModelsTestBase::initTestCase();
     TestHelpers::assert_table_exists("tags");
 }
 
-void TestTagItemModels::cleanupTestCase() {
-    QSqlDatabase::database().close();
-}
-
 void TestTagItemModels::init() {
-    TestHelpers::populate_database();
-    QString connection_name = QSqlDatabase::database().connectionName();
-
-    TestHelpers::setup_item_model(this->model, connection_name);
+    PersistedTreeItemModelsTestBase::init();
+    TestHelpers::setup_item_model(this->model, this->db_connection_name);
     TestHelpers::setup_proxy_item_model(this->flat_model, this->model.get());
     // Proxy model will be deleted by base model destructor
 }
@@ -55,13 +47,8 @@ void TestTagItemModels::init() {
 void TestTagItemModels::cleanup() {
     this->assert_correctness_of_proxy_models();
     this->assert_model_persistence();
-
-    QSqlQuery query;
-    query.exec("DELETE FROM tags");
-    query.exec("SELECT COUNT(*) FROM tags");
-    query.first();
-    QCOMPARE(query.value(0), 0);
     this->model.reset();
+    PersistedTreeItemModelsTestBase::cleanup();
 }
 
 void TestTagItemModels::test_initial_dataset_represented_correctly() {
@@ -110,7 +97,7 @@ void TestTagItemModels::test_create_toplevel_tag() {
     QCOMPARE(new_tag_index.data().toString(), new_tag_name);
     QColor tag1_color = new_tag_index.data(Qt::DecorationRole).value<QColor>();
     QVERIFY(!tag1_color.isValid());
-    auto tag1_uuid_str = new_tag_index.data(TagItemModel::uuid_role).toString();
+    auto tag1_uuid_str = new_tag_index.data(uuid_role).toString();
     QVERIFY(!QUuid::fromString(tag1_uuid_str).isNull());
 }
 
@@ -132,12 +119,16 @@ void TestTagItemModels::test_create_tag_with_parent() {
     QCOMPARE(new_tag_index.data().toString(), new_tag_name);
     QCOMPARE(new_tag_index.data(Qt::DecorationRole), new_tag_color);
     QCOMPARE(new_tag_index.parent(), vegetable_index);
-    auto new_tag_uuid = QUuid::fromString(new_tag_index.data(TagItemModel::uuid_role).toString());
+    auto new_tag_uuid = QUuid::fromString(new_tag_index.data(uuid_role).toString());
     QVERIFY(!new_tag_uuid.isNull());
 
-    auto new_tag = static_cast<Tag*>(new_tag_index.internalPointer());
-    auto vegetable_uuid_str = vegetable_index.data(TagItemModel::uuid_role).toString();
-    QCOMPARE(new_tag->get_parent()->get_uuid_string(), vegetable_uuid_str);
+    auto new_tag_item = static_cast<TreeNode*>(
+        new_tag_index.internalPointer()
+    );
+    QCOMPARE(
+        new_tag_item->get_parent()->get_data(uuid_role),
+        vegetable_index.data(uuid_role)
+    );
 }
 
 void TestTagItemModels::test_data_change_of_toplevel_item() {
@@ -159,11 +150,11 @@ void TestTagItemModels::test_data_change_of_child_item() {
     auto index = this->model->index(2, 0, this->model->index(0, 0));
     QString new_display_role = "new name";
 
-    auto old_uuid = index.data(TagItemModel::uuid_role).toUuid();
+    auto old_uuid = index.data(uuid_role).toUuid();
     auto new_uuid = QUuid::createUuid();
-    QVERIFY(!this->model->setData(index, new_uuid, TagItemModel::uuid_role));
+    QVERIFY(!this->model->setData(index, new_uuid, uuid_role));
     QCOMPARE(
-        index.data(TagItemModel::uuid_role).toString(),
+        index.data(uuid_role).toString(),
         old_uuid.toString(QUuid::WithoutBraces)
     );
 
@@ -240,19 +231,14 @@ void TestTagItemModels::assert_correctness_of_proxy_models() {
 
 void TestTagItemModels::assert_model_persistence() {
     std::unique_ptr<TagItemModel> model_reloaded_from_db;
-    QString connection_name = QSqlDatabase::database().connectionName();
 
-    TestHelpers::setup_item_model(model_reloaded_from_db, connection_name);
+    TestHelpers::setup_item_model(model_reloaded_from_db, this->db_connection_name);
 
-    auto cmp = [](const QModelIndex& index_1, const QModelIndex& index_2) {
-        return index_1.data(TagItemModel::uuid_role).toString()
-               < index_2.data(TagItemModel::uuid_role).toString();
-    };
     TestHelpers::assert_model_equality(
         *model_reloaded_from_db.get(),
         *this->model.get(),
-        {Qt::DisplayRole, Qt::DecorationRole, TagItemModel::uuid_role},
-        cmp
+        {Qt::DisplayRole, Qt::DecorationRole, uuid_role},
+        TestHelpers::compare_indices_by_uuid
     );
 }
 
@@ -276,4 +262,4 @@ void TestTagItemModels::remove_children_of_first_top_level_index(QAbstractItemMo
     ); // Remove multiple rows including children
 }
 
-QTEST_MAIN(TestTagItemModels)
+QTEST_GUILESS_MAIN(TestTagItemModels)

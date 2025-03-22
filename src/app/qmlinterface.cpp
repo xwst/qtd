@@ -43,6 +43,7 @@ void QmlInterface::set_up(QGuiApplication* app) {
     this->m_tags_model = new TagItemModel(connection_name, this);
     this->m_flat_tags_model = new FlatteningProxyModel(this);
     this->m_flat_tags_model->setSourceModel(this->m_tags_model);
+    this->m_task_model = new TaskItemModel(connection_name, this);
 
     this->m_global_event_filter = new GlobalEventFilter(this);
     app->installEventFilter(this->m_global_event_filter);

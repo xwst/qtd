@@ -23,8 +23,9 @@
 #include <QObject>
 #include <QQmlEngine>
 
-#include "TagItemModel.h"
+#include "tagitemmodel.h"
 #include "flatteningproxymodel.h"
+#include "taskitemmodel.h"
 #include "globaleventfilter.h"
 
 class QmlInterface : public QObject
@@ -38,6 +39,7 @@ private:
     QString m_application_dir;
     TagItemModel* m_tags_model;
     FlatteningProxyModel* m_flat_tags_model;
+    TaskItemModel* m_task_model;
     GlobalEventFilter* m_global_event_filter;
 
     void open_database(QString& connection_name);
@@ -46,6 +48,7 @@ public:
     Q_PROPERTY(QString application_dir MEMBER m_application_dir CONSTANT)
     Q_PROPERTY(TagItemModel* tags_model MEMBER m_tags_model CONSTANT)
     Q_PROPERTY(FlatteningProxyModel* flat_tags_model MEMBER m_flat_tags_model CONSTANT)
+    Q_PROPERTY(TaskItemModel* task_model MEMBER m_task_model CONSTANT)
     Q_PROPERTY(GlobalEventFilter* global_event_filter MEMBER m_global_event_filter CONSTANT)
 
     void set_up(QGuiApplication* app);

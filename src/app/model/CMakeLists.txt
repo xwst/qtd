@@ -17,9 +17,14 @@
 
 LIST(
     APPEND model_files
-    TagItemModel.cpp
+    tagitemmodel.cpp
     flatteningproxymodel.cpp
     tag.cpp
+    treenode.cpp
+    treeitemmodel.cpp
+    uniquedataitem.cpp
+    task.cpp
+    taskitemmodel.cpp
 )
 
 LIST(

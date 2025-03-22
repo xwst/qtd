@@ -28,13 +28,14 @@ Rectangle {
     required property var model
     property var tag_editor_component: Qt.createComponent("qrc:/qt/qml/src/app/TagEditor.qml")
 
-    TreeView {
+    SelectableTreeView {
         id: tag_view
         anchors.fill: parent
         clip: true
         alternatingRows: false
         Component.onCompleted: expandRecursively()
 
+        control_font: tag_view_container.control_font
         model: tag_view_container.model
         selectionModel: ItemSelectionModel {}
 

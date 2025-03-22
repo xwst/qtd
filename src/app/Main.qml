@@ -21,6 +21,7 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Controls 2.15
 import QtQuick.Layouts
+import Qt.labs.qmlmodels
 
 ApplicationWindow {
     id: main_window
@@ -37,10 +38,10 @@ ApplicationWindow {
     property int max_control_font_size: 40;
 
     property var pages_model: [
-          { name: "Open",       tag_model: QmlInterface.tags_model, task_model: "" }
-        , { name: "Actionable", tag_model: QmlInterface.tags_model, task_model: "" }
-        , { name: "Projetcs",   tag_model: QmlInterface.tags_model, task_model: "" }
-        , { name: "Archive",    tag_model: QmlInterface.tags_model, task_model: "" }
+          { name: "Open",       tag_model: QmlInterface.tags_model, task_model: QmlInterface.task_model }
+        , { name: "Actionable", tag_model: QmlInterface.tags_model, task_model: QmlInterface.task_model }
+        , { name: "Projetcs",   tag_model: QmlInterface.tags_model, task_model: QmlInterface.task_model }
+        , { name: "Archive",    tag_model: QmlInterface.tags_model, task_model: QmlInterface.task_model }
     ]
 
     FontLoader {
@@ -110,6 +111,9 @@ ApplicationWindow {
                 font.pointSize: main_window.control_font.pointSize
                 font.family: symbol_font.name
                 implicitWidth: height
+                onClicked: QmlInterface.task_model.create_task(
+                    "", swipe_view.currentItem.task_selection_model.selectedIndexes
+                )
             }
             Button {
                 id: delay_task_button

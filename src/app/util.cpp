@@ -62,6 +62,7 @@ bool Util::create_tables_if_not_exist(const QString& connection_name) {
 
     QSqlQuery query(connection);
     bool no_error = connection.transaction();
+    no_error &= query.exec("PRAGMA foreign_keys = ON;");
     for (QString& query_str : Util::split_queries(all_queries_str))
         no_error &= query.exec(query_str);
 
