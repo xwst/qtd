@@ -63,7 +63,7 @@ void Task::set_due_datetime(const QDateTime& due_datetime) {
 }
 
 void Task::set_resolve_datetime(const QDateTime& resolve_datetime) {
-    this->due_date = resolve_datetime;
+    this->resolve_date = resolve_datetime;
 }
 
 QVariant Task::get_data(int role) const {

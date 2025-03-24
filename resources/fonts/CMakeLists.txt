@@ -14,9 +14,10 @@
 # You should have received a copy of the GNU General Public License along with
 # qtd. If not, see <https://www.gnu.org/licenses/>.
 
+SET(ICON_FONT_FILE "./Font Awesome 6 Free-Solid-900.otf")
 
 CONFIGURE_FILE(
-    "./Font Awesome 6 Free-Solid-900.otf"
-    ${PROJECT_BINARY_DIR}/src/app/
+    "${ICON_FONT_FILE}"
+    "${PROJECT_BINARY_DIR}/src/app/${ICON_FONT_FILE}"
     COPYONLY
 )
