@@ -63,7 +63,17 @@ IF(GCOVR)
             --exclude-unreachable-branches
         DEPENDS all_tests
         BYPRODUCTS ${CMAKE_BINARY_DIR}/coverage.html
-        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    )
+    ADD_CUSTOM_TARGET(
+        verify-test-coverage
+        ${CMAKE_CTEST_COMMAND} --output-on-failure
+        COMMAND
+        ${GCOVR}
+            -r ${CMAKE_SOURCE_DIR}
+            --filter ${CMAKE_SOURCE_DIR}/src
+            --fail-under-line 90
+            --fail-under-function 90
+        DEPENDS all_tests
     )
 ENDIF()
 
