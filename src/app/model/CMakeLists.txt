@@ -41,4 +41,6 @@ TARGET_COMPILE_OPTIONS(models PRIVATE -O3)
 
 QT_ADD_LIBRARY(models_internal STATIC ${model_files})
 TARGET_LINK_LIBRARIES(models_internal PRIVATE ${model_dependencies})
-TARGET_COMPILE_OPTIONS(models_internal PRIVATE -O0 --coverage)
+IF(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
+    TARGET_COMPILE_OPTIONS(models_internal PRIVATE -O0 --coverage)
+ENDIF()

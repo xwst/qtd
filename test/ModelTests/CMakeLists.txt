@@ -22,13 +22,16 @@ FUNCTION(create_model_test test_name source_file)
         ../testhelpers.cpp
         persistedtreeitemmodelstestbase.cpp
     )
-    TARGET_COMPILE_OPTIONS(${test_name} PRIVATE -O0 --coverage)
+    IF(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
+        TARGET_COMPILE_OPTIONS(${test_name} PRIVATE -O0 --coverage)
+        TARGET_LINK_LIBRARIES(${test_name} PRIVATE gcov)
+        TARGET_LINK_OPTIONS(${test_name} PRIVATE --coverage)
+    ENDIF()
     TARGET_LINK_LIBRARIES(${test_name}
         PRIVATE
         Qt6::Gui
         Qt6::Test
         Qt6::Sql
-        gcov
         models_internal
     )
     ADD_TEST(NAME ${test_name} COMMAND ${test_name})
@@ -50,7 +53,7 @@ ENDFUNCTION()
 ADD_CUSTOM_TARGET(all_tests ALL)
 
 FIND_PROGRAM(GCOVR NAMES gcovr)
-IF(GCOVR)
+IF(GCOVR AND (${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU"))
     ADD_CUSTOM_TARGET(
         coverage
         ${CMAKE_CTEST_COMMAND} --output-on-failure
