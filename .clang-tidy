@@ -7,12 +7,16 @@ Checks: "*,
         -fuchsia-*,
         -google-*,
         -llvmlibc-*,
+        -llvm-header-guard,
         -modernize-use-trailing-return-type,
         -mpi-*,
         -objc-*,
         -openmp-*,
         -zircon-*
 "
+CheckOptions:
+    - key: misc-include-cleaner.IgnoreHeaders
+      value: qtmetamacros.h;qnamespace.h;qtestcase.h
 HeaderFilterRegex: '.*'
 FormatStyle: 'file'
 WarningsAsErrors: '*'
