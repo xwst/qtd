@@ -5,7 +5,7 @@ git stash --keep-index --quiet
 FILES=$(git diff --staged --name-status | egrep "*\.h$|*\.cpp$" | cut -f 2)
 RESULT=0
 if [ -n "$FILES" ]; then
-	clang-tidy -p build/ --config-file .clang-tidy "$FILES"
+	clang-tidy -p build/ --config-file .clang-tidy $FILES
 	RESULT=$?
 fi
 echo "Pop previously created stash."
