@@ -1,0 +1,143 @@
+name: Continuous Integration
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-test:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+
+      # Set up a matrix to run the following 3 configurations:
+      # 1. <Windows, Release, latest MSVC compiler toolchain on the default runner image, default generator>
+      # 2. <Linux, Release, latest GNU compiler toolchain on the default runner image, default generator>
+      # 3. <Linux, Release, latest Clang compiler toolchain on the default runner image, default generator>
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        build_type: [Release]
+        cpp_compiler: [g++, clang++, cl]
+        include:
+          - os: windows-latest
+            run_tests_target: RUN_TESTS
+          - os: ubuntu-latest
+            run_tests_target: test
+          - os: ubuntu-latest
+            run_tests_target: test
+        exclude:
+          - os: windows-latest
+            cpp_compiler: g++
+          - os: windows-latest
+            cpp_compiler: clang++
+          - os: ubuntu-latest
+            cpp_compiler: cl
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set reusable strings
+      # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
+      id: strings
+      shell: bash
+      run: |
+        echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: '6.8.1'
+        install-deps: 'true'
+        cache: 'true'
+        cache-key-prefix: 'install-qt-action'
+
+    - name: Configure CMake
+      run: >
+        cmake -B ${{ steps.strings.outputs.build-output-dir }}
+        -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
+        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+        -DCMAKE_PREFIX_PATH=${{ env.QT_ROOT_DIR }}
+        -S ${{ github.workspace }}
+
+    - name: Build all targets
+      run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }} -j8
+
+    - name: Run unit tests
+      run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }} --target ${{ matrix.run_tests_target }} -j8
+
+  test-coverage:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set reusable strings
+      # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
+      id: strings
+      shell: bash
+      run: |
+        echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: '6.8.1'
+        install-deps: 'true'
+        cache: 'true'
+        cache-key-prefix: 'install-qt-action'
+
+    - name: Install gcovr
+      run: python -m pip install gcovr
+
+    - name: Configure CMake
+      run: >
+        cmake -B ${{ steps.strings.outputs.build-output-dir }}
+        -DCMAKE_CXX_COMPILER=g++
+        -DCMAKE_BUILD_TYPE=Debug
+        -DCMAKE_PREFIX_PATH=${{ env.QT_ROOT_DIR }}
+        -S ${{ github.workspace }}
+
+    - name: Test coverage
+      run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --target verify-test-coverage -j8
+
+  license-check:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: License check
+      shell: bash
+      run: ./scripts/verify_license_headers.sh
+
+  static-code-analysis:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set reusable strings
+      # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
+      id: strings
+      shell: bash
+      run: |
+        echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: '6.8.1'
+        install-deps: 'true'
+        cache: 'true'
+        cache-key-prefix: 'install-qt-action'
+
+    - name: Configure CMake
+      run: >
+        cmake -B ${{ steps.strings.outputs.build-output-dir }}
+        -DCMAKE_CXX_COMPILER=g++
+        -DCMAKE_BUILD_TYPE=Debug
+        -DCMAKE_PREFIX_PATH=${{ env.QT_ROOT_DIR }}
+        -S ${{ github.workspace }}
+
+    - name: Run clang-tidy
+      shell: bash
+      run: ./scripts/run_linter_on_all_files.sh ${{ github.workspace }} ${{ steps.strings.outputs.build-output-dir }}
