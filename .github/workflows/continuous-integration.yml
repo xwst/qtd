@@ -53,6 +53,10 @@ jobs:
         cache: 'true'
         cache-key-prefix: 'install-qt-action'
 
+    - name: Install gcovr
+      if: matrix.cpp_compiler == 'g++'
+      run: python -m pip install gcovr
+
     - name: Configure CMake
       run: >
         cmake -B ${{ steps.strings.outputs.build-output-dir }}
@@ -67,7 +71,15 @@ jobs:
     - name: Run unit tests
       run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }} --target ${{ matrix.run_tests_target }} -j8
 
+    - name: Cache build artifacts
+      if: matrix.cpp_compiler == 'g++'
+      uses: actions/upload-artifact@v4
+      with:
+        name: GNU-build
+        path: ${{ steps.strings.outputs.build-output-dir }}
+
   test-coverage:
+    needs: build-and-test
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -90,13 +102,11 @@ jobs:
     - name: Install gcovr
       run: python -m pip install gcovr
 
-    - name: Configure CMake
-      run: >
-        cmake -B ${{ steps.strings.outputs.build-output-dir }}
-        -DCMAKE_CXX_COMPILER=g++
-        -DCMAKE_BUILD_TYPE=Debug
-        -DCMAKE_PREFIX_PATH=${{ env.QT_ROOT_DIR }}
-        -S ${{ github.workspace }}
+    - name: Receive caches build directory
+      uses: actions/download-artifact@v4
+      with:
+        name: GNU-build
+        path: ${{ steps.strings.outputs.build-output-dir }}
 
     - name: Test coverage
       run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --target verify-test-coverage -j8
@@ -111,6 +121,7 @@ jobs:
       run: ./scripts/verify_license_headers.sh
 
   static-code-analysis:
+    needs: build-and-test
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -122,6 +133,12 @@ jobs:
       run: |
         echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
 
+    - name: Receive caches build directory
+      uses: actions/download-artifact@v4
+      with:
+        name: GNU-build
+        path: ${{ steps.strings.outputs.build-output-dir }}
+
     - name: Install Qt
       uses: jurplel/install-qt-action@v4
       with:
@@ -129,14 +146,6 @@ jobs:
         install-deps: 'true'
         cache: 'true'
         cache-key-prefix: 'install-qt-action'
-
-    - name: Configure CMake
-      run: >
-        cmake -B ${{ steps.strings.outputs.build-output-dir }}
-        -DCMAKE_CXX_COMPILER=g++
-        -DCMAKE_BUILD_TYPE=Debug
-        -DCMAKE_PREFIX_PATH=${{ env.QT_ROOT_DIR }}
-        -S ${{ github.workspace }}
 
     - name: Run clang-tidy
       shell: bash
