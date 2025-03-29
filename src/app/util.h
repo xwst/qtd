@@ -33,7 +33,7 @@ public:
     static bool execute_sql_query(QSqlQuery& query, bool batch=false);
     static bool create_tables_if_not_exist(const QString& connection_name);
     static int count_model_rows(const QAbstractItemModel* model, const QModelIndex &index = QModelIndex());
-    static bool is_last_child(const QAbstractItemModel* model, const QModelIndex& index);
+    static bool is_last_child(const QModelIndex& index);
     static QModelIndex next_row_index_depth_first(const QAbstractItemModel* model, QModelIndex current_index = QModelIndex());
 };
 

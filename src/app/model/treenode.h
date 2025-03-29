@@ -29,9 +29,9 @@
 class TreeNode {
 
 private:
+    std::shared_ptr<UniqueDataItem> data;
     TreeNode* parent;
     std::vector<std::unique_ptr<TreeNode>> children;
-    std::shared_ptr<UniqueDataItem> data;
 
     TreeNode(std::shared_ptr<UniqueDataItem> data, TreeNode* parent);
 

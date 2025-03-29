@@ -39,7 +39,7 @@ private slots:
         const QList<int> &roles = QList<int>()
     );
     void on_rows_about_to_be_inserted(const QModelIndex& parent, int first, int last);
-    void on_rows_inserted(const QModelIndex& parent, int first, int last);
+    void on_rows_inserted(const QModelIndex& /* parent */, int /* first */, int /* last */);
 
 public:
     FlatteningProxyModel(QObject* parent = nullptr);

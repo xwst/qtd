@@ -101,17 +101,12 @@ void TestHelpers::assert_model_equality(
         );
 
     // Dimension equality:
-    int row_count_test_model = model_under_test.rowCount(index_of_model_under_test);
-    int column_count_test_model = model_under_test.columnCount(index_of_model_under_test);
-    int row_count_expectation = model_expectation.rowCount(index_of_model_expectation);
-    QString name_test = index_of_model_under_test.data().toString();
-    QString name_expectation = index_of_model_expectation.data().toString();
     QCOMPARE(
-        row_count_test_model,
+        model_under_test.rowCount(index_of_model_under_test),
         model_expectation.rowCount(index_of_model_expectation)
     );
     QCOMPARE(
-        column_count_test_model,
+        model_under_test.columnCount(index_of_model_under_test),
         model_expectation.columnCount(index_of_model_expectation)
     );
 
@@ -124,7 +119,7 @@ void TestHelpers::assert_model_equality(
     );
 
     // Children equality (recursion):
-    for (int i=0; i<children_under_test.size(); i++)
+    for (decltype(children_under_test.size()) i=0; i<children_under_test.size(); i++)
         TestHelpers::assert_model_equality(
             model_under_test,
             model_expectation,

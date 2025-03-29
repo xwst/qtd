@@ -79,7 +79,7 @@ int Util::count_model_rows(const QAbstractItemModel* model, const QModelIndex &i
     return result;
 }
 
-bool Util::is_last_child(const QAbstractItemModel* model, const QModelIndex& index) {
+bool Util::is_last_child(const QModelIndex& index) {
     if (index.isValid()) {
         auto parent = index.parent();
         return index.row() == index.model()->rowCount(parent) - 1;
@@ -97,7 +97,7 @@ QModelIndex Util::next_row_index_depth_first(
         return model->index(0, current_index.column(), current_index);
 
     // Traverse upwards until next "depth first"-row is found:
-    while (is_last_child(model, current_index))
+    while (is_last_child(current_index))
         current_index = current_index.parent();
 
     return current_index.isValid() ? current_index.siblingAtRow(current_index.row()+1) : QModelIndex();

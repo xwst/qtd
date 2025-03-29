@@ -65,13 +65,6 @@ void TreeItemModel::operate_on_clones(
     return this->operate_on_clones(node_uuid, operation);
 }
 
-bool TreeItemModel::is_nested_child(
-    const QString& parent_uuid,
-    const QString& potential_child_uuid
-) {
-    return false;
-}
-
 /**
  * @brief Adds a tree node as a child of all nodes associated with the given uuid
  *
@@ -154,7 +147,7 @@ int TreeItemModel::rowCount(const QModelIndex &parent) const {
     return this->get_raw_node_pointer(parent)->get_child_count();
 }
 
-int TreeItemModel::columnCount(const QModelIndex& parent) const {
+int TreeItemModel::columnCount(const QModelIndex& /* parent */) const {
     return 1;
 }
 
@@ -199,7 +192,6 @@ bool TreeItemModel::setData(const QModelIndex& index, const QVariant& value, int
 }
 
 bool TreeItemModel::removeRows(int row, int count, const QModelIndex &parent) {
-    auto parent_item = this->get_raw_node_pointer(parent);
 
     this->operate_on_clones(
         parent,

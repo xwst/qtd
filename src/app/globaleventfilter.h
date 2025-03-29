@@ -26,12 +26,12 @@ class GlobalEventFilter : public QObject
 {
     Q_OBJECT
 public:
-    explicit GlobalEventFilter(QObject *parent = nullptr);
+    explicit GlobalEventFilter(QObject* parent = nullptr);
 protected:
     bool eventFilter(QObject* dest, QEvent* event) override;
 private:
-    bool process_wheel_event(QObject* dest, QWheelEvent* event);
-    bool process_key_event(QObject* dest, QKeyEvent* event);
+    bool process_wheel_event(QObject* /* dest */, QWheelEvent* event);
+    bool process_key_event(QObject* /* dest */, QKeyEvent* event);
 signals:
     void zoomChanged(double value_diff);
     void zoomReset();

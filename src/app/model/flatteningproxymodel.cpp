@@ -119,9 +119,9 @@ void FlatteningProxyModel::on_rows_about_to_be_inserted(
 }
 
 void FlatteningProxyModel::on_rows_inserted(
-    const QModelIndex& parent,
-    int first,
-    int last
+    const QModelIndex& /* parent */,
+    int /* first */,
+    int /* last */
 ) {
     this->endInsertRows();
 }

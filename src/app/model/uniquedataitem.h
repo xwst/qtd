@@ -29,12 +29,12 @@ private:
 
 public:
     UniqueDataItem(QString uuid_str = "");
-    virtual ~UniqueDataItem() {};
+    virtual ~UniqueDataItem() {}
     QUuid get_uuid() const;
     QString get_uuid_string() const;
 
     virtual QVariant get_data(int role) const;
-    virtual void set_data(const QVariant& value, int role) {};
+    virtual void set_data(const QVariant& /* value */, int /* role */) {}
 };
 
 #endif // UNIQUEDATAITEM_H
