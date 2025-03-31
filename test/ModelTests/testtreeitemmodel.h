@@ -19,10 +19,12 @@
 #ifndef TESTTREEITEMMODEL_H
 #define TESTTREEITEMMODEL_H
 
+#include <memory>
+
 #include <QObject>
 #include <QSignalSpy>
+#include <QTest>
 
-#include "../testhelpers.h"
 #include "testmodelwrappers.h"
 
 class TestTreeItemModel : public QObject
@@ -36,9 +38,9 @@ private:
 
     void setup_initial_model();
     void verify_item(
-        const QModelIndex& item, QString name, int child_count, const QModelIndex& parent
+        const QModelIndex& item, const QString& name, int child_count, const QModelIndex& parent
     );
-    QSet<QModelIndex> model_indices_of_row_change_signals(const QSignalSpy& spy);
+    static QSet<QModelIndex> model_indices_of_row_change_signals(const QSignalSpy& spy);
 
 private slots:
     // Test setup/cleanup:

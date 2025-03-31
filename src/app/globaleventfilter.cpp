@@ -26,18 +26,22 @@ GlobalEventFilter::GlobalEventFilter(QObject* parent)
 {}
 
 bool GlobalEventFilter::eventFilter(QObject* dest, QEvent* event) {
-    if (event->type() == QEvent::Wheel)
+    if (event->type() == QEvent::Wheel) {
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-static-cast-downcast)
         return this->process_wheel_event(dest, static_cast<QWheelEvent*>(event));
+    }
 
-    if (event->type() == QEvent::KeyPress)
+    if (event->type() == QEvent::KeyPress) {
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-static-cast-downcast)
         return this->process_key_event(dest, static_cast<QKeyEvent*>(event));
+    }
 
     return false;
 }
 
 bool GlobalEventFilter::process_wheel_event(QObject* /* dest */, QWheelEvent* wheel_event) {
     if (wheel_event->modifiers() == Qt::ControlModifier) {
-        emit this->zoomChanged(wheel_event->angleDelta().y() / 200.0);
+        emit this->zoomChanged(wheel_event->angleDelta().y() / ZOOM_CHANGE_RATIO);
         return true;
     }
     return false;

@@ -22,6 +22,7 @@
 #include <memory>
 
 #include <QObject>
+#include <QTest>
 
 #include "../../src/app/model/treenode.h"
 
@@ -35,8 +36,9 @@ private:
     std::unique_ptr<TreeNode> root;
 
     void setup_dummies();
-    void verify_item(TreeNode* item, QString name, int child_count, TreeNode* parent);
+    static void verify_item(TreeNode* item, const QString& name, int child_count, TreeNode* parent);
     void verify_dummies();
+
 
 private slots:
     // Test setup/cleanup:

@@ -19,10 +19,13 @@
 #ifndef TreeItemModel_H
 #define TreeItemModel_H
 
+#include <functional>
 #include <memory>
 
 #include <QAbstractItemModel>
 #include <QMultiHash>
+#include <QUuid>
+#include <QtTypes>
 
 #include "treenode.h"
 #include "uniquedataitem.h"
@@ -50,17 +53,17 @@ private:
      */
     QMultiHash<QUuid, TreeNode*> uuid_node_map;
 
-    TreeNode* get_raw_node_pointer(const QModelIndex& index) const;
+    [[nodiscard]] TreeNode* get_raw_node_pointer(const QModelIndex& index) const;
     void remove_recursively_from_node_map(TreeNode* item);
     QModelIndex create_index(const TreeNode* node) const;
 
     void operate_on_clones(
         const QUuid& uuid,
-        std::function<void(TreeNode*)> operation
+        const std::function<void(TreeNode*)>& operation
     );
     void operate_on_clones(
         const QModelIndex& node_index,
-        std::function<void(TreeNode*)> operation
+        const std::function<void(TreeNode*)>& operation
     );
     bool add_tree_node(std::unique_ptr<TreeNode> new_node, const QUuid& parent_uuid);
     void add_recursively_to_uuid_node_map(TreeNode* node);
@@ -82,11 +85,11 @@ public:
     explicit TreeItemModel(QObject *parent = nullptr);
 
     // Required for read-only access:
-    int rowCount(const QModelIndex& parent = QModelIndex()) const override;
-    int columnCount(const QModelIndex& /* parent */ = QModelIndex()) const override;
-    QModelIndex parent(const QModelIndex& index = QModelIndex()) const override;
-    QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const override;
-    QVariant data(const QModelIndex& index, int role) const override;
+    [[nodiscard]] int rowCount(const QModelIndex& parent = QModelIndex()) const override;
+    [[nodiscard]] int columnCount(const QModelIndex& /* parent */ = QModelIndex()) const override;
+    [[nodiscard]] QModelIndex parent(const QModelIndex& index = QModelIndex()) const override;
+    [[nodiscard]] QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const override;
+    [[nodiscard]] QVariant data(const QModelIndex& index, int role) const override;
 
     // Required for editable items:
     bool setData(

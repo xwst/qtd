@@ -22,10 +22,11 @@
 #include <memory>
 
 #include <QObject>
+#include <QTest>
 
-#include "persistedtreeitemmodelstestbase.h"
 #include "../../src/app/model/task.h"
 #include "../../src/app/model/taskitemmodel.h"
+#include "persistedtreeitemmodelstestbase.h"
 
 class TestTaskItemModel : public PersistedTreeItemModelsTestBase
 {
@@ -37,15 +38,15 @@ private:
     // Helper functions:
     void assert_initial_dataset_representation_base_model();
     void assert_model_persistence();
-    void assert_index_equality(
+    static void assert_index_equality(
         const QModelIndex& index1,
         const QModelIndex& index2
     );
     void find_task_by_title_and_assert_correctness_of_data(
-        QString title,
+        const QString& title,
         Task::Status status,
-        QDateTime start_datetime,
-        QDateTime due_datetime,
+        const QDateTime& start_datetime,
+        const QDateTime& due_datetime,
         int number_of_children
     );
 

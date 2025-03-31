@@ -26,6 +26,7 @@
 #include <QDateTime>
 #include <QObject>
 #include <QTextDocument>
+#include <QtTypes>
 
 
 class Task : public QObject, public UniqueDataItem {
@@ -34,35 +35,35 @@ class Task : public QObject, public UniqueDataItem {
 
 public:
 
-    enum Status {
+    enum Status : quint8 {
         open,
         closed
     };
     Q_ENUM(Status);
 
-    Task(
-          QString   title
-        , Status    status       = Status::open
-        , QDateTime start_date   = QDateTime()
-        , QDateTime due_date     = QDateTime()
-        , QDateTime resolve_date = QDateTime()
-        , QString   uuid_str     = ""
+    explicit Task(
+          QString        title
+        , Status         status       = Status::open
+        , QDateTime      start_date   = QDateTime()
+        , QDateTime      due_date     = QDateTime()
+        , QDateTime      resolve_date = QDateTime()
+        , const QString& uuid_str     = ""
     );
 
-    QString        get_title()            const;
-    QTextDocument* get_text_document()    const;
-    Status         get_status()           const;
-    QDateTime      get_start_datetime()   const;
-    QDateTime      get_due_datetime()     const;
-    QDateTime      get_resolve_datetime() const;
+    [[nodiscard]] QString        get_title()            const;
+    [[nodiscard]] QTextDocument* get_text_document()    const;
+    [[nodiscard]] Status         get_status()           const;
+    [[nodiscard]] QDateTime      get_start_datetime()   const;
+    [[nodiscard]] QDateTime      get_due_datetime()     const;
+    [[nodiscard]] QDateTime      get_resolve_datetime() const;
 
     void set_start_datetime  (const QDateTime& start_datetime  );
-    void set_status          (Status status                    );
-    void set_title           (const QString& title             );
+    void set_status          (Status           new_status      );
+    void set_title           (const QString&   new_title       );
     void set_due_datetime    (const QDateTime& due_datetime    );
     void set_resolve_datetime(const QDateTime& resolve_datetime);
 
-    QVariant get_data(int role                       ) const override;
+    [[nodiscard]] QVariant get_data(int role                       ) const override;
     void     set_data(const QVariant& value, int role)       override;
 
     static QString status_to_string(Status status);

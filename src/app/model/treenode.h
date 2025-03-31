@@ -45,16 +45,16 @@ public:
         TreeNode* parent = nullptr
     );
 
-    TreeNode* get_parent() const;
-    TreeNode* get_child(int row) const;
+    [[nodiscard]] TreeNode* get_parent() const;
+    [[nodiscard]] TreeNode* get_child(int row) const;
     void add_child(std::unique_ptr<UniqueDataItem> child_data);
     void add_child(std::unique_ptr<TreeNode> new_child);
-    int get_child_count() const;
+    [[nodiscard]] int get_child_count() const;
 
     void remove_children(int row, int count);
-    int get_row_in_parent() const;
+    [[nodiscard]] int get_row_in_parent() const;
 
-    QVariant get_data(int role) const;
+    [[nodiscard]] QVariant get_data(int role) const;
     void set_data(const QVariant& value, int role);
 };
 

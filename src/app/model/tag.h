@@ -31,14 +31,14 @@ private:
     QColor color;
 
 public:
-    Tag(QString name, QColor color = QColor(), QString uuid_str = "");
-    QString get_name() const;
-    QColor get_color() const;
+    explicit Tag(QString name, const QColor& color = QColor(), const QString& uuid_str = "");
+    [[nodiscard]] QString get_name() const;
+    [[nodiscard]] QColor get_color() const;
 
-    void set_name(const QString& name);
-    void set_color(const QColor& color);
+    void set_name(const QString& new_name);
+    void set_color(const QColor& new_color);
 
-    QVariant get_data(int role) const override;
+    [[nodiscard]] QVariant get_data(int role) const override;
     void set_data(const QVariant& value, int role) override;
 };
 

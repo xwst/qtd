@@ -30,6 +30,7 @@ public:
 protected:
     bool eventFilter(QObject* dest, QEvent* event) override;
 private:
+    const double ZOOM_CHANGE_RATIO = 200.0;
     bool process_wheel_event(QObject* /* dest */, QWheelEvent* event);
     bool process_key_event(QObject* /* dest */, QKeyEvent* event);
 signals:

@@ -18,39 +18,49 @@
 
 #include "testhelpers.h"
 
+#include <algorithm>
+#include <functional>
 #include <vector>
 
+#include <QAbstractItemModel>
+#include <QFile>
+#include <QSet>
+#include <QSqlDatabase>
 #include <QSqlError>
+#include <QString>
+#include <QStringList>
 #include <QTest>
+#include <QTextStream>
 
-#include "../src/app/util.h"
 #include "../src/app/model/model_constants.h"
+#include "../src/app/util.h"
 
 bool TestHelpers::setup_database() {
-    auto db = QSqlDatabase::addDatabase("QSQLITE");
-    db.setDatabaseName(":memory:");
-    return Util::create_tables_if_not_exist(db.connectionName());
+    auto database = QSqlDatabase::addDatabase("QSQLITE");
+    database.setDatabaseName(":memory:");
+    return Util::create_tables_if_not_exist(database.connectionName());
 }
 
 void TestHelpers::assert_table_exists(const QString& table_name) {
     QSqlQuery query;
-    bool result = query.exec("SELECT COUNT(*) FROM " + table_name);
-    QString error_msg = QString("The '%1'-table was not created!").arg(table_name);
+    const bool result = query.exec("SELECT COUNT(*) FROM " + table_name);
+    const QString error_msg = QString("The '%1'-table was not created!").arg(table_name);
     QVERIFY2(result, qPrintable(error_msg));
 }
 
 void TestHelpers::populate_database() {
-    QFile f(":/resources/sql/generic/populate_database.sql");
-    f.open(QFile::ReadOnly | QFile::Text);
-    QTextStream in(&f);
-    QString all_queries_str = in.readAll();
+    QFile file(":/resources/sql/generic/populate_database.sql");
+    file.open(QFile::ReadOnly | QFile::Text);
+    QTextStream in_stream(&file);
+    const QString all_queries_str = in_stream.readAll();
 
     QSqlQuery query;
-    for (QString& query_str : Util::split_queries(all_queries_str))
+    for (const QString& query_str : Util::split_queries(all_queries_str)) {
         QVERIFY2(
             query.exec(query_str),
             qPrintable("Error while populating test database: " + query.lastError().text())
         );
+    }
 }
 
 std::vector<QModelIndex> TestHelpers::get_sorted_children(
@@ -59,12 +69,13 @@ std::vector<QModelIndex> TestHelpers::get_sorted_children(
     const std::function<bool(const QModelIndex&, const QModelIndex&)>& item_sort_comparator
 ) {
     std::vector<QModelIndex> result;
-    int number_of_children = model.rowCount(parent);
-    int column = parent.isValid() ? parent.column() : 0;
+    const int number_of_children = model.rowCount(parent);
+    const int column = parent.isValid() ? parent.column() : 0;
 
     result.reserve(number_of_children);
-    for (int row=0; row<number_of_children; row++)
+    for (int row=0; row<number_of_children; row++) {
         result.push_back(model.index(row, column, parent));
+    }
     std::sort(result.begin(), result.end(), item_sort_comparator);
 
     return result;
@@ -94,11 +105,12 @@ void TestHelpers::assert_model_equality(
         index_of_model_under_test.isValid(),
         index_of_model_expectation.isValid()
     );
-    for (auto item_data_role : roles_to_check)
+    for (const auto item_data_role : roles_to_check) {
         QCOMPARE(
             index_of_model_under_test.data(item_data_role),
             index_of_model_expectation.data(item_data_role)
         );
+    }
 
     // Dimension equality:
     QCOMPARE(
@@ -111,15 +123,15 @@ void TestHelpers::assert_model_equality(
     );
 
     // Sort children by passed comparator:
-    auto children_under_test = TestHelpers::get_sorted_children(
+    const auto children_under_test = TestHelpers::get_sorted_children(
         model_under_test, index_of_model_under_test, item_sort_comparator
     );
-    auto children_expectation = TestHelpers::get_sorted_children(
+    const auto children_expectation = TestHelpers::get_sorted_children(
         model_expectation, index_of_model_expectation, item_sort_comparator
     );
 
     // Children equality (recursion):
-    for (decltype(children_under_test.size()) i=0; i<children_under_test.size(); i++)
+    for (decltype(children_under_test.size()) i=0; i<children_under_test.size(); i++) {
         TestHelpers::assert_model_equality(
             model_under_test,
             model_expectation,
@@ -128,6 +140,7 @@ void TestHelpers::assert_model_equality(
             children_under_test[i],
             children_expectation[i]
         );
+    }
 }
 
 void TestHelpers::assert_index_equality(
@@ -135,14 +148,16 @@ void TestHelpers::assert_index_equality(
     const QModelIndex& index2,
     const QSet<int>& roles_to_check
 ) {
-    int index1_row_count = index1.model()->rowCount(index1);
+    const int index1_row_count = index1.model()->rowCount(index1);
     QCOMPARE(index1_row_count, index2.model()->rowCount(index2));
-    for (int row=0; row<index1_row_count; row++)
-        for (auto role : roles_to_check)
+    for (int row=0; row<index1_row_count; row++) {
+        for (const auto role : roles_to_check) {
             QCOMPARE(
                 index1.model()->index(row, index1.column(), index1).data(role),
                 index2.model()->index(row, index2.column(), index2).data(role)
             );
+        }
+    }
 }
 
 QStringList TestHelpers::get_display_roles(
@@ -150,11 +165,14 @@ QStringList TestHelpers::get_display_roles(
     const QModelIndex& parent
 ) {
     QStringList result;
-    if (parent.isValid()) result.append(parent.data().toString());
+    if (parent.isValid()) {
+        result.append(parent.data().toString());
+    }
 
-    auto column = parent.isValid() ? parent.column() : 0;
-    for (int i=0; i<model.rowCount(parent); i++)
+    const auto column = parent.isValid() ? parent.column() : 0;
+    for (int i=0; i<model.rowCount(parent); i++) {
         result.append(get_display_roles(model, model.index(i, column, parent)));
+    }
     return result;
 }
 
@@ -170,18 +188,21 @@ QModelIndex TestHelpers::find_model_index_by_display_role(
     const QString& display_role,
     const QModelIndex& parent
 ) {
-    if (parent.isValid() && parent.data().toString() == display_role) return parent;
+    if (parent.isValid() && parent.data().toString() == display_role) {
+        return parent;
+    }
 
     auto column = parent.isValid() ? parent.column() : 0;
     for (int i=0; i<model.rowCount(parent); i++) {
-        auto child_index = model.index(i, column, parent);
-        auto child_search_result = find_model_index_by_display_role(model, display_role, child_index);
+        const auto child_index = model.index(i, column, parent);
+        const auto child_search_result = find_model_index_by_display_role(model, display_role, child_index);
 
-        if (child_search_result.isValid())
+        if (child_search_result.isValid()) {
             return child_search_result;
+        }
     }
 
-    return QModelIndex();
+    return {};
 }
 
 bool TestHelpers::compare_indices_by_uuid(

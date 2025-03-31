@@ -33,7 +33,7 @@ private:
 
     void setup_tasks_from_db();
     QMultiHash<QUuid, QUuid> fetch_dependendents_from_db();
-    QString get_sql_column_name(int role);
+    static QString get_sql_column_name(int role);
     bool add_dependency_to_database(const QUuid& dependent_uuid, const QUuid& prerequisite_uuid);
     bool add_task_to_database(const Task* new_task);
     bool remove_dependency_from_database(const QUuid& dependent_uuid, const QUuid& prerequisite_uuid);

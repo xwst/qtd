@@ -25,21 +25,22 @@ class PersistedTreeItemModelsTestBase : public QObject
 {
     Q_OBJECT
 
-protected:
+private:
     QString db_connection_name;
 
-    void clear_table(QString table_name);
+protected:
+    static void clear_table(const QString& table_name);
+    [[nodiscard]] QString get_db_connection_name() const;
 
 public:
     explicit PersistedTreeItemModelsTestBase(QObject *parent = nullptr);
 
-
 protected slots:
     // Test setup/cleanup:
     void initTestCase();
-    void cleanupTestCase();
-    void init();
-    void cleanup();
+    static void cleanupTestCase();
+    static void init();
+    static void cleanup();
 };
 
 #endif // PERSISTEDTREEITEMMODELSTESTBASE_H

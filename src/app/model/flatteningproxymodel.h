@@ -27,40 +27,39 @@ class FlatteningProxyModel : public QAbstractProxyModel
     Q_OBJECT
 
 private:
-    int count_source_model_rows(const QModelIndex& index = QModelIndex()) const;
-    QModelIndex find_source_model_index(int proxy_row, int column = 0) const;
+    [[nodiscard]] int count_source_model_rows(const QModelIndex& index = QModelIndex()) const;
+    [[nodiscard]] QModelIndex find_source_model_index(int proxy_row) const;
 
-private slots:
     void on_rows_about_to_be_removed(const QModelIndex& parent, int first, int last);
-    void on_rows_removed(const QModelIndex& parent, int first, int last);
+    void on_rows_removed(const QModelIndex& /* parent */, int /* first */, int /* last */);
     void on_data_changed(
         const QModelIndex& topLeft,
         const QModelIndex& bottomRight,
-        const QList<int> &roles = QList<int>()
+        const QList<int>& roles = QList<int>()
     );
     void on_rows_about_to_be_inserted(const QModelIndex& parent, int first, int last);
     void on_rows_inserted(const QModelIndex& /* parent */, int /* first */, int /* last */);
 
 public:
-    FlatteningProxyModel(QObject* parent = nullptr);
+    explicit FlatteningProxyModel(QObject* parent = nullptr);
 
     void setSourceModel(QAbstractItemModel* sourceModel) override;
 
-    QModelIndex mapFromSource(const QModelIndex &sourceIndex) const override;
-    QModelIndex mapToSource(const QModelIndex &proxyIndex) const override;
+    [[nodiscard]] QModelIndex mapFromSource(const QModelIndex& sourceIndex) const override;
+    [[nodiscard]] QModelIndex mapToSource(const QModelIndex& proxyIndex) const override;
 
-    QModelIndex index(
+    [[nodiscard]] QModelIndex index(
         int row,
         int column,
-        const QModelIndex &parent = QModelIndex()
+        const QModelIndex& parent = QModelIndex()
     ) const override;
 
-    QModelIndex parent(const QModelIndex &child) const override;
-    QModelIndex sibling(int row, int column, const QModelIndex &idx) const override;
+    [[nodiscard]] QModelIndex parent(const QModelIndex& /* child */) const override;
+    [[nodiscard]] QModelIndex sibling(int row, int column, const QModelIndex& idx) const override;
 
-    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
-    bool hasChildren(const QModelIndex &parent) const override;
+    [[nodiscard]] int rowCount(const QModelIndex& parent = QModelIndex()) const override;
+    [[nodiscard]] int columnCount(const QModelIndex& parent = QModelIndex()) const override;
+    [[nodiscard]] bool hasChildren(const QModelIndex& parent) const override;
 };
 
 #endif // FLATTENINGPROXYMODEL_H

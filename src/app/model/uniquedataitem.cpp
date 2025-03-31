@@ -24,12 +24,13 @@
 
 #include "model_constants.h"
 
-UniqueDataItem::UniqueDataItem(QString uuid_str) {
-    if (uuid_str.isEmpty()) this->uuid = QUuid::createUuid();
-    else {
+UniqueDataItem::UniqueDataItem(const QString& uuid_str) {
+    if (uuid_str.isEmpty()) { this->uuid = QUuid::createUuid();
+    } else {
         this->uuid = QUuid::fromString(uuid_str);
-        if (this->uuid.isNull())
+        if (this->uuid.isNull()) {
             throw std::invalid_argument("Passed uuid is neither empty nor valid!");
+        }
     }
 }
 
@@ -42,7 +43,8 @@ QString UniqueDataItem::get_uuid_string() const {
 }
 
 QVariant UniqueDataItem::get_data(int role) const {
-    if (role == uuid_role) return this->get_uuid_string();
-    else return QVariant();
+    if (role == uuid_role) {
+        return this->get_uuid_string();
+    }
+    return {};
 }
-

@@ -19,7 +19,8 @@
 #ifndef TAGITEMMODEL_H
 #define TAGITEMMODEL_H
 
-#include "tag.h"
+#include <QColor>
+
 #include "treeitemmodel.h"
 
 class TagItemModel : public TreeItemModel

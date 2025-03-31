@@ -28,12 +28,12 @@ private:
     QUuid uuid;
 
 public:
-    UniqueDataItem(QString uuid_str = "");
-    virtual ~UniqueDataItem() {}
-    QUuid get_uuid() const;
-    QString get_uuid_string() const;
+    explicit UniqueDataItem(const QString& uuid_str = "");
+    virtual ~UniqueDataItem() = default;
+    [[nodiscard]] QUuid get_uuid() const;
+    [[nodiscard]] QString get_uuid_string() const;
 
-    virtual QVariant get_data(int role) const;
+    [[nodiscard]] virtual QVariant get_data(int role) const;
     virtual void set_data(const QVariant& /* value */, int /* role */) {}
 };
 

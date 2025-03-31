@@ -18,8 +18,15 @@
 
 #include "treenode.h"
 
+#include <memory>
+#include <utility>
+
+#include <QVariant>
+
+#include "uniquedataitem.h"
+
 TreeNode::TreeNode(std::shared_ptr<UniqueDataItem> data, TreeNode* parent)
-    : data(data), parent(parent) {}
+    : data(std::move(std::move(data))), parent(parent) {}
 
 /**
  * @brief Create a new TreeNode with the given data item.
@@ -48,10 +55,11 @@ std::unique_ptr<TreeNode> TreeNode::clone(
 ) {
     auto result = std::unique_ptr<TreeNode>(new TreeNode(to_be_cloned->data, parent));
     result->children.reserve(to_be_cloned->children.size());
-    for (const auto& child : to_be_cloned->children)
+    for (const auto& child : to_be_cloned->children) {
         result->children.push_back(
             TreeNode::clone(child.get(), result.get())
         );
+    }
     return result;
 }
 
@@ -84,9 +92,12 @@ void TreeNode::remove_children(int row, int count) {
 
 int TreeNode::get_row_in_parent() const {
     int result = 0;
-    for (const auto& child : this->parent->children)
-        if (child.get() == this) return result;
-        else result++;
+    for (const auto& child : this->parent->children) {
+        if (child.get() == this) {
+            return result;
+        }
+        result++;
+    }
     return -1; // Should not happen
 }
 

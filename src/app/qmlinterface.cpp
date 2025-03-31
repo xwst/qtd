@@ -22,32 +22,36 @@
 #include <QGuiApplication>
 #include <QSqlDatabase>
 #include <QStandardPaths>
+#include <QString>
 
-#include "util.h"
+#include "flatteningproxymodel.h"
 #include "globaleventfilter.h"
+#include "tagitemmodel.h"
+#include "taskitemmodel.h"
+#include "util.h"
 
 void QmlInterface::open_database(QString& connection_name) {
-    QDir dir = QDir(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation));
+    const QDir dir = QDir(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation));
     dir.mkpath(".");
 
-    auto db = QSqlDatabase::addDatabase("QSQLITE", "local");
-    db.setDatabaseName(dir.absoluteFilePath(this->local_database_name));
+    auto database = QSqlDatabase::addDatabase("QSQLITE", "local");
+    database.setDatabaseName(dir.absoluteFilePath(this->local_database_name));
     Util::create_tables_if_not_exist(connection_name);
 }
 
 void QmlInterface::set_up(QGuiApplication* app) {
-    this->m_application_dir = app->applicationDirPath();
+    this->m_application_dir = QGuiApplication::applicationDirPath();
 
     QString connection_name = "local";
     this->open_database(connection_name);
-    this->m_tags_model = new TagItemModel(connection_name, this);
-    this->m_flat_tags_model = new FlatteningProxyModel(this);
+    this->m_tags_model = new TagItemModel(connection_name, this); // NOLINT(cppcoreguidelines-owning-memory)
+    this->m_flat_tags_model = new FlatteningProxyModel(this); // NOLINT(cppcoreguidelines-owning-memory)
     this->m_flat_tags_model->setSourceModel(this->m_tags_model);
-    this->m_task_model = new TaskItemModel(connection_name, this);
+    this->m_task_model = new TaskItemModel(connection_name, this); // NOLINT(cppcoreguidelines-owning-memory)
 
-    this->m_global_event_filter = new GlobalEventFilter(this);
+    this->m_global_event_filter = new GlobalEventFilter(this); // NOLINT(cppcoreguidelines-owning-memory)
     app->installEventFilter(this->m_global_event_filter);
-    this->connect(
+    QmlInterface::connect(
         this->m_global_event_filter, &GlobalEventFilter::quit,
         app, &QGuiApplication::quit,
         Qt::QueuedConnection

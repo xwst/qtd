@@ -20,8 +20,9 @@
 #define MODEL_CONSTANTS_H
 
 #include <QObject>
+#include <QtTypes>
 
-enum CustomItemDataRole {
+enum CustomItemDataRole : quint16 {
       uuid_role = Qt::UserRole
     , active_role
     , start_role

@@ -21,9 +21,11 @@
 
 #include <memory>
 
-#include "persistedtreeitemmodelstestbase.h"
+#include <QTest>
+
 #include "../../src/app/model/flatteningproxymodel.h"
 #include "../../src/app/model/tagitemmodel.h"
+#include "persistedtreeitemmodelstestbase.h"
 
 class TestTagItemModels : public PersistedTreeItemModelsTestBase
 {
@@ -48,6 +50,7 @@ private:
     void assert_model_persistence();
     static void remove_single_row_without_children(QAbstractItemModel& model);
     static void remove_children_of_first_top_level_index(QAbstractItemModel& model);
+
 
 private slots:
     // Test setup/cleanup:
