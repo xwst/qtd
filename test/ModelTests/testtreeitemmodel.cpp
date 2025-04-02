@@ -1,12 +1,37 @@
+/**
+ * Copyright 2025 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
+ *
+ * This file is part of qtd.
+ *
+ * qtd is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *
+ * qtd is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * qtd. If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #include "testtreeitemmodel.h"
 
+#include <memory>
+#include <utility>
+
+#include <QAbstractItemModelTester>
 #include <QObject>
+#include <QSet>
 #include <QSignalSpy>
 #include <QTest>
 #include <QVariant>
 
 #include "../../src/app/model/model_constants.h"
 #include "../../src/app/util.h"
+#include "../testhelpers.h"
+#include "testmodelwrappers.h"
 
 TestTreeItemModel::TestTreeItemModel(QObject *parent)
     : QObject{parent}
@@ -26,7 +51,7 @@ void TestTreeItemModel::setup_initial_model() {
 
     QVERIFY(this->model->create_tree_node(std::make_unique<TestHelpers::TestTag>("A")));
     QVERIFY(this->model->create_tree_node(std::make_unique<TestHelpers::TestTag>("B")));
-    auto B_index = this->model->index(1, 0);
+    const auto B_index = this->model->index(1, 0);
     QVERIFY(this->model->create_tree_node(
         std::make_unique<TestHelpers::TestTag>("B1"),
         B_index.data(uuid_role).toUuid()
@@ -35,9 +60,9 @@ void TestTreeItemModel::setup_initial_model() {
 }
 
 void TestTreeItemModel::test_initial_setup() {
-    auto A_index = this->model->index(0, 0);
-    auto B_index = this->model->index(1, 0);
-    auto B1_index = this->model->index(0, 0, B_index);
+    const auto A_index = this->model->index(0, 0);
+    const auto B_index = this->model->index(1, 0);
+    const auto B1_index = this->model->index(0, 0, B_index);
 
     this->verify_item(A_index,  "A",  0, QModelIndex());
     this->verify_item(B_index,  "B",  1, QModelIndex());
@@ -47,22 +72,22 @@ void TestTreeItemModel::test_initial_setup() {
 void TestTreeItemModel::test_set_data() {
     QVERIFY(!this->model->setData(QModelIndex(), ""));
 
-    auto A_index = this->model->index(0, 0);
+    const auto A_index = this->model->index(0, 0);
     QVERIFY(!this->model->setData(A_index, "new name", Qt::ToolTipRole)); // Unused role
     QCOMPARE(A_index.data(), "A");
 
     QVERIFY(this->model->setData(A_index, "new name", Qt::DisplayRole));
     QCOMPARE(A_index.data(), "new name");
 
-    auto A_uuid = A_index.data(uuid_role);
+    const auto A_uuid = A_index.data(uuid_role);
     QVERIFY(!this->model->setData(A_index, QUuid::createUuid(), uuid_role));
     QCOMPARE(A_index.data(uuid_role), A_uuid);
 }
 
 void TestTreeItemModel::test_remove_single_row() {
-    int initial_size = this->model->get_size();
+    const auto initial_size = this->model->get_size();
     auto data = std::make_unique<TestHelpers::TestTag>("about to be deleted");
-    auto data_ptr = data.get();
+    const auto *data_ptr = data.get();
     QSignalSpy spy(data_ptr, SIGNAL(destroyed(QObject*)));
     this->model->create_tree_node(std::move(data));
     this->model->create_tree_node(std::make_unique<TestHelpers::TestTag>("C"));
@@ -85,12 +110,12 @@ void TestTreeItemModel::test_remove_single_row() {
 }
 
 void TestTreeItemModel::test_remove_multiple_rows() {
-    int initial_size = this->model->get_size();
+    const auto initial_size = this->model->get_size();
     auto first_new_item  = std::make_unique<TestHelpers::TestTag>("about to be deleted");
     auto second_new_item = std::make_unique<TestHelpers::TestTag>("about to be deleted, too");
 
-    auto first_data_pointer = first_new_item.get();
-    auto second_data_pointer = second_new_item.get();
+    const auto *first_data_pointer = first_new_item.get();
+    const auto *second_data_pointer = second_new_item.get();
 
     auto first_spy = QSignalSpy(first_data_pointer, SIGNAL(destroyed(QObject*)));
     auto second_spy = QSignalSpy(second_data_pointer, SIGNAL(destroyed(QObject*)));
@@ -147,8 +172,8 @@ void TestTreeItemModel::test_clone_tree_node_clones_children_recursiveley() {
     this->model->setData(child1a_index, "modified name for child 1a", Qt::DisplayRole);
 
     TestHelpers::assert_model_equality(
-        *this->model.get(),
-        *this->model.get(),
+        *this->model,
+        *this->model,
         {Qt::DisplayRole, Qt::DecorationRole, uuid_role},
         TestHelpers::compare_indices_by_uuid,
         B_index,
@@ -184,19 +209,19 @@ void TestTreeItemModel::test_adding_children_to_clones() {
     QCOMPARE(this->model->rowCount(B1_index), 1);
     QCOMPARE(spy.count(), 2);
 
-    QSet<QModelIndex> expected_signalling_indices = {B1_index, clone_index};
+    const QSet<QModelIndex> expected_signalling_indices = {B1_index, clone_index};
     QCOMPARE(this->model_indices_of_row_change_signals(spy), expected_signalling_indices);
     spy.clear();
 
     this->model->create_tree_node(
         std::make_unique<TestHelpers::TestTag>("child 2"),
         clone_index.data(uuid_role).toUuid()
-        );
+    );
     TestHelpers::assert_index_equality(
         B1_index,
         clone_index,
         {Qt::DisplayRole, static_cast<Qt::ItemDataRole>(uuid_role)}
-        );
+    );
     QCOMPARE(this->model->rowCount(B1_index), 2);
 
     QCOMPARE(spy.count(), 2);
@@ -204,12 +229,12 @@ void TestTreeItemModel::test_adding_children_to_clones() {
 }
 
 void TestTreeItemModel::test_remove_clone() {
-    auto B_index = this->model->index(1, 0);
-    auto B1_index = this->model->index(0, 0, B_index);
-    auto B1_uuid = this->model->index(0, 0, B_index).data(uuid_role).toUuid();
+    const auto B_index = this->model->index(1, 0);
+    const auto B1_index = this->model->index(0, 0, B_index);
+    const auto B1_uuid = this->model->index(0, 0, B_index).data(uuid_role).toUuid();
 
     QVERIFY(this->model->clone_tree_node(B1_uuid));
-    auto clone_index = this->model->index(2, 0);
+    const auto clone_index = this->model->index(2, 0);
     this->model->create_tree_node(
         std::make_unique<TestHelpers::TestTag>("child 1"),
         B1_index.data(uuid_role).toUuid()
@@ -223,29 +248,29 @@ void TestTreeItemModel::test_remove_clone() {
 }
 
 void TestTreeItemModel::test_remove_child_of_clone() {
-    auto B_index = this->model->index(1, 0);
-    auto B1_index = this->model->index(0, 0, B_index);
-    auto B1_uuid = this->model->index(0, 0, B_index).data(uuid_role).toUuid();
+    const auto B_index = this->model->index(1, 0);
+    const auto B1_index = this->model->index(0, 0, B_index);
+    const auto B1_uuid = this->model->index(0, 0, B_index).data(uuid_role).toUuid();
 
     QVERIFY(this->model->clone_tree_node(B1_uuid));
-    auto clone_index = this->model->index(2, 0);
+    const auto clone_index = this->model->index(2, 0);
     this->model->create_tree_node(
         std::make_unique<TestHelpers::TestTag>("child 1"),
         B1_index.data(uuid_role).toUuid()
     );
 
-    QSignalSpy spy(this->model.get(), SIGNAL(rowsRemoved(const QModelIndex&, int, int)));
+    const QSignalSpy spy(this->model.get(), SIGNAL(rowsRemoved(const QModelIndex&, int, int)));
 
     this->model->removeRows(0, 1, clone_index);
     QCOMPARE(this->model->rowCount(clone_index), 0);
     QCOMPARE(this->model->rowCount(B1_index), 0);
     QCOMPARE(spy.count(), 2);
-    QSet<QModelIndex> expected_signalling_indices = {B1_index, clone_index};
+    const QSet<QModelIndex> expected_signalling_indices = {B1_index, clone_index};
     QCOMPARE(this->model_indices_of_row_change_signals(spy), expected_signalling_indices);
 }
 
 void TestTreeItemModel::verify_item(
-    const QModelIndex& item, QString name, int child_count, const QModelIndex& parent
+    const QModelIndex& item, const QString& name, int child_count, const QModelIndex& parent
 ) {
     QCOMPARE(item.data().toString(), name);
     QCOMPARE(this->model->rowCount(item), child_count);
@@ -258,8 +283,9 @@ void TestTreeItemModel::verify_item(
 
 QSet<QModelIndex> TestTreeItemModel::model_indices_of_row_change_signals(const QSignalSpy& spy) {
     QSet<QModelIndex> result;
-    for (auto call_arguments : spy)
+    for (const auto& call_arguments : spy) {
         result.insert(call_arguments.at(0).toModelIndex());
+    }
     return result;
 }
 

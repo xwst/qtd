@@ -19,6 +19,10 @@
 #ifndef TESTHELPERS_H
 #define TESTHELPERS_H
 
+#include <functional>
+#include <memory>
+#include <vector>
+
 #include <QAbstractItemModel>
 #include <QAbstractItemModelTester>
 #include <QString>
@@ -39,7 +43,7 @@ public:
     // Inherit QObject to spy on signals:
     class TestTag : public Tag, public QObject {
     public:
-        TestTag(QString name) : Tag(name), QObject(nullptr) {}
+        explicit TestTag(const QString& name) : Tag(name), QObject(nullptr) {}
     };
 
     static bool setup_database();

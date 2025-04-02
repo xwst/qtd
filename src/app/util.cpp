@@ -18,9 +18,16 @@
 
 #include "util.h"
 
+#include <QAbstractItemModel>
 #include <QFile>
 #include <QRegularExpression>
+#include <QSqlDatabase>
 #include <QSqlError>
+#include <QSqlQuery>
+#include <QString>
+#include <QStringList>
+#include <QTextStream>
+#include <QtLogging>
 
 /**
  * @brief Util::split_queries Splits a string of queries at semicolons at the end of a line.
@@ -28,15 +35,14 @@
  * @return a list of individual queries
  */
 QStringList Util::split_queries(const QString& sql_queries) {
-    QString regex_str = ";\\s*(?:--.*)?\\n";
+    const QString regex_str = ";\\s*(?:--.*)?\\n";
     return sql_queries.split(QRegularExpression(regex_str), Qt::SkipEmptyParts);
 }
 
 QString Util::get_sql_query_string(const QString& sql_filename) {
-    QFile f(":/resources/sql/generic/" + sql_filename);
-    f.open(QFile::ReadOnly | QFile::Text);
-    QTextStream in(&f);
-    return in.readAll();
+    QFile file(":/resources/sql/generic/" + sql_filename);
+    file.open(QFile::ReadOnly | QFile::Text);
+    return QTextStream(&file).readAll();
 }
 
 QSqlQuery Util::get_sql_query(const QString& sql_filename, const QString& connection_name) {
@@ -45,7 +51,7 @@ QSqlQuery Util::get_sql_query(const QString& sql_filename, const QString& connec
 }
 
 bool Util::execute_sql_query(QSqlQuery& query, bool batch) {
-    bool exec_result = batch ? query.execBatch() : query.exec();
+    const bool exec_result = batch ? query.execBatch() : query.exec();
     if (!exec_result) {
         qDebug() << "Last SQL query: " << query.lastQuery();
         qDebug() << "Bound values: " << query.boundValues();
@@ -57,33 +63,35 @@ bool Util::execute_sql_query(QSqlQuery& query, bool batch) {
 
 bool Util::create_tables_if_not_exist(const QString& connection_name) {
     // The "if not exist"-part is governed by the SQL commands.
-    QString all_queries_str = Util::get_sql_query_string("create_tables.sql");
+    const QString all_queries_str = Util::get_sql_query_string("create_tables.sql");
     auto connection = QSqlDatabase::database(connection_name);
 
     QSqlQuery query(connection);
     bool no_error = connection.transaction();
     no_error &= query.exec("PRAGMA foreign_keys = ON;");
-    for (QString& query_str : Util::split_queries(all_queries_str))
+    for (const QString& query_str : Util::split_queries(all_queries_str)) {
         no_error &= query.exec(query_str);
+    }
 
-    if (no_error) connection.commit();
-    else connection.rollback();
+    no_error ? connection.commit() : connection.rollback();
     return no_error;
 }
 
 int Util::count_model_rows(const QAbstractItemModel* model, const QModelIndex &index) {
     auto result = index.isValid() ? 1 : 0;
     auto column = index.isValid() ? index.column() : 0;
-    for (int i=0; i<model->rowCount(index); i++)
+    for (int i=0; i<model->rowCount(index); i++) {
         result += count_model_rows(model, model->index(i, column, index));
+    }
     return result;
 }
 
-bool Util::is_last_child(const QAbstractItemModel* model, const QModelIndex& index) {
+bool Util::is_last_child(const QModelIndex& index) {
     if (index.isValid()) {
         auto parent = index.parent();
         return index.row() == index.model()->rowCount(parent) - 1;
-    } else return false;
+    }
+    return false;
 }
 
 /**
@@ -93,12 +101,16 @@ QModelIndex Util::next_row_index_depth_first(
     const QAbstractItemModel* model,
     QModelIndex current_index
 ) {
-    if (model->hasChildren(current_index))
+    if (model->hasChildren(current_index)) {
         return model->index(0, current_index.column(), current_index);
+    }
 
     // Traverse upwards until next "depth first"-row is found:
-    while (is_last_child(model, current_index))
+    while (is_last_child(current_index)) {
         current_index = current_index.parent();
+    }
 
-    return current_index.isValid() ? current_index.siblingAtRow(current_index.row()+1) : QModelIndex();
+    return current_index.isValid()
+               ? current_index.siblingAtRow(current_index.row()+1)
+               : QModelIndex();
 }

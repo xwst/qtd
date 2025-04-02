@@ -16,7 +16,9 @@
  * qtd. If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <QCoreApplication>
 #include <QGuiApplication>
+#include <QObject>
 #include <QQmlApplicationEngine>
 #include <QtQml/QQmlExtensionPlugin>
 
@@ -38,8 +40,9 @@ int main(int argc, char *argv[]) {
         &QQmlApplicationEngine::objectCreationFailed,
         &app,
         []() { QCoreApplication::exit(-1); },
-        Qt::QueuedConnection);
+        Qt::QueuedConnection
+    );
     engine.loadFromModule("src.app", "Main");
 
-    return app.exec();
+    return QGuiApplication::exec();
 }

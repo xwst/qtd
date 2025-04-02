@@ -18,15 +18,18 @@
 
 #include "textformatter.h"
 
-#include <QTextCursor>
+#include <list>
+
+#include <QObject>
 #include <QTextCharFormat>
+#include <QTextCursor>
 #include <QTextList>
 
 TextFormatter::TextFormatter(QObject *parent)
     : QObject{parent}
 { }
 
-void TextFormatter::remove_list(QTextList* list) {
+void TextFormatter::remove_list(QTextList* list) const {
     int removed = 0;
     auto count = list->count();
     for (int i=0; i<count; i++) {
@@ -47,13 +50,17 @@ void TextFormatter::remove_list(QTextList* list) {
 
 void TextFormatter::list_button_clicked(QTextListFormat::Style style) {
     auto cursor = this->get_textcursor();
-    if (cursor.currentList()) {
+    if (cursor.currentList() != nullptr) {
         auto format = cursor.currentList()->format();
         if (format.style() != style) {
             format.setStyle(style);
             cursor.currentList()->setFormat(format);
-        } else remove_list(cursor.currentList());
-    } else cursor.createList(style);
+        } else {
+            remove_list(cursor.currentList());
+        }
+    } else {
+        cursor.createList(style);
+    }
 }
 
 QTextCursor TextFormatter::get_textcursor() {
@@ -61,30 +68,34 @@ QTextCursor TextFormatter::get_textcursor() {
     if (this->m_qml_selection_start != this->m_qml_selection_end) {
         result.setPosition(this->m_qml_selection_start);
         result.setPosition(this->m_qml_selection_end, QTextCursor::KeepAnchor);
-    } else result.setPosition(this->m_qml_cursor_position);
+    } else {
+        result.setPosition(this->m_qml_cursor_position);
+    }
     return result;
 }
 
 bool TextFormatter::change_list_indent(bool increase) {
     auto cursor = this->get_textcursor();
-    auto list = cursor.currentList();
-    if (list) {
+    auto *list = cursor.currentList();
+    if (list != nullptr) {
         auto format = list->format();
-        if (format.indent() == 1 && !increase) this->remove_list(list);
-        else {
-            int new_indent = format.indent() + (increase ? 1 : -1);
-            auto previous_list = this->get_previous_list(cursor.block(), new_indent);
-            if (previous_list) {
+        if (format.indent() == 1 && !increase) { this->remove_list(list);
+        } else {
+            const int new_indent = format.indent() + (increase ? 1 : -1);
+            auto *previous_list = TextFormatter::get_previous_list(cursor.block(), new_indent);
+            if (previous_list != nullptr) {
                 auto selected_blocks = this->get_selected_blocks();
-                for (const auto& block : selected_blocks)
+                for (const auto& block : selected_blocks) {
                     previous_list->add(block);
+                }
             } else {
                 format.setIndent(new_indent);
                 cursor.createList(format);
             }
         }
         return true;
-    } else return false;
+    }
+    return false;
 }
 
 std::list<QTextBlock> TextFormatter::get_selected_blocks() {
@@ -95,20 +106,22 @@ std::list<QTextBlock> TextFormatter::get_selected_blocks() {
     auto end_block = cursor.block().next();
 
     std::list<QTextBlock> result;
-    for (auto block=first_block; block!=end_block; block=block.next())
+    for (auto block=first_block; block!=end_block; block=block.next()) {
         result.push_back(block);
+    }
     return result;
 }
 
-QTextList* TextFormatter::get_previous_list(QTextBlock block, int indent) {
+QTextList* TextFormatter::get_previous_list(const QTextBlock& block, int indent) {
     auto previous_block = block.previous();
     while (
         previous_block.isValid()
-        && previous_block.textList()
+        && (previous_block.textList() != nullptr)
         && previous_block.textList()->format().indent() >= indent
     ) {
-        if (previous_block.textList()->format().indent() == indent)
+        if (previous_block.textList()->format().indent() == indent) {
             return previous_block.textList();
+        }
         previous_block = previous_block.previous();
     }
 

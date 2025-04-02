@@ -1,11 +1,37 @@
+/**
+ * Copyright 2025 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
+ *
+ * This file is part of qtd.
+ *
+ * qtd is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *
+ * qtd is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * qtd. If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #include "testtaskitemmodels.h"
 
+#include <memory>
+
 #include <QAbstractItemModelTester>
+#include <QDateTime>
+#include <QObject>
+#include <QSet>
+#include <QString>
 #include <QTest>
 
-#include "../testhelpers.h"
 #include "../../src/app/model/model_constants.h"
+#include "../../src/app/model/task.h"
 #include "../../src/app/util.h"
+#include "../testhelpers.h"
+#include "persistedtreeitemmodelstestbase.h"
 
 TestTaskItemModel::TestTaskItemModel(QObject *parent)
     : PersistedTreeItemModelsTestBase{parent}
@@ -18,7 +44,7 @@ void TestTaskItemModel::initTestCase() {
 
 void TestTaskItemModel::init() {
     PersistedTreeItemModelsTestBase::init();
-    TestHelpers::setup_item_model(this->model, this->db_connection_name);
+    TestHelpers::setup_item_model(this->model, this->get_db_connection_name());
 }
 
 void TestTaskItemModel::cleanup() {
@@ -37,15 +63,15 @@ void TestTaskItemModel::test_model_stores_text_documents() {
 }
 
 void TestTaskItemModel::test_data_change_of_unique_task() {
-    QString title = "Buy groceries";
-    auto test_index = TestHelpers::find_model_index_by_display_role(*this->model, title);
+    const QString title = "Buy groceries";
+    const auto test_index = TestHelpers::find_model_index_by_display_role(*this->model, title);
     QVERIFY(test_index.isValid());
 
-    auto due_time = test_index.data(due_role).toDateTime();
-    auto uuid = test_index.data(uuid_role).toUuid();
+    const auto due_time = test_index.data(due_role).toDateTime();
+    const auto uuid = test_index.data(uuid_role).toUuid();
     QCOMPARE(test_index.data(active_role), Task::open);
 
-    auto new_start_time = QDateTime::currentDateTime();
+    const auto new_start_time = QDateTime::currentDateTime();
     QVERIFY(this->model->setData(test_index, new_start_time, start_role));
     QVERIFY(this->model->setData(test_index, Task::closed, active_role));
 
@@ -58,7 +84,7 @@ void TestTaskItemModel::test_data_change_of_unique_task() {
 }
 
 void TestTaskItemModel::test_data_change_of_cloned_task() {
-    auto test_index = TestHelpers::find_model_index_by_display_role(
+    const auto test_index = TestHelpers::find_model_index_by_display_role(
         *this->model,
         "Fix printer",
         TestHelpers::find_model_index_by_display_role(
@@ -66,7 +92,7 @@ void TestTaskItemModel::test_data_change_of_cloned_task() {
             "Buy groceries"
         )
     );
-    auto test_index_clone = TestHelpers::find_model_index_by_display_role(
+    const auto test_index_clone = TestHelpers::find_model_index_by_display_role(
         *this->model,
         "Fix printer",
         TestHelpers::find_model_index_by_display_role(
@@ -78,26 +104,26 @@ void TestTaskItemModel::test_data_change_of_cloned_task() {
     QVERIFY(test_index.isValid());
     QVERIFY(test_index_clone.isValid());
     QCOMPARE_NE(test_index_clone, test_index);
-    this->assert_index_equality(test_index, test_index_clone);
+    TestTaskItemModel::assert_index_equality(test_index, test_index_clone);
 
-    QString new_title = "Fix printer and refill ink";
+    const QString new_title = "Fix printer and refill ink";
     QVERIFY(this->model->setData(test_index, new_title, Qt::DisplayRole));
     QCOMPARE(test_index_clone.data().toString(), new_title);
-    this->assert_index_equality(test_index, test_index_clone);
+    TestTaskItemModel::assert_index_equality(test_index, test_index_clone);
 
-    auto new_status = (test_index_clone.data(active_role) == Task::open) ? Task::closed : Task::open;
+    const auto new_status = (test_index_clone.data(active_role) == Task::open) ? Task::closed : Task::open;
     QVERIFY(this->model->setData(test_index_clone, new_status, active_role));
     QCOMPARE(test_index.data(active_role), new_status);
-    this->assert_index_equality(test_index, test_index_clone);
+    TestTaskItemModel::assert_index_equality(test_index, test_index_clone);
 }
 
 void TestTaskItemModel::test_remove_rows() {
-    auto index_to_remove = TestHelpers::find_model_index_by_display_role(
+    const auto index_to_remove = TestHelpers::find_model_index_by_display_role(
         *this->model, "Buy groceries"
     );
     QVERIFY(index_to_remove.isValid());
-    auto index_parent = index_to_remove.parent();
-    int number_of_siblings = this->model->rowCount(index_parent) - 1;
+    const auto index_parent = index_to_remove.parent();
+    const int number_of_siblings = this->model->rowCount(index_parent) - 1;
     QVERIFY(this->model->removeRows(index_to_remove.row(), 1, index_parent));
     QCOMPARE(this->model->get_size(), Util::count_model_rows(this->model.get()));
     QCOMPARE(this->model->get_size(), 6);
@@ -106,22 +132,22 @@ void TestTaskItemModel::test_remove_rows() {
 }
 
 void TestTaskItemModel::test_create_task() {
-    auto parent1 = TestHelpers::find_model_index_by_display_role(
+    const auto parent1 = TestHelpers::find_model_index_by_display_role(
         *this->model, "Buy groceries"
     );
-    auto parent2 = TestHelpers::find_model_index_by_display_role(
+    const auto parent2 = TestHelpers::find_model_index_by_display_role(
         *this->model, "Do chores"
     );
     QVERIFY(parent1.isValid());
     QVERIFY(parent2.isValid());
 
-    QString new_task_title = "My new test task";
+    const QString new_task_title = "My new test task";
     QVERIFY(this->model->create_task(new_task_title, {parent1, parent2}));
     QCOMPARE(this->model->get_size(), Util::count_model_rows(this->model.get()));
     QCOMPARE(this->model->get_size(), 12);
 
-    auto new_index1 = this->model->index(this->model->rowCount(parent1)-1, 0, parent1);
-    auto new_index2 = this->model->index(this->model->rowCount(parent2)-1, 0, parent2);
+    const auto new_index1 = this->model->index(this->model->rowCount(parent1)-1, 0, parent1);
+    const auto new_index2 = this->model->index(this->model->rowCount(parent2)-1, 0, parent2);
     QVERIFY(new_index1.isValid());
     QVERIFY(new_index2.isValid());
 
@@ -129,33 +155,33 @@ void TestTaskItemModel::test_create_task() {
     QCOMPARE(new_index1.data(active_role),              Task::open);
     QCOMPARE(new_index1.data(start_role ).toDateTime(), QDateTime());
     QCOMPARE(new_index1.data(due_role   ).toDateTime(), QDateTime());
-    this->assert_index_equality(new_index1, new_index2);
+    TestTaskItemModel::assert_index_equality(new_index1, new_index2);
 }
 
 void TestTaskItemModel::test_add_dependency() {
-    auto index1 = TestHelpers::find_model_index_by_display_role(
+    auto index_buy_groceries = TestHelpers::find_model_index_by_display_role(
         *this->model, "Buy groceries"
     );
-    auto index2 = TestHelpers::find_model_index_by_display_role(
+    auto index_landlord_mail = TestHelpers::find_model_index_by_display_role(
         *this->model, "Answer landlords mail"
     );
-    QVERIFY(index1.isValid());
-    QVERIFY(index2.isValid());
+    QVERIFY(index_buy_groceries.isValid());
+    QVERIFY(index_landlord_mail.isValid());
 
-    QVERIFY(this->model->add_dependency(index2, index1));
-    auto cloned_index = this->model->index(1, 0, index2);
-    QCOMPARE(this->model->rowCount(index2), 2);
-    this->assert_index_equality(cloned_index, index1);
-    QCOMPARE(this->model->rowCount(cloned_index), this->model->rowCount(index1));
+    QVERIFY(this->model->add_dependency(index_landlord_mail, index_buy_groceries));
+    auto cloned_index = this->model->index(1, 0, index_landlord_mail);
+    QCOMPARE(this->model->rowCount(index_landlord_mail), 2);
+    TestTaskItemModel::assert_index_equality(cloned_index, index_buy_groceries);
+    QCOMPARE(this->model->rowCount(cloned_index), this->model->rowCount(index_buy_groceries));
 }
 
 void TestTaskItemModel::test_can_not_create_dependency_cycle() {
     auto parent_index = TestHelpers::find_model_index_by_display_role(
         *this->model, "Buy groceries"
-        );
+    );
     auto nested_child_index = TestHelpers::find_model_index_by_display_role(
         *this->model, "Fix printer", parent_index
-        );
+    );
     QVERIFY(parent_index.isValid());
     QVERIFY(nested_child_index.isValid());
 
@@ -190,11 +216,11 @@ void TestTaskItemModel::assert_initial_dataset_representation_base_model() {
 void TestTaskItemModel::assert_model_persistence() {
     std::unique_ptr<TaskItemModel> model_reloaded_from_db;
 
-    TestHelpers::setup_item_model(model_reloaded_from_db, this->db_connection_name);
+    TestHelpers::setup_item_model(model_reloaded_from_db, this->get_db_connection_name());
 
     TestHelpers::assert_model_equality(
-        *model_reloaded_from_db.get(),
-        *this->model.get(),
+        *model_reloaded_from_db,
+        *this->model,
         {Qt::DisplayRole, uuid_role, active_role, start_role, due_role, details_role},
         TestHelpers::compare_indices_by_uuid
     );
@@ -204,13 +230,20 @@ void TestTaskItemModel::assert_index_equality(
     const QModelIndex& index1,
     const QModelIndex& index2
 ) {
-    QSet<int> roles = {Qt::DisplayRole, uuid_role, active_role, start_role, due_role, details_role};
-    for (int role : roles)
+    const QSet<int> roles = {
+        Qt::DisplayRole, uuid_role, active_role, start_role, due_role, details_role
+    };
+    for (const int role : roles) {
         QCOMPARE(index1.data(role), index2.data(role));
+    }
 }
 
 void TestTaskItemModel::find_task_by_title_and_assert_correctness_of_data(
-    QString title, Task::Status status, QDateTime start_datetime, QDateTime due_datetime, int number_of_children
+    const QString& title,
+    Task::Status status,
+    const QDateTime& start_datetime,
+    const QDateTime& due_datetime,
+    int number_of_children
 ) {
     auto index = TestHelpers::find_model_index_by_display_role(*this->model, title);
     QVERIFY(index.isValid());

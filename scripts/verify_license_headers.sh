@@ -10,7 +10,7 @@ while read FILE_NAME; do
     if [[ $FILE_NAME == *main.cpp ]]; then
         FOUND_MAIN=0
     fi
-    HASH=$(grep -A12 "This file is part of qtd" "$FILE_NAME" | sha256sum)
+    HASH=$(grep -A12 "This file is part of qtd" "$FILE_NAME" | sha256sum | cut -d' ' -f1)
     if [ "$HASH" != "$LICENSE_HEADER_HASH" ]; then
         echo "$FILE_NAME is not properly licensed!"
         RESULT=1

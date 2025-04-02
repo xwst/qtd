@@ -1,6 +1,36 @@
+/**
+ * Copyright 2025 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
+ *
+ * This file is part of qtd.
+ *
+ * qtd is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *
+ * qtd is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * qtd. If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #include "treeitemmodel.h"
 
+#include <functional>
+#include <memory>
+#include <utility>
+
+#include <QAbstractItemModel>
+#include <QList>
+#include <QObject>
+#include <QUuid>
+#include <QtTypes>
+
 #include "model_constants.h"
+#include "treenode.h"
+#include "uniquedataitem.h"
 
 TreeItemModel::TreeItemModel(QObject *parent)
     : QAbstractItemModel{parent}
@@ -25,11 +55,12 @@ QModelIndex TreeItemModel::create_index(const TreeNode *node) const {
  */
 void TreeItemModel::operate_on_clones(
     const QUuid& uuid,
-    std::function<void(TreeNode*)> operation
+    const std::function<void(TreeNode*)>& operation
 ) {
-    QList<TreeNode*> clones = this->uuid_node_map.values(uuid);
-    for (auto clone : clones)
+    const QList<TreeNode*> clones = this->uuid_node_map.values(uuid);
+    for (auto *clone : clones) {
         operation(clone);
+    }
 }
 
 /**
@@ -39,19 +70,12 @@ void TreeItemModel::operate_on_clones(
  */
 void TreeItemModel::operate_on_clones(
     const QModelIndex& node_index,
-    std::function<void(TreeNode*)> operation
-    ) {
+    const std::function<void(TreeNode*)>& operation
+) {
     auto node_uuid = node_index.isValid()
                     ? node_index.data(uuid_role).toUuid()
                     : this->root->get_data(uuid_role).toUuid();
-    return this->operate_on_clones(node_uuid, operation);
-}
-
-bool TreeItemModel::is_nested_child(
-    const QString& parent_uuid,
-    const QString& potential_child_uuid
-) {
-    return false;
+    this->operate_on_clones(node_uuid, operation);
 }
 
 /**
@@ -73,13 +97,15 @@ bool TreeItemModel::add_tree_node(
                              ? this->root->get_data(uuid_role).toUuid()
                              : parent_uuid;
 
-    if (!this->uuid_node_map.contains(parent_or_root_uuid))
+    if (!this->uuid_node_map.contains(parent_or_root_uuid)) {
         return false;
+    }
 
-    if (this->node_creates_dependency_cycle(new_node.get(), parent_uuid))
+    if (this->node_creates_dependency_cycle(new_node.get(), parent_uuid)) {
         return false;
+    }
 
-    auto* new_node_raw_ptr = new_node.get();
+    const auto* new_node_raw_ptr = new_node.get();
     this->operate_on_clones(
         parent_or_root_uuid,
         [this, new_node_raw_ptr](TreeNode* parent_node_ptr) -> void {
@@ -102,8 +128,9 @@ bool TreeItemModel::add_tree_node(
 
 void TreeItemModel::add_recursively_to_uuid_node_map(TreeNode* node) {
     this->uuid_node_map.insert(node->get_data(uuid_role).toUuid(), node);
-    for (int i=0; i<node->get_child_count(); i++)
+    for (int i=0; i<node->get_child_count(); i++) {
         this->add_recursively_to_uuid_node_map(node->get_child(i));
+    }
 }
 
 bool TreeItemModel::node_creates_dependency_cycle(TreeNode* new_node, const QUuid& parent_uuid) {
@@ -111,62 +138,74 @@ bool TreeItemModel::node_creates_dependency_cycle(TreeNode* new_node, const QUui
 }
 
 bool TreeItemModel::has_nested_child_with_uuid(TreeNode* node, const QUuid& uuid) {
-    if (node->get_data(uuid_role).toUuid() == uuid) return true;
+    if (node->get_data(uuid_role).toUuid() == uuid) {
+        return true;
+    }
 
-    for (int i=0; i<node->get_child_count(); i++)
-        if (this->has_nested_child_with_uuid(node->get_child(i), uuid))
+    for (int i=0; i<node->get_child_count(); i++) {
+        if (this->has_nested_child_with_uuid(node->get_child(i), uuid)) {
             return true;
+        }
+    }
     return false;
 }
 
 TreeNode* TreeItemModel::get_raw_node_pointer(const QModelIndex& index) const {
     return index.isValid()
-    ? static_cast<TreeNode*>(index.internalPointer())
-    : this->root.get();
+        ? static_cast<TreeNode*>(index.internalPointer())
+        : this->root.get();
 }
 
 void TreeItemModel::remove_recursively_from_node_map(TreeNode* item) {
     this->uuid_node_map.remove(item->get_data(uuid_role).toUuid(), item);
 
-    for (int i=0; i<item->get_child_count(); i++)
+    for (int i=0; i<item->get_child_count(); i++) {
         this->remove_recursively_from_node_map(item->get_child(i));
+    }
 }
 
 int TreeItemModel::rowCount(const QModelIndex &parent) const {
     return this->get_raw_node_pointer(parent)->get_child_count();
 }
 
-int TreeItemModel::columnCount(const QModelIndex& parent) const {
+int TreeItemModel::columnCount(const QModelIndex& /* parent */) const {
     return 1;
 }
 
 QModelIndex TreeItemModel::parent(const QModelIndex& index) const {
-    if (!index.isValid()) return QModelIndex();
+    if (!index.isValid()) {
+        return {};
+    }
 
     const auto* parent_node = this->get_raw_node_pointer(index)->get_parent();
-    if (parent_node == this->root.get())
-        return QModelIndex();
+    if (parent_node == this->root.get()) {
+        return {};
+    }
 
     return this->createIndex(parent_node->get_row_in_parent(), 0, parent_node);
 }
 
-QModelIndex TreeItemModel::index(int row, int column, const QModelIndex& index) const {
-    if (column != 0 || row < 0) return QModelIndex();
+QModelIndex TreeItemModel::index(int row, int column, const QModelIndex& parent) const {
+    if (column != 0 || row < 0) {
+        return {};
+    }
 
-    const auto* node = this->get_raw_node_pointer(index);
-    if (row >= node->get_child_count()) return QModelIndex();
+    const auto* node = this->get_raw_node_pointer(parent);
+    if (row >= node->get_child_count()) {
+        return {};
+    }
 
     return this->createIndex(row, column, node->get_child(row));
 }
 
 QVariant TreeItemModel::data(const QModelIndex& index, int role) const {
-    return index.isValid()
-    ? this->get_raw_node_pointer(index)->get_data(role)
-    : QVariant();
+    return index.isValid() ? this->get_raw_node_pointer(index)->get_data(role) : QVariant();
 }
 
 bool TreeItemModel::setData(const QModelIndex& index, const QVariant& value, int role) {
-    if (!index.isValid()) return false;
+    if (!index.isValid()) {
+        return false;
+    }
 
     this->get_raw_node_pointer(index)->set_data(value, role);
 
@@ -176,18 +215,18 @@ bool TreeItemModel::setData(const QModelIndex& index, const QVariant& value, int
             auto node_index = this->create_index(node);
             emit this->dataChanged(node_index, node_index, {role});
         }
-        );
+    );
     return true;
 }
 
 bool TreeItemModel::removeRows(int row, int count, const QModelIndex &parent) {
-    auto parent_item = this->get_raw_node_pointer(parent);
 
     this->operate_on_clones(
         parent,
         [this, row, count](TreeNode* node) -> void {
-            for (int i=row; i<row+count; i++)
+            for (int i=row; i<row+count; i++) {
                 this->remove_recursively_from_node_map(node->get_child(i));
+            }
             auto node_index = this->create_index(node);
             this->beginRemoveRows(node_index, row, row+count-1);
             node->remove_children(row, count);
@@ -234,9 +273,10 @@ bool TreeItemModel::create_tree_node(
 bool TreeItemModel::clone_tree_node(
     const QUuid& uuid,
     const QUuid& parent_uuid
-    ) {
-    if (!this->uuid_node_map.contains(uuid))
+){
+    if (!this->uuid_node_map.contains(uuid)) {
         return false;
+    }
 
     auto node_clone = TreeNode::clone(this->uuid_node_map.value(uuid));
     return this->add_tree_node(
