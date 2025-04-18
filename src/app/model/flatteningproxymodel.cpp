@@ -133,13 +133,16 @@ QModelIndex FlatteningProxyModel::mapFromSource(const QModelIndex& sourceIndex) 
     if (!sourceIndex.isValid()) {
         return {};
     }
-    auto proxy_parent = this->mapFromSource(sourceIndex.parent());
-    int proxy_row = proxy_parent.row() + 1;
-    for (int i=0; i<sourceIndex.row(); i++) {
-        auto previous_sibling = sourceIndex.siblingAtRow(i);
-        proxy_row += Util::count_model_rows(this->sourceModel(), previous_sibling);
-    }
 
+    int proxy_row = -1;
+    std::function<bool(const QModelIndex&)> find_source_index_operation
+        = [&proxy_row, &sourceIndex](const QModelIndex& index) -> bool
+    {
+        proxy_row++;
+        return index == sourceIndex;
+    };
+
+    Util::model_foreach(*this->sourceModel(), find_source_index_operation);
     return createIndex(proxy_row, sourceIndex.column(), sourceIndex.internalPointer());
 }
 

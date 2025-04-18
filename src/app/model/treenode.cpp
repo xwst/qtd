@@ -19,14 +19,26 @@
 #include "treenode.h"
 
 #include <memory>
+#include <stack>
+#include <tuple>
 #include <utility>
 
 #include <QVariant>
 
 #include "uniquedataitem.h"
 
-TreeNode::TreeNode(std::shared_ptr<UniqueDataItem> data, TreeNode* parent)
-    : data(std::move(std::move(data))), parent(parent) {}
+TreeNode::TreeNode(std::shared_ptr<UniqueDataItem> data, const TreeNode* parent)
+    : data(std::move(data)), parent(parent) {}
+
+/**
+ * @brief Private wrapper for the constructor to avoid using new-operator at many places
+ */
+std::unique_ptr<TreeNode> TreeNode::create(
+    std::shared_ptr<UniqueDataItem> data,
+    const TreeNode* parent
+) {
+    return std::unique_ptr<TreeNode>(new TreeNode(data, parent));
+}
 
 /**
  * @brief Create a new TreeNode with the given data item.
@@ -36,7 +48,7 @@ TreeNode::TreeNode(std::shared_ptr<UniqueDataItem> data, TreeNode* parent)
  */
 std::unique_ptr<TreeNode> TreeNode::create(
     std::unique_ptr<UniqueDataItem> data,
-    TreeNode* parent
+    const TreeNode* parent
 ) {
     return std::unique_ptr<TreeNode>(new TreeNode(std::move(data), parent));
 }
@@ -47,12 +59,46 @@ std::unique_ptr<TreeNode> TreeNode::create(
  * Use this function, if the new and the provided TreeNode should be identical
  * except for the parent TreeNode. This can be used, to allow a TreeNode to
  * appear multiple times in the tree hierarchy.
+ *
+ * The parent pointer is stored in the clone, but not modified itself, that is
+ * the clone is not added as a child to the parent. This is in the responsibility
+ * of the calling function.
+ *
  * @sa TreeNode::create
  */
 std::unique_ptr<TreeNode> TreeNode::clone(
     const TreeNode* to_be_cloned,
-    TreeNode* parent
+    const TreeNode* parent
 ) {
+    std::stack<std::pair<const TreeNode*, const TreeNode*>> to_be_cloned_stack;
+    to_be_cloned_stack.emplace(to_be_cloned, parent);
+
+    std::unique_ptr<TreeNode> result;
+    const TreeNode* original_node = nullptr;
+    const TreeNode* new_parent_node = nullptr;
+
+    while (!to_be_cloned_stack.empty()) {
+        std::tie(original_node, new_parent_node) = to_be_cloned_stack.top();
+        to_be_cloned_stack.pop();
+        auto node_clone = TreeNode::create(original_node->data, new_parent_node);
+
+        node_clone->children.reserve(original_node->children.size());
+        for (const auto& child : original_node->children) {
+            to_be_cloned_stack.emplace(child.get(), node_clone.get());
+        }
+
+        if (new_parent_node == parent) {
+            result = std::move(node_clone);
+        } else {
+            const_cast<TreeNode*>(new_parent_node)->children.push_back(std::move(node_clone));
+            // In this block, the new_parent_node is one of the newly created clones in the
+            // hierarchy which are not const so its safe to use const_cast.
+        }
+    }
+
+    return result;
+
+    /*
     auto result = std::unique_ptr<TreeNode>(new TreeNode(to_be_cloned->data, parent));
     result->children.reserve(to_be_cloned->children.size());
     for (const auto& child : to_be_cloned->children) {
@@ -61,9 +107,10 @@ std::unique_ptr<TreeNode> TreeNode::clone(
         );
     }
     return result;
+    */
 }
 
-TreeNode* TreeNode::get_parent() const {
+const TreeNode* TreeNode::get_parent() const {
     return this->parent;
 }
 

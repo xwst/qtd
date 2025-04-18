@@ -20,6 +20,7 @@
 
 #include <functional>
 #include <memory>
+#include <stack>
 #include <utility>
 
 #include <QAbstractItemModel>
@@ -31,6 +32,43 @@
 #include "model_constants.h"
 #include "treenode.h"
 #include "uniquedataitem.h"
+
+namespace {
+
+/**
+ * @brief Traverse a node hierarchy in depth first order and execute a function on each element.
+ *
+ * The passed function must return a boolean that indicates if the foreach loop should be
+ * aborted. If the return value is false, the foreach loop continues. If the return value
+ * is true, the foreach loop is stopped.
+ *
+ * @param node the top level node of the hierarchy to process
+ * @param operation the function to execute on each node
+ * @return the node on which the loop was aborted or nullptr if the loop finished
+ */
+
+const TreeNode* tree_nodes_foreach(
+    TreeNode* node,
+    const std::function<bool(TreeNode*)>& operation
+) {
+    std::stack<TreeNode*> to_be_visited;
+    to_be_visited.push(node);
+
+    while (!to_be_visited.empty()) {
+        auto* current_node = to_be_visited.top();
+        to_be_visited.pop();
+        if (operation(current_node)) {
+            return current_node;
+        }
+
+        for (int i=current_node->get_child_count()-1; i>=0; i--) {
+            to_be_visited.push(current_node->get_child(i));
+        }
+    }
+    return nullptr;
+}
+
+} // anonymous namespace
 
 TreeItemModel::TreeItemModel(QObject *parent)
     : QAbstractItemModel{parent}
@@ -127,10 +165,10 @@ bool TreeItemModel::add_tree_node(
 }
 
 void TreeItemModel::add_recursively_to_uuid_node_map(TreeNode* node) {
-    this->uuid_node_map.insert(node->get_data(uuid_role).toUuid(), node);
-    for (int i=0; i<node->get_child_count(); i++) {
-        this->add_recursively_to_uuid_node_map(node->get_child(i));
-    }
+    tree_nodes_foreach(node, [this](TreeNode* node) {
+        this->uuid_node_map.insert(node->get_data(uuid_role).toUuid(), node);
+        return false;
+    });
 }
 
 bool TreeItemModel::node_creates_dependency_cycle(TreeNode* new_node, const QUuid& parent_uuid) {
@@ -138,16 +176,14 @@ bool TreeItemModel::node_creates_dependency_cycle(TreeNode* new_node, const QUui
 }
 
 bool TreeItemModel::has_nested_child_with_uuid(TreeNode* node, const QUuid& uuid) {
-    if (node->get_data(uuid_role).toUuid() == uuid) {
-        return true;
-    }
-
-    for (int i=0; i<node->get_child_count(); i++) {
-        if (this->has_nested_child_with_uuid(node->get_child(i), uuid)) {
-            return true;
-        }
-    }
-    return false;
+    const auto* node_with_matching_uuid
+        = tree_nodes_foreach(
+            node,
+            [&uuid](TreeNode* node) {
+                return node->get_data(uuid_role).toUuid() == uuid;
+            }
+    );
+    return node_with_matching_uuid != nullptr;
 }
 
 TreeNode* TreeItemModel::get_raw_node_pointer(const QModelIndex& index) const {
@@ -157,11 +193,10 @@ TreeNode* TreeItemModel::get_raw_node_pointer(const QModelIndex& index) const {
 }
 
 void TreeItemModel::remove_recursively_from_node_map(TreeNode* item) {
-    this->uuid_node_map.remove(item->get_data(uuid_role).toUuid(), item);
-
-    for (int i=0; i<item->get_child_count(); i++) {
-        this->remove_recursively_from_node_map(item->get_child(i));
-    }
+    tree_nodes_foreach(item, [this](TreeNode* node) {
+        this->uuid_node_map.remove(node->get_data(uuid_role).toUuid(), node);
+        return false;
+    });
 }
 
 int TreeItemModel::rowCount(const QModelIndex &parent) const {

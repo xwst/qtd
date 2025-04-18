@@ -193,6 +193,14 @@ void TestTagItemModels::assert_correct_from_source_mapping_recursively(
     const QModelIndex& source_index,
     int expected_proxy_row
 ) {
+    std::function<void(const QModelIndex&)> correct_mapping_assertion_operation
+        = [this, &expected_proxy_row](const QModelIndex& source_index) {
+        auto proxy_index = this->flat_model->mapFromSource(source_index);
+        QCOMPARE(proxy_index.internalPointer(), source_index.internalPointer());
+        QCOMPARE(proxy_index.row(), expected_proxy_row++);
+    };
+    Util::model_foreach(*this->model, correct_mapping_assertion_operation, source_index);
+    /*
     auto proxy_index = this->flat_model->mapFromSource(source_index);
     QCOMPARE(proxy_index.internalPointer(), source_index.internalPointer());
     QCOMPARE(proxy_index.row(), expected_proxy_row);
@@ -202,6 +210,7 @@ void TestTagItemModels::assert_correct_from_source_mapping_recursively(
         this->assert_correct_from_source_mapping_recursively(child_index, expected_proxy_row+1);
         expected_proxy_row += Util::count_model_rows(this->model.get(), child_index);
     }
+    */
 }
 
 void TestTagItemModels::assert_correct_proxy_mapping() {
