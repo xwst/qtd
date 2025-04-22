@@ -35,6 +35,40 @@
 #include "../src/app/model/model_constants.h"
 #include "../src/app/util.h"
 
+namespace {
+
+void assert_index_data_and_dimension_equality(
+    const QAbstractItemModel& model_under_test,
+    const QAbstractItemModel& model_expectation,
+    const QSet<int>& roles_to_check,
+    const QModelIndex& index_of_model_under_test,
+    const QModelIndex& index_of_model_expectation
+) {
+    // Index data equality:
+    QCOMPARE(
+        index_of_model_under_test.isValid(),
+        index_of_model_expectation.isValid()
+    );
+    for (const auto item_data_role : roles_to_check) {
+        QCOMPARE(
+            index_of_model_under_test.data(item_data_role),
+            index_of_model_expectation.data(item_data_role)
+        );
+    }
+
+    // Dimension equality:
+    QCOMPARE(
+        model_under_test.rowCount(index_of_model_under_test),
+        model_expectation.rowCount(index_of_model_expectation)
+    );
+    QCOMPARE(
+        model_under_test.columnCount(index_of_model_under_test),
+        model_expectation.columnCount(index_of_model_expectation)
+    );
+}
+
+} // anonymous namespace
+
 bool TestHelpers::setup_database() {
     auto database = QSqlDatabase::addDatabase("QSQLITE");
     database.setDatabaseName(":memory:");
@@ -101,26 +135,12 @@ void TestHelpers::assert_model_equality(
     QVERIFY(model_expectation.checkIndex(index_of_model_expectation));
     QVERIFY(model_under_test.checkIndex(index_of_model_under_test));
 
-    // Index data equality:
-    QCOMPARE(
-        index_of_model_under_test.isValid(),
-        index_of_model_expectation.isValid()
-    );
-    for (const auto item_data_role : roles_to_check) {
-        QCOMPARE(
-            index_of_model_under_test.data(item_data_role),
-            index_of_model_expectation.data(item_data_role)
-        );
-    }
-
-    // Dimension equality:
-    QCOMPARE(
-        model_under_test.rowCount(index_of_model_under_test),
-        model_expectation.rowCount(index_of_model_expectation)
-    );
-    QCOMPARE(
-        model_under_test.columnCount(index_of_model_under_test),
-        model_expectation.columnCount(index_of_model_expectation)
+    assert_index_data_and_dimension_equality(
+        model_under_test,
+        model_expectation,
+        roles_to_check,
+        index_of_model_under_test,
+        index_of_model_expectation
     );
 
     // Sort children by passed comparator:

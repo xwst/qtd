@@ -18,6 +18,8 @@
 
 #include "flatteningproxymodel.h"
 
+#include <functional>
+
 #include <QAbstractProxyModel>
 #include <QList>
 #include <QObject>
@@ -135,7 +137,7 @@ QModelIndex FlatteningProxyModel::mapFromSource(const QModelIndex& sourceIndex) 
     }
 
     int proxy_row = -1;
-    std::function<bool(const QModelIndex&)> find_source_index_operation
+    const std::function<bool(const QModelIndex&)> find_source_index_operation
         = [&proxy_row, &sourceIndex](const QModelIndex& index) -> bool
     {
         proxy_row++;

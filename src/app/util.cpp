@@ -172,7 +172,7 @@ void Util::model_foreach(
     const std::function<void (const QModelIndex &)>& operation,
     const QModelIndex& parent_index
 ) {
-    std::function<bool (const QModelIndex&)> operation_wrapper
+    const std::function<bool (const QModelIndex&)> operation_wrapper
         = [&operation](const QModelIndex& index) -> bool { operation(index); return false; };
     Util::model_foreach(model, operation_wrapper, parent_index);
 }

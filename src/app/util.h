@@ -19,6 +19,8 @@
 #ifndef UTIL_H
 #define UTIL_H
 
+#include <functional>
+
 #include <QAbstractItemModel>
 #include <QSqlQuery>
 #include <QString>
@@ -78,6 +80,6 @@ QList<T> model_flat_map(
     return result;
 }
 
-}
+} // namespace Util
 
 #endif // UTIL_H

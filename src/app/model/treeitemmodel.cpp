@@ -68,6 +68,21 @@ const TreeNode* tree_nodes_foreach(
     return nullptr;
 }
 
+bool tree_node_has_nested_child_with_uuid(TreeNode* node, const QUuid& uuid) {
+    const auto* node_with_matching_uuid
+        = tree_nodes_foreach(
+            node,
+            [&uuid](TreeNode* node) {
+                return node->get_data(uuid_role).toUuid() == uuid;
+            }
+            );
+    return node_with_matching_uuid != nullptr;
+}
+
+bool adding_node_creates_dependency_cycle(TreeNode* new_node, const QUuid& parent_uuid) {
+    return tree_node_has_nested_child_with_uuid(new_node, parent_uuid);
+}
+
 } // anonymous namespace
 
 TreeItemModel::TreeItemModel(QObject *parent)
@@ -139,7 +154,7 @@ bool TreeItemModel::add_tree_node(
         return false;
     }
 
-    if (this->node_creates_dependency_cycle(new_node.get(), parent_uuid)) {
+    if (adding_node_creates_dependency_cycle(new_node.get(), parent_uuid)) {
         return false;
     }
 
@@ -169,21 +184,6 @@ void TreeItemModel::add_recursively_to_uuid_node_map(TreeNode* node) {
         this->uuid_node_map.insert(node->get_data(uuid_role).toUuid(), node);
         return false;
     });
-}
-
-bool TreeItemModel::node_creates_dependency_cycle(TreeNode* new_node, const QUuid& parent_uuid) {
-    return this->has_nested_child_with_uuid(new_node, parent_uuid);
-}
-
-bool TreeItemModel::has_nested_child_with_uuid(TreeNode* node, const QUuid& uuid) {
-    const auto* node_with_matching_uuid
-        = tree_nodes_foreach(
-            node,
-            [&uuid](TreeNode* node) {
-                return node->get_data(uuid_role).toUuid() == uuid;
-            }
-    );
-    return node_with_matching_uuid != nullptr;
 }
 
 TreeNode* TreeItemModel::get_raw_node_pointer(const QModelIndex& index) const {

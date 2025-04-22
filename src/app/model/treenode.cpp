@@ -37,7 +37,7 @@ std::unique_ptr<TreeNode> TreeNode::create(
     std::shared_ptr<UniqueDataItem> data,
     const TreeNode* parent
 ) {
-    return std::unique_ptr<TreeNode>(new TreeNode(data, parent));
+    return std::unique_ptr<TreeNode>(new TreeNode(std::move(data), parent));
 }
 
 /**
@@ -70,44 +70,32 @@ std::unique_ptr<TreeNode> TreeNode::clone(
     const TreeNode* to_be_cloned,
     const TreeNode* parent
 ) {
-    std::stack<std::pair<const TreeNode*, const TreeNode*>> to_be_cloned_stack;
-    to_be_cloned_stack.emplace(to_be_cloned, parent);
+    std::stack<std::pair<TreeNode*, TreeNode*>> to_be_cloned_stack;
 
-    std::unique_ptr<TreeNode> result;
-    const TreeNode* original_node = nullptr;
-    const TreeNode* new_parent_node = nullptr;
+    const auto clone_node_and_queue_children
+        = [&to_be_cloned_stack](const TreeNode* original_node, const TreeNode* parent_node) {
+        auto clone = TreeNode::create(original_node->data, parent_node);
+        clone->children.reserve(original_node->children.size());
+        for (const auto& child : original_node->children) {
+            to_be_cloned_stack.emplace(child.get(), clone.get());
+        }
+        return clone;
+    };
+
+    auto result = clone_node_and_queue_children(to_be_cloned, parent);
+
+    TreeNode* original_node = nullptr;
+    TreeNode* new_parent_node = nullptr;
 
     while (!to_be_cloned_stack.empty()) {
         std::tie(original_node, new_parent_node) = to_be_cloned_stack.top();
         to_be_cloned_stack.pop();
-        auto node_clone = TreeNode::create(original_node->data, new_parent_node);
 
-        node_clone->children.reserve(original_node->children.size());
-        for (const auto& child : original_node->children) {
-            to_be_cloned_stack.emplace(child.get(), node_clone.get());
-        }
-
-        if (new_parent_node == parent) {
-            result = std::move(node_clone);
-        } else {
-            const_cast<TreeNode*>(new_parent_node)->children.push_back(std::move(node_clone));
-            // In this block, the new_parent_node is one of the newly created clones in the
-            // hierarchy which are not const so its safe to use const_cast.
-        }
+        auto node_clone = clone_node_and_queue_children(original_node, new_parent_node);
+        new_parent_node->children.push_back(std::move(node_clone));
     }
 
     return result;
-
-    /*
-    auto result = std::unique_ptr<TreeNode>(new TreeNode(to_be_cloned->data, parent));
-    result->children.reserve(to_be_cloned->children.size());
-    for (const auto& child : to_be_cloned->children) {
-        result->children.push_back(
-            TreeNode::clone(child.get(), result.get())
-        );
-    }
-    return result;
-    */
 }
 
 const TreeNode* TreeNode::get_parent() const {
