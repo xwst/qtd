@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euxo pipefail
 
 if [[ $# -ne 2 ]]; then
     echo "Usage: $0 SOURCE_DIRECTORY BUILD_DIRECTORY"

@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euxo pipefail
 
 if [[ $# -ne 1 ]]; then
     echo "Usage: $0 BUILD_DIRECTORY"
@@ -7,7 +8,7 @@ fi
 
 
 BUILD_DIR=$1
-FILES=$(git diff --name-only main | egrep "\.h$|\.cpp$")
+FILES=$(git diff --name-only origin/main | egrep "\.h$|\.cpp$")
 
 if [ "$FILES" != "" ]; then
     echo "Run static code analysis on the following files:"

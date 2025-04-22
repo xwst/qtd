@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euxo pipefail
 
 LICENSE_HEADER_HASH="cfefb9fb659e240c24efbc82e6c49571073c1c9cdae0553255bbdf2065023e41"
 
