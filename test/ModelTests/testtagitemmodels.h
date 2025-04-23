@@ -43,7 +43,7 @@ private:
     void assert_initial_dataset_representation_flat_model();
     void assert_correct_from_source_mapping_recursively(
         const QModelIndex& source_index = QModelIndex(),
-        int expected_proxy_row = -1
+        int expected_proxy_row = 0
     );
     void assert_correct_proxy_mapping();
     void assert_correctness_of_proxy_models();

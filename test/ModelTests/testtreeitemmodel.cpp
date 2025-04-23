@@ -205,7 +205,7 @@ void TestTreeItemModel::test_adding_children_to_clones() {
         B1_index,
         clone_index,
         {Qt::DisplayRole, static_cast<Qt::ItemDataRole>(uuid_role)}
-        );
+    );
     QCOMPARE(this->model->rowCount(B1_index), 1);
     QCOMPARE(spy.count(), 2);
 

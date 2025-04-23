@@ -30,22 +30,26 @@ class TreeNode {
 
 private:
     std::shared_ptr<UniqueDataItem> data;
-    TreeNode* parent;
+    const TreeNode* parent;
     std::vector<std::unique_ptr<TreeNode>> children;
 
-    TreeNode(std::shared_ptr<UniqueDataItem> data, TreeNode* parent);
+    TreeNode(std::shared_ptr<UniqueDataItem> data, const TreeNode* parent);
+    static std::unique_ptr<TreeNode> create(
+        std::shared_ptr<UniqueDataItem> data,
+        const TreeNode* parent
+    );
 
 public:
     static std::unique_ptr<TreeNode> create(
         std::unique_ptr<UniqueDataItem> data,
-        TreeNode* parent = nullptr
+        const TreeNode* parent = nullptr
     );
     static std::unique_ptr<TreeNode> clone(
         const TreeNode* to_be_cloned,
-        TreeNode* parent = nullptr
+        const TreeNode* parent = nullptr
     );
 
-    [[nodiscard]] TreeNode* get_parent() const;
+    [[nodiscard]] const TreeNode* get_parent() const;
     [[nodiscard]] TreeNode* get_child(int row) const;
     void add_child(std::unique_ptr<UniqueDataItem> child_data);
     void add_child(std::unique_ptr<TreeNode> new_child);

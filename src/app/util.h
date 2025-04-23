@@ -19,22 +19,67 @@
 #ifndef UTIL_H
 #define UTIL_H
 
+#include <functional>
+
 #include <QAbstractItemModel>
 #include <QSqlQuery>
 #include <QString>
 
 
-class Util {
+namespace Util {
 
-public:
-    static QStringList split_queries(const QString& sql_queries);
-    static QString get_sql_query_string(const QString& sql_filename);
-    static QSqlQuery get_sql_query(const QString& sql_filename, const QString& connection_name);
-    static bool execute_sql_query(QSqlQuery& query, bool batch=false);
-    static bool create_tables_if_not_exist(const QString& connection_name);
-    static int count_model_rows(const QAbstractItemModel* model, const QModelIndex &index = QModelIndex());
-    static bool is_last_child(const QModelIndex& index);
-    static QModelIndex next_row_index_depth_first(const QAbstractItemModel* model, QModelIndex current_index = QModelIndex());
-};
+QStringList split_queries(const QString& sql_queries);
+QString get_sql_query_string(const QString& sql_filename);
+QSqlQuery get_sql_query(const QString& sql_filename, const QString& connection_name);
+bool execute_sql_query(QSqlQuery& query, bool batch=false);
+bool create_tables_if_not_exist(const QString& connection_name);
+int count_model_rows(const QAbstractItemModel* model, const QModelIndex &index = QModelIndex());
+bool is_last_child(const QModelIndex& index);
+QModelIndex next_row_index_depth_first(const QAbstractItemModel* model, QModelIndex current_index = QModelIndex());
+QModelIndex model_foreach(
+    const QAbstractItemModel& model,
+    const std::function<bool(const QModelIndex&)>& operation,
+    const QModelIndex& parent_index = QModelIndex()
+);
+void model_foreach(
+    const QAbstractItemModel& model,
+    const std::function<void(const QModelIndex&)>& operation,
+    const QModelIndex& parent_index = QModelIndex()
+);
+QModelIndex model_find(
+    const QAbstractItemModel& model,
+    const std::function<bool(const QModelIndex&)>& operation,
+    const QModelIndex& parent_index = QModelIndex()
+);
+
+/**
+ * @brief Apply a function to each index and store the results in a list in depth first order
+ *
+ * Only the first column of the model is processed, all other columns are ignored.
+ * The optional parent_index can be specified as a starting point; only the given index
+ * and all its (recursive) children will be visited.
+ *
+ * @param model the model to traverse
+ * @param operation the mapping function to execute
+ * @param parent_index the starting point
+ */
+template <typename T>
+QList<T> model_flat_map(
+    const QAbstractItemModel& model,
+    const std::function<T(const QModelIndex&)>& operation,
+    const QModelIndex& parent_index = QModelIndex()
+) {
+    QList<T> result;
+    Util::model_foreach(
+        model,
+        [&result, &operation](const QModelIndex& index) {
+            result.push_back(operation(index));
+        },
+        parent_index
+    );
+    return result;
+}
+
+} // namespace Util
 
 #endif // UTIL_H

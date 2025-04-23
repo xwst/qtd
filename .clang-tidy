@@ -14,9 +14,7 @@ Checks: "*,
         -openmp-*,
         -zircon-*,
         -readability-redundant-access-specifiers,
-        -bugprone-easily-swappable-parameters,
-        -misc-no-recursion,
-        -readability-function-cognitive-complexity
+        -bugprone-easily-swappable-parameters
 "
 CheckOptions:
     - key: misc-include-cleaner.IgnoreHeaders
@@ -40,6 +38,8 @@ CheckOptions:
     - key: hicpp-special-member-functions.AllowSoleDefaultDtor
       value: true
     - key: cppcoreguidelines-special-member-functions.AllowSoleDefaultDtor
+      value: true
+    - key: readability-function-cognitive-complexity.IgnoreMacros
       value: true
 HeaderFilterRegex: '.*'
 FormatStyle: 'file'

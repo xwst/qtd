@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euxo pipefail
 
 if [[ $# -ne 2 ]]; then
     echo "Usage: $0 SOURCE_DIRECTORY BUILD_DIRECTORY"
@@ -10,5 +11,5 @@ SRC_DIR=$1
 BUILD_DIR=$2
 
 find $SRC_DIR/src/ $SRC_DIR/test/ \
-    | egrep "*.h$|*.cpp$" \
+    | egrep "\.h$|\.cpp$" \
     | xargs clang-tidy -p $BUILD_DIR --config-file .clang-tidy

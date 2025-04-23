@@ -67,8 +67,6 @@ private:
     );
     bool add_tree_node(std::unique_ptr<TreeNode> new_node, const QUuid& parent_uuid);
     void add_recursively_to_uuid_node_map(TreeNode* node);
-    bool node_creates_dependency_cycle(TreeNode* new_node, const QUuid& parent_uuid);
-    bool has_nested_child_with_uuid(TreeNode* node, const QUuid& uuid);
 
 protected:
     bool create_tree_node(
