@@ -150,3 +150,11 @@ jobs:
     - name: Run clang-tidy
       shell: bash
       run: ./scripts/run_linter_on_changed_files.sh ${{ steps.strings.outputs.build-output-dir }}
+
+  summary:
+    needs: [license-check, test-coverage, static-code-analysis, build-and-test]
+    runs-on: ubuntu-latest
+    steps:
+    - name: Print success message
+      shell: bash
+      run: echo "All checks passed successfully."
