@@ -6,7 +6,7 @@ LICENSE_HEADER_HASH="cfefb9fb659e240c24efbc82e6c49571073c1c9cdae0553255bbdf20650
 RESULT=0
 FOUND_MAIN=1
 
-FILE=$(find . \( -name "*.cpp" -o -name "*.h" \) -not -path "./build/*")
+FILE=$(find . \( -name "*.cpp" -o -name "*.h" -o -name "*.qml" \) -not -path "./build/*")
 while read FILE_NAME; do
     if [[ $FILE_NAME == *main.cpp ]]; then
         FOUND_MAIN=0
