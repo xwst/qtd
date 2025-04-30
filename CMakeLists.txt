@@ -33,7 +33,7 @@ SET(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 INCLUDE(CTest)
 ENABLE_TESTING()
 
-FIND_PACKAGE(Qt6 REQUIRED COMPONENTS Widgets Core Gui Quick QuickControls2 Sql Test)
+FIND_PACKAGE(Qt6 REQUIRED COMPONENTS Widgets Core Gui Quick QuickControls2 Sql Test QuickTest Qml)
 INCLUDE(CTest)
 
 QT_STANDARD_PROJECT_SETUP(REQUIRES 6.7)
@@ -48,6 +48,8 @@ ADD_SUBDIRECTORY(resources/fonts)
 ADD_SUBDIRECTORY(src/qmltexteditor)
 ADD_SUBDIRECTORY(src/app)
 ADD_SUBDIRECTORY(test/ModelTests)
+ADD_SUBDIRECTORY(test/frontend/component/)
+ADD_SUBDIRECTORY(test/frontend/journey/)
 
 QT_ADD_RESOURCES(
     qtd "resources"
