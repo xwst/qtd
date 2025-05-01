@@ -16,5 +16,8 @@
  * qtd. If not, see <https://www.gnu.org/licenses/>.
  */
 
+// Include is required but not used directly, as the macro is defined in a
+// referenced header file
+// NOLINTNEXTLINE(misc-include-cleaner)
 #include <QtQuickTest>
 QUICK_TEST_MAIN(test_components)

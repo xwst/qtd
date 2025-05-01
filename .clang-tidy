@@ -34,6 +34,7 @@ CheckOptions:
         qtestcase.h;
         qtmetamacros.h;
         qttestglobal.h;
+        quicktest.h;
         qvariant.h
     - key: hicpp-special-member-functions.AllowSoleDefaultDtor
       value: true
