@@ -17,6 +17,7 @@
 ADD_DEFINITIONS(-DQUICK_TEST_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
 ADD_EXECUTABLE(test_components test_components.cpp)
 ADD_TEST(NAME test_components COMMAND test_components)
+SET_PROPERTY(TEST test_components PROPERTY LABELS "frontend-test")
 
 TARGET_LINK_LIBRARIES(test_components
     PRIVATE
