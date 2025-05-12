@@ -16,8 +16,38 @@
  * qtd. If not, see <https://www.gnu.org/licenses/>.
  */
 
-// Include is required but not used directly, as the macro is defined in a
-// referenced header file
+#include <memory>
+
+// Includes are required but not all used directly, as the macros are defined
+// in referenced header files
+// NOLINTNEXTLINE(misc-include-cleaner)
+#include <QQmlContext>
+#include <QQmlEngine>
+#include <QStringListModel>
 // NOLINTNEXTLINE(misc-include-cleaner)
 #include <QtQuickTest>
-QUICK_TEST_MAIN(test_components)
+
+class SetupComponentTests : public QObject
+{
+    Q_OBJECT
+
+    std::unique_ptr<QStringListModel> dummy_model;
+
+public:
+    SetupComponentTests() = default;
+
+public slots:
+    void qmlEngineAvailable(QQmlEngine *engine) {
+        this->dummy_model = std::make_unique<QStringListModel>();
+        QStringList tmp;
+        tmp << "Name 1" << "Name 2" << "Name 3";
+        this->dummy_model->setStringList(tmp);
+        engine->rootContext()->setContextProperty("dummyIndex", this->dummy_model->index(0));
+    }
+};
+
+
+
+QUICK_TEST_MAIN_WITH_SETUP(test_components, SetupComponentTests)
+
+#include "test_components.moc"

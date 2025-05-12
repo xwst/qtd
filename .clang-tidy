@@ -33,6 +33,7 @@ CheckOptions:
         qset.h;
         qtestcase.h;
         qtmetamacros.h;
+        qtquicktest.h;
         qttestglobal.h;
         quicktest.h;
         qvariant.h
@@ -42,6 +43,5 @@ CheckOptions:
       value: true
     - key: readability-function-cognitive-complexity.IgnoreMacros
       value: true
-HeaderFilterRegex: '.*'
 FormatStyle: 'file'
 WarningsAsErrors: '*'
