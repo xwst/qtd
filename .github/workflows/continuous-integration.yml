@@ -66,8 +66,16 @@ jobs:
     - name: Build all targets
       run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }} -j8
 
-    - name: Run unit tests
-      run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }} --target ${{ matrix.run_tests_target }} -j8
+    - name: Run backend tests
+      run: ctest --test-dir ${{ steps.strings.outputs.build-output-dir }} -C ${{ matrix.build_type }} -LE frontend-test -j8
+
+    - name: Run frontend tests
+      if: matrix.os != 'windows-latest'
+      run: QT_QPA_PLATFORM=offscreen ctest --test-dir ${{ steps.strings.outputs.build-output-dir }} -C ${{ matrix.build_type }} -L frontend-test -j8
+
+    - name: Run frontend tests
+      if: matrix.os == 'windows-latest'
+      run: ctest --test-dir ${{ steps.strings.outputs.build-output-dir }} -C ${{ matrix.build_type }} -L frontend-test -j8
 
     - name: Cache build artifacts
       if: matrix.cpp_compiler == 'g++'

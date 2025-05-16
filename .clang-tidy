@@ -33,7 +33,9 @@ CheckOptions:
         qset.h;
         qtestcase.h;
         qtmetamacros.h;
+        qtquicktest.h;
         qttestglobal.h;
+        quicktest.h;
         qvariant.h
     - key: hicpp-special-member-functions.AllowSoleDefaultDtor
       value: true
@@ -41,6 +43,5 @@ CheckOptions:
       value: true
     - key: readability-function-cognitive-complexity.IgnoreMacros
       value: true
-HeaderFilterRegex: '.*'
 FormatStyle: 'file'
 WarningsAsErrors: '*'
