@@ -16,21 +16,23 @@
  * qtd. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import QtQuick
+.pragma library
 
-TreeView {
-    required property font control_font
-    signal rowDoubleClicked(row: int)
-    anchors.fill: parent
-    clip: true
-    alternatingRows: false
-    Component.onCompleted: expandRecursively()
+function findChild(selector, root_item) {
+    for (var index in root_item.children) {
+        if (selector(root_item.children[index]))
+            return root_item.children[index]
 
-    selectionMode: TableView.ExtendedSelection
-    selectionModel: ItemSelectionModel {}
-
-    delegate: SelectableTreeViewDelegate {
-        control_font: treeView.control_font
-        onRowDoubleClicked: (row) => treeView.rowDoubleClicked(row)
+        var result = findChild(selector, root_item.children[index])
+        if (result != undefined)
+            return result
     }
+}
+
+function findChildByType(type, root_item) {
+    return findChild((child) => child.toString().includes(type), root_item)
+}
+
+function findChildByText(text, root_item) {
+    return findChild((child) => child.text == text, root_item)
 }

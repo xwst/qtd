@@ -19,6 +19,7 @@
 import QtQuick
 import QtTest 1.0
 
+import "../util.js" as Util
 import "../../../src/app"
 
 TestCase {
@@ -38,17 +39,6 @@ TestCase {
         signalName: "rowsAboutToBeRemoved"
     }
 
-    function findChildByText(text, root_item) {
-        for (var index in root_item.children) {
-            if (text == root_item.children[index].text)
-                return root_item.children[index]
-
-            var result = findChildByText(text, root_item.children[index])
-            if (result != undefined)
-                return result
-        }
-    }
-
     function initTestCase() {
         component_to_test.setVisible(true)
         compare(component_to_test.visible, true)
@@ -58,14 +48,14 @@ TestCase {
     }
 
     function test_cancel_button_closes_window() {
-        var cancel_button = findChildByText("Cancel", component_to_test.contentItem)
+        var cancel_button = Util.findChildByText("Cancel", component_to_test.contentItem)
         compare(component_to_test.visible, true)
         mouseClick(cancel_button)
         compare(component_to_test.visible, false)
     }
 
     function test_delete_button_not_triggered_on_short_click() {
-        var delete_button = findChildByText("Delete", component_to_test.contentItem)
+        var delete_button = Util.findChildByText("Delete", component_to_test.contentItem)
         var initial_row_count = dummyIndex.model.rowCount()
 
         compare(model_delete_spy.count, 0)
@@ -79,7 +69,7 @@ TestCase {
     }
 
     function test_delete_button_triggers_deletion_on_long_click() {
-        var delete_button = findChildByText("Delete", component_to_test.contentItem)
+        var delete_button = Util.findChildByText("Delete", component_to_test.contentItem)
         var initial_row_count = dummyIndex.model.rowCount()
 
         compare(model_delete_spy.count, 0)

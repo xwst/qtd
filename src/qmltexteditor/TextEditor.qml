@@ -200,7 +200,7 @@ Frame {
                     color: "white"
                 }
 
-                Keys.onPressed: (event)=> {
+                Keys.onPressed: (event) => {
                         if (event.key === Qt.Key_Tab) {
                             if (backend.change_list_indent(true)) {
                                 event.accepted = true;
