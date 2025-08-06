@@ -40,7 +40,7 @@ Window {
 
     function delete_tag_and_children() {
         tag_editor.destroy()
-        tag_index.model.removeRows(tag_index.row, 1, tag_index.parent);
+        tag_index.model.removeRows(tag_index.row, 1, tag_index.parent)
     }
 
     Dialog {
@@ -69,7 +69,8 @@ Window {
         onDeleteActivated: {
             if (tag_editor.tag_index.model.hasChildren(tag_index))
                 confirm_dialog.open()
-            else tag_editor.delete_tag_and_children()
+            else
+                tag_editor.delete_tag_and_children()
         }
         onCloseClicked: tag_editor.close()
     }
