@@ -226,30 +226,23 @@ bool TaskItemModel::setData(const QModelIndex& index, const QVariant& value, int
     }
 
     auto update_query_str = Util::get_sql_query_string("update_task.sql");
-    auto database = QSqlDatabase::database(this->connection_name);
-
-    if (!database.transaction()) {
-        return false;
-    }
-
-    auto query = QSqlQuery(database);
     const QString column_name = TaskItemModel::get_sql_column_name(role);
     if (column_name.isEmpty()) {
         return false;
     }
 
-    update_query_str = update_query_str.replace("#column_name#", column_name);
-    query.prepare(update_query_str);
-    query.bindValue(0, (role == active_role) ? Task::status_to_string(value.value<Task::Status>()) : value);
-    query.bindValue(1, index.data(uuid_role));
-
-    if (!Util::execute_sql_query(query) or !TreeItemModel::setData(index, value, role)) {
-        database.rollback();
-        return false;
-    }
-    database.commit();
-    return true;
-
+    return Util::alter_model_and_persist_in_database(
+        this->connection_name,
+        update_query_str.replace("#column_name#", column_name),
+        [&index, &value, &role](QSqlQuery& query) {
+            query.bindValue(0, (role == active_role) ? Task::status_to_string(value.value<Task::Status>()) : value);
+            query.bindValue(1, index.data(uuid_role));
+        },
+        [this, &index, &value, &role]() {
+            return TreeItemModel::setData(index, value, role);
+        },
+        false
+    );
 }
 
 bool TaskItemModel::removeRows(int row, int count, const QModelIndex &parent) {

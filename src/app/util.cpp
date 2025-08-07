@@ -191,3 +191,47 @@ QModelIndex Util::model_find(
 ) {
     return Util::model_foreach(model, operation, parent_index);
 }
+
+/**
+ * @brief Alter a model and the database, but rollback on failure.
+ *
+ * This function uses a database transaction to perform the db update
+ * and also executes the in memory model change within the transaction.
+ * If an error occurs, the transaction is rolled back to maintain a
+ * consistent state.
+ *
+ * @param database_connection_name The name of the database connection to use
+ * @param query_str The SQL string to be used to alter the database
+ * @param bind_values A function that receives a prepared query and binds values as required.
+ * @param alter_model A function performing the model change. It must return false on failure.
+ * @param use_batch_mode Whether batch mode shall be used for query execution
+ * @return Whether the operation succeeded or not.
+ */
+bool Util::alter_model_and_persist_in_database(
+    const QString& database_connection_name,
+    const QString& query_str,
+    const std::function<void(QSqlQuery&)>& bind_values,
+    const std::function<bool(void)>& alter_model,
+    bool use_batch_mode
+) {
+    auto database = QSqlDatabase::database(database_connection_name);
+    auto query = QSqlQuery(database);
+
+    if (!query.prepare(query_str)) {
+        return false;
+    }
+
+    bind_values(query);
+
+    if (!database.transaction()) {
+        return false;
+    }
+
+    if (!Util::execute_sql_query(query, use_batch_mode) || !alter_model()) {
+        database.rollback();
+        return false;
+    }
+
+    database.commit();
+    return true;
+}

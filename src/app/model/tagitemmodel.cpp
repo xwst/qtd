@@ -59,10 +59,6 @@ bool TagItemModel::setData(const QModelIndex& index, const QVariant& value, int 
         return false;
     }
 
-    const QString uuid = index.data(uuid_role).toString();
-    auto update_query_str = Util::get_sql_query_string("update_tag.sql");
-    auto query = QSqlQuery(QSqlDatabase::database(this->connection_name));
-
     QString column_name;
     QString update_value;
     if (role == Qt::DisplayRole) {
@@ -76,62 +72,55 @@ bool TagItemModel::setData(const QModelIndex& index, const QVariant& value, int 
         return false;
     }
 
-    update_query_str = update_query_str.replace("#column_name#", column_name);
-    query.prepare(update_query_str);
-    query.bindValue(0, update_value);
-    query.bindValue(1, uuid);
-
-    if (!Util::execute_sql_query(query)) {
-        return false;
-    }
-
-    TreeItemModel::setData(index, value, role);
-    return true;
+    return Util::alter_model_and_persist_in_database(
+        this->connection_name,
+        Util::get_sql_query_string("update_tag.sql").replace("#column_name#", column_name),
+        [&update_value, &index](QSqlQuery& query) {
+            query.bindValue(0, update_value);
+            query.bindValue(1, index.data(uuid_role).toString());
+        },
+        [this, &index, &value, &role]() {
+            return TreeItemModel::setData(index, value, role);
+        },
+        false
+    );
 }
 
 bool TagItemModel::create_tag(const QString& name, const QColor& color, const QModelIndex& parent) {
     auto new_tag = std::make_unique<Tag>(name, color);
     const QVariant parent_uuid = parent.isValid() ? parent.data(uuid_role) : QUuid();
 
-    auto query_str = Util::get_sql_query_string("create_tag.sql");
-    auto query = QSqlQuery(QSqlDatabase::database(this->connection_name));
-    query.prepare(query_str);
-
-    query.bindValue(0, new_tag->get_uuid_string());
-    query.bindValue(1, new_tag->get_name());
-    query.bindValue(2, color.isValid() ? color.name(QColor::HexArgb) : "");
-    query.bindValue(3, parent_uuid);
-
-    if (!Util::execute_sql_query(query)) {
-        return false;
-    }
-    this->create_tree_node(std::move(new_tag), parent_uuid.toUuid());
-    return true;
+    return Util::alter_model_and_persist_in_database(
+        this->connection_name,
+        Util::get_sql_query_string("create_tag.sql"),
+        [&new_tag, &color, &parent_uuid](QSqlQuery& query) {
+            query.bindValue(0, new_tag->get_uuid_string());
+            query.bindValue(1, new_tag->get_name());
+            query.bindValue(2, color.isValid() ? color.name(QColor::HexArgb) : "");
+            query.bindValue(3, parent_uuid);
+        },
+        [this, &new_tag, &parent_uuid]() {
+            return this->create_tree_node(std::move(new_tag), parent_uuid.toUuid());
+        },
+        false
+    );
 }
 
 bool TagItemModel::removeRows(int row, int count, const QModelIndex &parent) {
-    auto remove_query = Util::get_sql_query_string("delete_tags.sql");
-
     QVariantList uuids_to_remove;
     for (int i=row; i<row+count; i++) {
         uuids_to_remove << this->index(i, 0, parent).data(uuid_role);
     }
 
-    auto database = QSqlDatabase::database(this->connection_name);
-
-    if (!database.transaction()) {
-        return false;
-    }
-    QSqlQuery query(database);
-    if (!query.prepare(remove_query)) {
-        return false;
-    }
-    query.addBindValue(uuids_to_remove);
-
-    if (!Util::execute_sql_query(query, true) || !TreeItemModel::removeRows(row, count, parent)) {
-        database.rollback();
-        return false;
-    }
-    database.commit();
-    return true;
+    return Util::alter_model_and_persist_in_database(
+        this->connection_name,
+        Util::get_sql_query_string("delete_tags.sql"),
+        [&uuids_to_remove](QSqlQuery& query) {
+            query.addBindValue(uuids_to_remove);
+        },
+        [this, &row, &count, &parent]() {
+            return TreeItemModel::removeRows(row, count, parent);
+        },
+        true
+    );
 }
