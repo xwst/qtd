@@ -51,6 +51,13 @@ QModelIndex model_find(
     const std::function<bool(const QModelIndex&)>& operation,
     const QModelIndex& parent_index = QModelIndex()
 );
+[[nodiscard]] bool alter_model_and_persist_in_database(
+    const QString& database_connection_name,
+    const QString& query_str,
+    const std::function<void(QSqlQuery&)>& bind_values,
+    const std::function<bool(void)>& alter_model,
+    bool use_batch_mode
+);
 
 /**
  * @brief Apply a function to each index and store the results in a list in depth first order

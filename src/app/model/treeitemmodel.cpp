@@ -256,6 +256,11 @@ bool TreeItemModel::setData(const QModelIndex& index, const QVariant& value, int
 
 bool TreeItemModel::removeRows(int row, int count, const QModelIndex &parent) {
 
+    auto* parent_node = get_raw_node_pointer(parent);
+    if (row < 0 || count < 1 || row+count > parent_node->get_child_count()) {
+        return false;
+    }
+
     this->operate_on_clones(
         parent,
         [this, row, count](TreeNode* node) -> void {
