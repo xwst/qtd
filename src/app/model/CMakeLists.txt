@@ -17,14 +17,15 @@
 
 LIST(
     APPEND model_files
-    tagitemmodel.cpp
+    filteredtaskitemmodel.cpp
     flatteningproxymodel.cpp
     tag.cpp
-    treenode.cpp
-    treeitemmodel.cpp
-    uniquedataitem.cpp
+    tagitemmodel.cpp
     task.cpp
     taskitemmodel.cpp
+    treeitemmodel.cpp
+    treenode.cpp
+    uniquedataitem.cpp
 )
 
 LIST(
