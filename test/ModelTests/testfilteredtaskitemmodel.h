@@ -1,10 +1,29 @@
+/**
+ * Copyright 2025 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
+ *
+ * This file is part of qtd.
+ *
+ * qtd is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *
+ * qtd is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * qtd. If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #ifndef TESTFILTEREDTASKITEMMODEL_H
 #define TESTFILTEREDTASKITEMMODEL_H
+
+#include <memory>
 
 #include <QObject>
 #include <QTest>
 
-#include "persistedtreeitemmodelstestbase.h"
 #include "../../src/app/model/filteredtaskitemmodel.h"
 #include "../../src/app/model/taskitemmodel.h"
 
@@ -21,7 +40,8 @@ public:
 
 private slots:
     // Test setup/cleanup:
-    void initTestCase();
+    static void initTestCase();
+    void init();
 
     // Test functions:
     void test_filter_single_word();
@@ -35,6 +55,7 @@ private slots:
     void test_repeat_words_has_no_effect();
 
     void test_modifying_base_model_propagates_to_proxy();
+    void test_adding_children_to_cloned_items_in_base_model();
 
     void test_parents_become_childless_if_no_child_matches();
     void test_matching_children_are_kept_if_parents_are_filtered_out();

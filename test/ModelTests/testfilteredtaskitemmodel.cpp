@@ -1,3 +1,21 @@
+/**
+ * Copyright 2025 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
+ *
+ * This file is part of qtd.
+ *
+ * qtd is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 3 of the License, or (at your option) any later
+ * version.
+ *
+ * qtd is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * qtd. If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #include "testfilteredtaskitemmodel.h"
 
 #include <memory>
@@ -6,26 +24,51 @@
 #include <QSqlDatabase>
 #include <QTest>
 
-#include "../testhelpers.h"
 #include "../../src/app/model/model_constants.h"
+#include "../../src/app/model/taskitemmodel.h"
+#include "../testhelpers.h"
+
+namespace {
+
+void check_parents(const QAbstractItemModel& model) {
+    QList<QPair<QModelIndex, QModelIndex>> expected_parent_child_pairs;
+    expected_parent_child_pairs.append(QPair<QModelIndex, QModelIndex>());
+
+    while (!expected_parent_child_pairs.isEmpty()) {
+        auto& [parent, child] = expected_parent_child_pairs.last();
+        expected_parent_child_pairs.removeLast();
+        QCOMPARE(model.parent(child), parent);
+
+        for (int row=0; row<model.rowCount(child); row++) {
+            expected_parent_child_pairs.append(
+                QPair<QModelIndex, QModelIndex>(child, model.index(row, 0, child))
+            );
+        }
+    }
+}
+
+} // namespace
+
 
 TestFilteredTaskItemModel::TestFilteredTaskItemModel(QObject *parent)
     : QObject{parent}
 {}
 
 void TestFilteredTaskItemModel::initTestCase() {
-
     QLoggingCategory::setFilterRules("qt.modeltest.debug=true");
+}
 
+void TestFilteredTaskItemModel::init() {
     QVERIFY(TestHelpers::setup_database());
     TestHelpers::populate_database();
 
     this->base_model = std::make_unique<TaskItemModel>(
         QSqlDatabase::database().connectionName()
-    );
+        );
     QCOMPARE(this->base_model->rowCount(), 3);
 
     TestHelpers::setup_proxy_item_model(this->model, this->base_model.get(), nullptr);
+    this->model->clear_search_string();
 }
 
 void TestFilteredTaskItemModel::test_filter_single_word() {
@@ -53,8 +96,8 @@ void TestFilteredTaskItemModel::test_filter_with_quotes() {
 
     this->model->set_search_string("dummy task");
     QCOMPARE(
-        TestHelpers::get_display_roles(*this->model),
-        QStringList({task1, task2})
+        TestHelpers::sort(TestHelpers::get_display_roles(*this->model)),
+        TestHelpers::sort(QStringList({task1, task2}))
     );
 
     this->model->set_search_string("\"dummy task\"");
@@ -111,8 +154,10 @@ void TestFilteredTaskItemModel::test_repeat_words_has_no_effect() {
 }
 
 void TestFilteredTaskItemModel::test_modifying_base_model_propagates_to_proxy() {
+    this->model->clear_search_string();
     this->model->set_search_string("print");
-    const auto base_index = TestHelpers::find_model_index_by_display_role(*this->base_model, "Fix printer");
+
+    auto base_index = TestHelpers::find_model_index_by_display_role(*this->base_model, "Fix printer");
     const auto proxy_index = this->model->mapFromSource(base_index);
     QCOMPARE(proxy_index.data(), base_index.data());
 
@@ -120,10 +165,13 @@ void TestFilteredTaskItemModel::test_modifying_base_model_propagates_to_proxy() 
     this->base_model->setData(base_index, new_description, Qt::DisplayRole);
     QCOMPARE(proxy_index.data(), new_description);
 
-    this->base_model->removeRow(base_index.row(), base_index.parent());
+    while (base_index.isValid()) {
+        this->base_model->removeRow(base_index.row(), base_index.parent());
+        base_index = TestHelpers::find_model_index_by_display_role(*this->base_model, "Fix printer issues");
+    }
     QCOMPARE(
-        TestHelpers::get_display_roles(*this->model),
-        QStringList({"Print recipe", "Print shopping list"})
+        TestHelpers::sort(TestHelpers::get_display_roles(*this->model)),
+        TestHelpers::sort(QStringList({"Print recipe", "Print shopping list"}))
     );
 
     const QString new_index_description = "index-not-yet-created";
@@ -138,6 +186,19 @@ void TestFilteredTaskItemModel::test_modifying_base_model_propagates_to_proxy() 
     QCOMPARE(this->model->rowCount(new_proxy_index), 0);
     QCOMPARE(new_proxy_index.data(), new_index_description);
 }
+
+void TestFilteredTaskItemModel::test_adding_children_to_cloned_items_in_base_model() {
+    check_parents(*this->model);
+    auto cloned_index = TestHelpers::find_model_index_by_display_role(*this->model, "Fix printer");
+    QVERIFY(cloned_index.isValid());
+
+    QVERIFY(this->base_model->create_task("child of cloned 1", {cloned_index}));
+    QCOMPARE(this->model->rowCount(cloned_index), 1);
+    check_parents(*this->model);
+
+    QVERIFY(this->base_model->create_task("child of cloned 2", {this->model->index(1, 0)}));
+    check_parents(*this->model);
+};
 
 void TestFilteredTaskItemModel::test_parents_become_childless_if_no_child_matches() {
     this->model->set_search_string("meal");

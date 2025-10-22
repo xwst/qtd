@@ -70,8 +70,15 @@ void assert_index_data_and_dimension_equality(
 } // anonymous namespace
 
 bool TestHelpers::setup_database() {
-    auto database = QSqlDatabase::addDatabase("QSQLITE");
-    database.setDatabaseName(":memory:");
+    QSqlDatabase database;
+    if (QSqlDatabase::contains()) {
+        database = QSqlDatabase::database();
+        database.close();
+        database.open();
+    } else {
+        database = QSqlDatabase::addDatabase("QSQLITE");
+        database.setDatabaseName(":memory:");
+    }
     return Util::create_tables_if_not_exist(database.connectionName());
 }
 

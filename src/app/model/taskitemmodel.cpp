@@ -63,10 +63,12 @@ std::unique_ptr<Task> create_task_from_query_result(const QSqlQuery& query) {
      * 3: start_datetime
      * 4: due_datetime
      * 5: resolve_datetime
+     * 6: content_text
+     * 7: content_data
      */
     // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
     auto uuid_str = query.value(0).toString();
-    return std::make_unique<Task>(
+    auto result = std::make_unique<Task>(
           query.value(1).toString()
         , query.value(2).value<Task::Status>()
         , query.value(3).toDateTime()
@@ -74,7 +76,9 @@ std::unique_ptr<Task> create_task_from_query_result(const QSqlQuery& query) {
         , query.value(5).toDateTime()
         , uuid_str
     );
+    result->get_text_document()->setHtml(query.value(6).toString());
     // NOLINTEND(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
+    return result;
 }
 
 } // namespace

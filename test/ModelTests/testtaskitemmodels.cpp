@@ -59,7 +59,7 @@ void TestTaskItemModel::test_initial_dataset_represented_correctly() {
 
 void TestTaskItemModel::test_model_stores_text_documents() {
     QEXPECT_FAIL("", "Document storage is not yet implemented!", Continue);
-    QVERIFY(this->model->data(this->model->index(0, 0), details_role).isValid());
+    QVERIFY(this->model->data(this->model->index(0, 0), document_role).isValid());
 }
 
 void TestTaskItemModel::test_data_change_of_unique_task() {
