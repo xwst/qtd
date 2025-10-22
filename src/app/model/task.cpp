@@ -93,29 +93,34 @@ void Task::set_resolve_datetime(const QDateTime& resolve_datetime) {
 
 QVariant Task::get_data(int role) const {
     switch (role) {
-    case Qt::DisplayRole:
-        return this->get_title();
-    case active_role:
-        return this->get_status();
-    case start_role:
-        return this->get_start_datetime();
-    case due_role:
-        return this->get_due_datetime();
-    default:
-        return UniqueDataItem::get_data(role);
+    case Qt::DisplayRole: return this->get_title();
+    case active_role:     return this->get_status();
+    case start_role:      return this->get_start_datetime();
+    case due_role:        return this->get_due_datetime();
+    case resolve_role:    return this->get_resolve_datetime();
+    case details_role:    return this->get_text_document()->toPlainText();
+    default:              return UniqueDataItem::get_data(role);
     }
 }
 
 void Task::set_data(const QVariant& value, int role) {
-    if (role == Qt::DisplayRole) {
+    switch (role) {
+    case Qt::DisplayRole:
         this->set_title(value.toString());
-    } else if (role == active_role) {
+        break;
+    case active_role:
         this->set_status(value.value<Task::Status>());
-    } else if (role == start_role) {
+        break;
+    case start_role:
         this->set_start_datetime(value.toDateTime());
-    } else if (role == due_role) {
+        break;
+    case due_role:
         this->set_due_datetime(value.toDateTime());
-    } else {
+        break;
+    case resolve_role:
+        this->set_resolve_datetime(value.toDateTime());
+        break;
+    default:
         UniqueDataItem::set_data(value, role);
     }
 }

@@ -23,7 +23,7 @@ hierarchical_sorted AS (
                 ) AS lvl2
         FROM cte
 )
-SELECT uuid, title, status, start_datetime, due_datetime, resolve_datetime
+SELECT uuid, title, status, start_datetime, due_datetime, resolve_datetime, content_text, content_data
 FROM hierarchical_sorted
 WHERE lvl2 = 1
 ORDER BY lvl;

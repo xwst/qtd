@@ -36,6 +36,7 @@ void QmlInterface::open_database(QString& connection_name) {
 
     auto database = QSqlDatabase::addDatabase("QSQLITE", "local");
     database.setDatabaseName(dir.absoluteFilePath(this->local_database_name));
+    database.open();
     Util::create_tables_if_not_exist(connection_name);
 }
 

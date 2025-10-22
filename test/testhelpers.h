@@ -99,6 +99,19 @@ public:
         const QString& display_role,
         const QModelIndex& parent = QModelIndex()
     );
+
+    static void print_model(
+        const QAbstractItemModel& model,
+        const QModelIndex& root = QModelIndex(),
+        QString prefix = ""
+    );
+
+    template <typename T>
+    static QList<T> sort(const QList<T>& unsorted) {
+        auto result = QList(unsorted);
+        result.sort();
+        return result;
+    }
 };
 
 #endif // TESTHELPERS_H

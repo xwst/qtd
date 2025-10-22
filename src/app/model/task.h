@@ -39,7 +39,7 @@ public:
         open,
         closed
     };
-    Q_ENUM(Status);
+    Q_ENUM(Status)
 
     explicit Task(
           QString        title

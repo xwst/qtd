@@ -14,7 +14,7 @@ INSERT INTO tasks VALUES('dc1f5ff8-db45-6630-9340-13a7d860d910','Buy groceries',
 INSERT INTO tasks VALUES('a2225a6f-10ab-2f2a-b7be-e97637804d1b','Print recipe',         'open',  '',                   '2025-12-01 16:00:00',''                   ,'',                                                     '');
 INSERT INTO tasks VALUES('3d41278f-4130-a2ae-383b-cbfe2c45f4b5','Print shopping list',  'open',  '',                   '2025-12-01 16:00:00',''                   ,'',                                                     '');
 INSERT INTO tasks VALUES('ff7cebda-eef6-a632-99e4-1678b69758e7','Check food supplies',  'closed','2024-11-30 00:00:00',''                   ,'2024-11-29 12:17:07','',                                                     '');
-INSERT INTO tasks VALUES('0128dd5a-79a9-4228-b211-fa1724b8d149','Do chores',            'closed','',                   ''                   ,'2024-11-29 16:58:44',REPLACE('- Clean bathroon\n- Sweep\n- …','\n',char(10)),'');
+INSERT INTO tasks VALUES('0128dd5a-79a9-4228-b211-fa1724b8d149','Do chores',            'closed','',                   ''                   ,'2024-11-29 16:58:44',REPLACE('- Clean bathroom\n- Sweep\n- …','\n',char(10)),'');
 INSERT INTO tasks VALUES('125801f4-edc2-5e16-0b66-3e128098a5e5','Answer landlords mail','open',  '',                   '2025-11-30 23:59:59',''                   ,'',                                                     '');
 INSERT INTO tasks VALUES('0cdaf3ea-9544-71e5-545c-8b5dec226f86','Fix printer',          'open',  '',                   ''                   ,''                   ,'',                                                     '');
 
