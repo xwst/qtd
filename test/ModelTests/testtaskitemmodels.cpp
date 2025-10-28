@@ -199,7 +199,7 @@ void TestTaskItemModel::assert_initial_dataset_representation_base_model() {
     QCOMPARE(this->model->get_size(), Util::count_model_rows(this->model.get()));
 
     this->find_task_by_title_and_assert_correctness_of_data(
-        "Prepare meal",
+        "Cook meal",
         Task::open,
         QDateTime::fromString("2025-12-01 16:00:00", Qt::ISODate),
         QDateTime::fromString("2025-12-01 18:15:00", Qt::ISODate),

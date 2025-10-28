@@ -24,8 +24,10 @@
 
 #include <QDateTime>
 #include <QMetaEnum>
+#include <QSet>
 #include <QString>
 #include <QTextDocument>
+#include <QUuid>
 
 #include "model_constants.h"
 #include "uniquedataitem.h"

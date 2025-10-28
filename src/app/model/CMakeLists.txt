@@ -17,6 +17,7 @@
 
 LIST(
     APPEND model_files
+    filteredtagitemmodel.cpp
     filteredtaskitemmodel.cpp
     flatteningproxymodel.cpp
     tag.cpp
