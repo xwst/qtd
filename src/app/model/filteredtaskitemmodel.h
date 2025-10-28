@@ -40,7 +40,10 @@ private:
     QMultiHash<QUuid, std::pair<QModelIndex, QModelIndex>> index_mapping;
     QMultiHash<QModelIndex, QModelIndex> proxy_children;
     QRegularExpression split_regex;
+    QSet<QUuid> remaining_tags;
 
+    void reset_mapping();
+    void map_index(const QModelIndex& source_index);
     void rebuild_index_mapping();
     [[nodiscard]] bool index_matches_search_string(const QModelIndex& index) const;
     [[nodiscard]] QModelIndex find_proxy_parent(const QModelIndex& source_index) const;
@@ -76,6 +79,9 @@ public slots:
         const QList<int>& roles = QList<int>()
     );
     void source_model_changed();
+
+signals:
+    void filtered_tags_changed(QSet<QUuid>);
 };
 
 #endif // FILTEREDTASKITEMMODEL_H

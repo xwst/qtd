@@ -71,6 +71,10 @@ QDateTime Task::get_resolve_datetime() const {
     return this->resolve_date;
 }
 
+QSet<QUuid> Task::get_tags() const {
+    return this->tags;
+}
+
 void Task::set_title(const QString& new_title) {
     this->title = new_title;
 }
@@ -99,6 +103,7 @@ QVariant Task::get_data(int role) const {
     case due_role:        return this->get_due_datetime();
     case resolve_role:    return this->get_resolve_datetime();
     case details_role:    return this->get_text_document()->toPlainText();
+    case tags_role:       return QVariant::fromValue(this->get_tags());
     default:              return UniqueDataItem::get_data(role);
     }
 }

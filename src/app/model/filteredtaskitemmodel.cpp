@@ -147,25 +147,38 @@ QModelIndex FilteredTaskItemModel::find_proxy_parent(const QModelIndex& source_i
     return {};
 }
 
-void FilteredTaskItemModel::rebuild_index_mapping() {
+void FilteredTaskItemModel::reset_mapping() {
     this->index_mapping.clear();
     this->proxy_children.clear();
+    this->remaining_tags.clear();
+}
+
+void FilteredTaskItemModel::map_index(const QModelIndex &source_index) {
+    if (index_matches_search_string(source_index)) {
+        const auto proxy_parent = this->find_proxy_parent(source_index);
+        const auto proxy_index = this->createIndex(
+            this->rowCount(proxy_parent), 0, source_index.internalPointer()
+        );
+        this->index_mapping.insert(
+            get_uuid(source_index),
+            std::make_pair(source_index, proxy_index)
+        );
+        this->proxy_children.insert(proxy_parent, proxy_index);
+        this->remaining_tags.unite(
+            source_index.data(tags_role).value<QSet<QUuid>>()
+        );
+    }
+}
+
+void FilteredTaskItemModel::rebuild_index_mapping() {
+    this->reset_mapping();
     Util::model_foreach(
         *this->sourceModel(),
         [this](const QModelIndex& source_index) {
-            if (index_matches_search_string(source_index)) {
-                const auto proxy_parent = this->find_proxy_parent(source_index);
-                const auto proxy_index = this->createIndex(
-                    this->rowCount(proxy_parent), 0, source_index.internalPointer()
-                );
-                this->index_mapping.insert(
-                    get_uuid(source_index),
-                    std::make_pair(source_index, proxy_index)
-                );
-                this->proxy_children.insert(proxy_parent, proxy_index);
-            }
+            this->map_index(source_index);
         }
     );
+    emit this->filtered_tags_changed(this->remaining_tags);
 }
 
 QModelIndex FilteredTaskItemModel::mapFromSource(const QModelIndex& sourceIndex) const {
