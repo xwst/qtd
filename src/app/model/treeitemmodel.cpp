@@ -254,7 +254,7 @@ bool TreeItemModel::setData(const QModelIndex& index, const QVariant& value, int
     this->operate_on_clones(
         index,
         [this, role](TreeNode* node) -> void {
-            auto node_index = this->create_index(node);
+            const auto node_index = this->create_index(node);
             emit this->dataChanged(node_index, node_index, {role});
         }
     );

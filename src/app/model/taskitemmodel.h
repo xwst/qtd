@@ -32,12 +32,12 @@ private:
     QString connection_name;
 
     void setup_tasks_from_db();
-    QMultiHash<QUuid, QUuid> fetch_dependendents_from_db();
+    QMultiHash<QUuid, QUuid> fetch_dependendents_from_db() const;
     static QString get_sql_column_name(int role);
-    bool add_dependency_to_database(const QUuid& dependent_uuid, const QUuid& prerequisite_uuid);
-    bool add_task_to_database(const Task* new_task);
-    bool remove_dependency_from_database(const QUuid& dependent_uuid, const QUuid& prerequisite_uuid);
-    bool remove_tasks_without_parent_from_database();
+    bool add_dependency_to_database(const QUuid& dependent_uuid, const QUuid& prerequisite_uuid) const;
+    bool add_task_to_database(const Task* new_task) const;
+    bool remove_dependency_from_database(const QUuid& dependent_uuid, const QUuid& prerequisite_uuid) const;
+    bool remove_tasks_without_parent_from_database() const;
 
 public:
     explicit TaskItemModel(QString connection_name, QObject* parent = nullptr);
@@ -46,6 +46,7 @@ public:
     Q_INVOKABLE bool create_task(const QString& title, const QModelIndexList& parents = {});
     bool removeRows(int row, int count, const QModelIndex& parent) override;
     bool add_dependency(const QModelIndex& dependent, const QModelIndex& prerequisite);
+    bool add_tag(const QModelIndex& index, const QUuid& tag);
 };
 
 #endif // TASKITEMMODEL_H

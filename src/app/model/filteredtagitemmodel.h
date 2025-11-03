@@ -38,7 +38,7 @@ public:
     ) const override;
 
 public slots:
-    void set_tag_whitelist(const QSet<QUuid>& tag_whitelist);
+    void set_tag_whitelist(const QSet<QUuid>& new_tag_whitelist);
 };
 
 #endif // FILTEREDTAGITEMMODEL_H

@@ -23,6 +23,11 @@
 
 #include "model_constants.h"
 
+/**
+ * @class FilteredTagItemModel
+ * @brief Simple whitelist filter for the tag item model
+ */
+
 FilteredTagItemModel::FilteredTagItemModel(QObject *parent)
     : QSortFilterProxyModel{parent}
 {
@@ -37,7 +42,7 @@ bool FilteredTagItemModel::filterAcceptsRow(
     return this->tag_whitelist.contains(source_row_index.data(uuid_role).toUuid());
 }
 
-void FilteredTagItemModel::set_tag_whitelist(const QSet<QUuid>& tag_whitelist) {
-    this->tag_whitelist = tag_whitelist;
+void FilteredTagItemModel::set_tag_whitelist(const QSet<QUuid>& new_tag_whitelist) {
+    this->tag_whitelist = new_tag_whitelist;
     this->invalidateRowsFilter();
 }

@@ -44,16 +44,16 @@ void TestFilteredTagItemModel::initTestCase() {
     this->model->setSourceModel(this->base_model.get());
 }
 
-void TestFilteredTagItemModel::test_empty_whitelist_yields_empty_model() {
+void TestFilteredTagItemModel::test_empty_whitelist_yields_empty_model() const {
     this->model->set_tag_whitelist(QSet<QUuid>());
     QCOMPARE(this->model->rowCount(), 0);
 }
 
-void TestFilteredTagItemModel::test_whitelisting_parent() {
+void TestFilteredTagItemModel::test_whitelisting_parent() const {
     this->whitelist_single_parent_tag_and_validate();
 }
 
-void TestFilteredTagItemModel::test_whitelisting_children() {
+void TestFilteredTagItemModel::test_whitelisting_children() const {
     this->model->set_tag_whitelist( {
         QUuid::fromString("b7f5d20c-3ea7-4d20-86e2-3c682fc05756"),
         QUuid::fromString("3fd213cf-1c50-47a0-9237-c2da78bf4fcc")
@@ -82,7 +82,7 @@ void TestFilteredTagItemModel::test_whitelisting_children() {
     QCOMPARE(this->model->rowCount(index), 0);
 }
 
-void TestFilteredTagItemModel::test_removing_tags_from_whitelist() {
+void TestFilteredTagItemModel::test_removing_tags_from_whitelist() const {
     this->model->set_tag_whitelist( {
         QUuid::fromString("b7f5d20c-3ea7-4d20-86e2-3c682fc05756"),
         QUuid::fromString("3fd213cf-1c50-47a0-9237-c2da78bf4fcc")
@@ -92,7 +92,7 @@ void TestFilteredTagItemModel::test_removing_tags_from_whitelist() {
     this->whitelist_single_parent_tag_and_validate();
 }
 
-void TestFilteredTagItemModel::whitelist_single_parent_tag_and_validate() {
+void TestFilteredTagItemModel::whitelist_single_parent_tag_and_validate() const {
     this->model->set_tag_whitelist(
         { QUuid::fromString("c99586cb-3910-4fab-b5a4-d936c9e58471") }
         );

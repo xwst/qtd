@@ -21,8 +21,10 @@
 #include <memory>
 
 #include <QLoggingCategory>
+#include <QSet>
 #include <QSqlDatabase>
 #include <QTest>
+#include <QUuid>
 
 #include "../../src/app/model/model_constants.h"
 #include "../../src/app/model/taskitemmodel.h"
@@ -69,6 +71,10 @@ void TestFilteredTaskItemModel::init() {
 
     TestHelpers::setup_proxy_item_model(this->model, this->base_model.get(), nullptr);
     this->model->clear_search_string();
+    this->spy = std::make_unique<QSignalSpy>(
+        this->model.get(),
+        &FilteredTaskItemModel::filtered_tags_changed
+    );
 }
 
 void TestFilteredTaskItemModel::test_filter_single_word() {
@@ -77,9 +83,15 @@ void TestFilteredTaskItemModel::test_filter_single_word() {
     const auto remaining_index = this->model->index(0, 0);
     QCOMPARE(this->model->data(remaining_index), "Buy groceries");
     QCOMPARE(this->model->rowCount(remaining_index), 0);
+
+    QCOMPARE(this->spy->count(), 1);
+    QCOMPARE(
+        this->spy->takeFirst().at(0).value<QSet<QUuid>>(),
+        { QUuid::fromString("54c1f21d-bb9a-41df-9658-5111e153f745") }
+    );
 }
 
-void TestFilteredTaskItemModel::test_filter_multiple_words() {
+void TestFilteredTaskItemModel::test_filter_multiple_words() const {
     this->model->set_search_string("Answer mail");
     QCOMPARE(this->model->rowCount(), 1);
     const auto remaining_index = this->model->index(0, 0);
@@ -116,7 +128,7 @@ void TestFilteredTaskItemModel::test_filter_for_task_details() {
     QCOMPARE(this->model->rowCount(remaining_index), 0);
 }
 
-void TestFilteredTaskItemModel::test_no_matches() {
+void TestFilteredTaskItemModel::test_no_search_string_matches() {
     this->model->set_search_string("55fe5a86-d010-4a31-8016-d25034921f30");
     QCOMPARE(this->model->rowCount(), 0);
 }
@@ -142,7 +154,7 @@ void TestFilteredTaskItemModel::test_filter_independent_of_filter_word_order() {
     );
 }
 
-void TestFilteredTaskItemModel::test_repeat_words_has_no_effect() {
+void TestFilteredTaskItemModel::test_repeating_words_has_no_effect() {
     this->model->set_search_string("a e p");
     const auto filtered_items = TestHelpers::get_display_roles(*this->model);
 

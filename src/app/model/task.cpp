@@ -127,6 +127,9 @@ void Task::set_data(const QVariant& value, int role) {
     case resolve_role:
         this->set_resolve_datetime(value.toDateTime());
         break;
+    case add_tag_role:
+        this->tags.insert(value.toUuid());
+        break;
     default:
         UniqueDataItem::set_data(value, role);
     }

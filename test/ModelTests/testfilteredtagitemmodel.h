@@ -34,7 +34,7 @@ private:
     std::unique_ptr<TagItemModel> base_model;
     std::unique_ptr<FilteredTagItemModel> model;
 
-    void whitelist_single_parent_tag_and_validate();
+    void whitelist_single_parent_tag_and_validate() const;
 
 public:
     explicit TestFilteredTagItemModel(QObject *parent = nullptr);
@@ -43,10 +43,10 @@ private slots:
     // Test setup/cleanup:
     void initTestCase();
 
-    void test_empty_whitelist_yields_empty_model();
-    void test_whitelisting_parent();
-    void test_whitelisting_children();
-    void test_removing_tags_from_whitelist();
+    void test_empty_whitelist_yields_empty_model() const;
+    void test_whitelisting_parent() const;
+    void test_whitelisting_children() const;
+    void test_removing_tags_from_whitelist() const;
 
 };
 

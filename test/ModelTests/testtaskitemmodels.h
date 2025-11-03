@@ -37,7 +37,7 @@ private:
 
     // Helper functions:
     void assert_initial_dataset_representation_base_model();
-    void assert_model_persistence();
+    void assert_model_persistence() const;
     static void assert_index_equality(
         const QModelIndex& index1,
         const QModelIndex& index2

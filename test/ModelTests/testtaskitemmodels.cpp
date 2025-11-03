@@ -20,7 +20,6 @@
 
 #include <memory>
 
-#include <QAbstractItemModelTester>
 #include <QDateTime>
 #include <QObject>
 #include <QSet>
@@ -213,7 +212,7 @@ void TestTaskItemModel::assert_initial_dataset_representation_base_model() {
     );
 }
 
-void TestTaskItemModel::assert_model_persistence() {
+void TestTaskItemModel::assert_model_persistence() const {
     std::unique_ptr<TaskItemModel> model_reloaded_from_db;
 
     TestHelpers::setup_item_model(model_reloaded_from_db, this->get_db_connection_name());

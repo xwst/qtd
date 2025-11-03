@@ -56,7 +56,7 @@ QModelIndex model_find(
     const QString& query_str,
     const std::function<void(QSqlQuery&)>& bind_values,
     const std::function<bool(void)>& alter_model,
-    bool use_batch_mode
+    bool use_batch_mode = false
 );
 
 /**

@@ -41,11 +41,13 @@ private:
     QMultiHash<QModelIndex, QModelIndex> proxy_children;
     QRegularExpression split_regex;
     QSet<QUuid> remaining_tags;
+    QSet<QUuid> selected_tags;
 
     void reset_mapping();
     void map_index(const QModelIndex& source_index);
     void rebuild_index_mapping();
     [[nodiscard]] bool index_matches_search_string(const QModelIndex& index) const;
+    [[nodiscard]] bool index_matches_tag_selection(const QModelIndex& index) const;
     [[nodiscard]] QModelIndex find_proxy_parent(const QModelIndex& source_index) const;
     void setup_signal_slot_connections();
 
@@ -55,6 +57,8 @@ public:
     void setSourceModel(QAbstractItemModel* sourceModel) override;
     void set_search_string(const QString& search_string);
     void clear_search_string();
+
+    void set_selected_tags(const QSet<QUuid>& tags);
 
     [[nodiscard]] QModelIndex mapFromSource(const QModelIndex& sourceIndex) const override;
     [[nodiscard]] QModelIndex mapToSource(const QModelIndex& proxyIndex) const override;
