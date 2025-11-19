@@ -19,7 +19,12 @@
 #ifndef TASKITEMMODEL_H
 #define TASKITEMMODEL_H
 
+#include <QList>
+#include <QModelIndex>
+#include <QMultiHash>
 #include <QObject>
+#include <QString>
+#include <QUuid>
 
 #include "task.h"
 #include "treeitemmodel.h"
@@ -33,6 +38,7 @@ private:
 
     void setup_tasks_from_db();
     QMultiHash<QUuid, QUuid> fetch_dependendents_from_db() const;
+    void fetch_and_add_tags_from_db(Task* task) const;
     static QString get_sql_column_name(int role);
     bool add_dependency_to_database(const QUuid& dependent_uuid, const QUuid& prerequisite_uuid) const;
     bool add_task_to_database(const Task* new_task) const;

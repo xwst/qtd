@@ -21,12 +21,13 @@
 #include <memory>
 #include <utility>
 
-#include <QtConcurrentMap>
+#include <QList>
 #include <QModelIndexList>
 #include <QMultiHash>
 #include <QObject>
 #include <QSet>
 #include <QSqlDatabase>
+#include <QtConcurrentMap>
 #include <QUuid>
 
 #include "../util.h"
@@ -90,6 +91,7 @@ void TaskItemModel::setup_tasks_from_db() {
 
     while (query.next()) {
         auto task = create_task_from_query_result(query);
+        this->fetch_and_add_tags_from_db(task.get());
         auto task_uuid = task->get_data(uuid_role).toUuid();
         auto [parents_iterator, parents_end] = dependents.equal_range(task_uuid);
         this->create_tree_node(
@@ -115,6 +117,20 @@ QMultiHash<QUuid, QUuid> TaskItemModel::fetch_dependendents_from_db() const {
         result.insert(query.value(1).toUuid(), query.value(0).toUuid());
     }
     return result;
+}
+
+void TaskItemModel::fetch_and_add_tags_from_db(Task* task) const {
+    auto query = QSqlQuery(QSqlDatabase::database(this->connection_name));
+    query.prepare(Util::get_sql_query_string("select_tag_assignments.sql"));
+    query.bindValue(
+        0,
+        task->get_data(uuid_role).toUuid().toString(QUuid::WithoutBraces)
+    );
+    Util::execute_sql_query(query);
+
+    while (query.next()) {
+        task->set_data(query.value(0), add_tag_role);
+    }
 }
 
 QString TaskItemModel::get_sql_column_name(int role) {
@@ -234,10 +250,13 @@ bool TaskItemModel::create_task(const QString& title, const QModelIndexList& par
         }
     }
 
-    auto iterator = parent_uuids.begin();
-    bool success = this->create_tree_node(std::move(new_task), *iterator);
-    for (++iterator; iterator != parent_uuids.end(); ++iterator) {
-        success &= this->clone_tree_node(new_task_uuid, *iterator);
+    auto parents_iterator = parent_uuids.begin();
+    bool success = this->create_tree_node(
+        std::move(new_task),
+        parents_iterator == parent_uuids.end() ? QUuid() : *(parents_iterator++)
+    );
+    while (parents_iterator != parent_uuids.end()) {
+        success &= this->clone_tree_node(new_task_uuid, *(parents_iterator++));
     }
 
     if (!success) {

@@ -67,7 +67,7 @@ void TestFilteredTaskItemModel::init() {
 
     this->base_model = std::make_unique<TaskItemModel>(
         QSqlDatabase::database().connectionName()
-        );
+    );
     QCOMPARE(this->base_model->rowCount(), 3);
 
     TestHelpers::setup_proxy_item_model(this->model, this->base_model.get(), nullptr);
@@ -105,7 +105,6 @@ void TestFilteredTaskItemModel::test_filter_with_quotes() {
     const QString task2 = "Another task with a dummy description";
     this->base_model->create_task(task1);
     this->base_model->create_task(task2);
-
 
     this->model->set_search_string("dummy task");
     QCOMPARE(
