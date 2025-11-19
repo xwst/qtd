@@ -33,7 +33,20 @@ SET(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 INCLUDE(CTest)
 ENABLE_TESTING()
 
-FIND_PACKAGE(Qt6 REQUIRED COMPONENTS Widgets Core Gui Quick QuickControls2 Sql Test QuickTest Qml)
+FIND_PACKAGE(
+    Qt6
+    REQUIRED COMPONENTS
+        Widgets
+        Core
+        Gui
+        Quick
+        QuickControls2
+        Sql
+        Test
+        QuickTest
+        Qml
+        Concurrent
+)
 INCLUDE(CTest)
 
 QT_STANDARD_PROJECT_SETUP(REQUIRES 6.7)

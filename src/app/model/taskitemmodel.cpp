@@ -21,6 +21,7 @@
 #include <memory>
 #include <utility>
 
+#include <QtConcurrentMap>
 #include <QModelIndexList>
 #include <QMultiHash>
 #include <QObject>
@@ -46,7 +47,7 @@ namespace {
  */
 QSet<QUuid> get_parent_uuids_of_parent_indices(const QModelIndexList& indices) {
     if (indices.isEmpty()) {
-        return {QUuid()};
+        return {};
     }
     QSet<QUuid> result;
     for (auto index : indices) {
@@ -134,6 +135,9 @@ QString TaskItemModel::get_sql_column_name(int role) {
  * @return whether the execution of the query succeeded
  */
 bool TaskItemModel::add_dependency_to_database(const QUuid& dependent_uuid, const QUuid& prerequisite_uuid) const {
+    if (dependent_uuid.isNull()) {
+        return true;
+    }
     auto query = QSqlQuery(QSqlDatabase::database(this->connection_name));
 
     query.prepare(Util::get_sql_query_string("create_dependency.sql"));
@@ -170,15 +174,34 @@ bool TaskItemModel::remove_dependency_from_database(const QUuid& dependent_uuid,
     auto query = QSqlQuery(QSqlDatabase::database(this->connection_name));
 
     query.prepare(Util::get_sql_query_string("delete_dependency.sql"));
-    query.bindValue(0, dependent_uuid.toString(QUuid::WithoutBraces));
+    query.bindValue(
+        0,
+        dependent_uuid.isNull()
+            ? QVariant(QMetaType::fromType<QString>())
+            : dependent_uuid.toString(QUuid::WithoutBraces)
+    );
     query.bindValue(1, prerequisite_uuid.toString(QUuid::WithoutBraces));
 
     return Util::execute_sql_query(query);
 }
 
-bool TaskItemModel::remove_tasks_without_parent_from_database() const {
+bool TaskItemModel::remove_dangling_tasks_from_database(const QList<QUuid>& task_ids) const {
+    if (task_ids.isEmpty()) {
+        return true;
+    }
+
+    auto formatted_ids
+        = QtConcurrent::blockingMapped(
+              task_ids,
+              [](const QUuid& uuid) {
+                  return uuid.toString(QUuid::WithoutBraces);
+              }
+        ).join("', '");
+    auto query_str = Util::get_sql_query_string("delete_dangling_task.sql");
+    query_str.replace("#tasks_to_delete#", "'" + formatted_ids + "'");
+
     auto query = QSqlQuery(QSqlDatabase::database(this->connection_name));
-    query.prepare(Util::get_sql_query_string("delete_tasks_without_parent.sql"));
+    query.prepare(query_str);
     return Util::execute_sql_query(query);
 }
 
@@ -254,17 +277,22 @@ bool TaskItemModel::removeRows(int row, int count, const QModelIndex &parent) {
         return false;
     }
 
+    QList<QUuid> task_ids(count);
     for (int i=row; i<row+count; i++) {
+        task_ids[i-row] = this->index(i, 0, parent).data(uuid_role).toUuid();
         const bool success = this->remove_dependency_from_database(
             parent.isValid() ? parent.data(uuid_role).toUuid() : QUuid(),
-            this->index(i, 0, parent).data(uuid_role).toUuid()
+            task_ids[i-row]
         );
         if (!success) {
             database.rollback();
             return false;
         }
     }
-    if (this->remove_tasks_without_parent_from_database() && TreeItemModel::removeRows(row, count, parent)) {
+    if (
+        this->remove_dangling_tasks_from_database(task_ids)
+        && TreeItemModel::removeRows(row, count, parent)
+    ) {
         database.commit();
         return true;
     }

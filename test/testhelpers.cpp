@@ -74,11 +74,12 @@ bool TestHelpers::setup_database() {
     if (QSqlDatabase::contains()) {
         database = QSqlDatabase::database();
         database.close();
-        database.open();
     } else {
         database = QSqlDatabase::addDatabase("QSQLITE");
         database.setDatabaseName(":memory:");
     }
+    database.open();
+    QSqlQuery(database).exec("PRAGMA foreign_keys = ON;");
     return Util::create_tables_if_not_exist(database.connectionName());
 }
 

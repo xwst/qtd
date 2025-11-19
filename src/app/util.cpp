@@ -38,7 +38,7 @@
  * @return a list of individual queries
  */
 QStringList Util::split_queries(const QString& sql_queries) {
-    const QString regex_str = ";\\s*(?:--.*)?\\n";
+    const QString regex_str = ";\\s*(?:--.*\\n)*";
     return sql_queries.split(QRegularExpression(regex_str), Qt::SkipEmptyParts);
 }
 

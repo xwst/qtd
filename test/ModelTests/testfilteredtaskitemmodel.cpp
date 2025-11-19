@@ -22,6 +22,7 @@
 
 #include <QLoggingCategory>
 #include <QSet>
+#include <QSignalSpy>
 #include <QSqlDatabase>
 #include <QTest>
 #include <QUuid>

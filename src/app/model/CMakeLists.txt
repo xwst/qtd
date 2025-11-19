@@ -34,6 +34,7 @@ LIST(
     Qt6::Core
     Qt6::Gui
     Qt6::Sql
+    Qt6::Concurrent
     util
 )
 

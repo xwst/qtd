@@ -37,7 +37,7 @@ private:
     bool add_dependency_to_database(const QUuid& dependent_uuid, const QUuid& prerequisite_uuid) const;
     bool add_task_to_database(const Task* new_task) const;
     bool remove_dependency_from_database(const QUuid& dependent_uuid, const QUuid& prerequisite_uuid) const;
-    bool remove_tasks_without_parent_from_database() const;
+    bool remove_dangling_tasks_from_database(const QList<QUuid>& task_ids) const;
 
 public:
     explicit TaskItemModel(QString connection_name, QObject* parent = nullptr);
