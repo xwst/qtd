@@ -22,6 +22,7 @@
 #include <memory>
 
 #include <QObject>
+#include <QSignalSpy>
 #include <QTest>
 
 #include "../../src/app/model/filteredtaskitemmodel.h"
@@ -34,6 +35,7 @@ class TestFilteredTaskItemModel : public QObject
 private:
     std::unique_ptr<TaskItemModel> base_model;
     std::unique_ptr<FilteredTaskItemModel> model;
+    std::unique_ptr<QSignalSpy> spy;
 
 public:
     explicit TestFilteredTaskItemModel(QObject *parent = nullptr);
@@ -44,21 +46,24 @@ private slots:
     void init();
 
     // Test functions:
-    void test_filter_single_word();
-    void test_filter_multiple_words();
-    void test_filter_with_quotes();
-    void test_filter_for_task_details();
-    void test_no_matches();
-    void test_no_filter();
+    void test_filter_single_word() const;
+    void test_filter_multiple_words() const;
+    void test_filter_with_quotes() const;
+    void test_filter_for_task_details() const;
+    void test_no_search_string_matches() const;
+    void test_no_filter() const;
 
-    void test_filter_independent_of_filter_word_order();
-    void test_repeat_words_has_no_effect();
+    void test_filter_independent_of_filter_word_order() const;
+    void test_repeating_words_has_no_effect() const;
 
-    void test_modifying_base_model_propagates_to_proxy();
-    void test_adding_children_to_cloned_items_in_base_model();
+    void test_modifying_base_model_propagates_to_proxy() const;
+    void test_adding_children_to_cloned_items_in_base_model() const;
 
-    void test_parents_become_childless_if_no_child_matches();
-    void test_matching_children_are_kept_if_parents_are_filtered_out();
+    void test_parents_become_childless_if_no_child_matches() const;
+    void test_matching_children_are_kept_if_parents_are_filtered_out() const;
+
+    void test_filter_by_tag_selection() const;
+    void test_filter_by_tag_and_search_string() const;
 };
 
 #endif // TESTFILTEREDTASKITEMMODEL_H

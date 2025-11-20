@@ -78,6 +78,7 @@ protected:
         const QUuid& parent_uuid = QUuid()
     );
 
+
 public:
 
     explicit TreeItemModel(QObject *parent = nullptr);
@@ -101,6 +102,7 @@ public:
 
     // Convenience functions:
     qsizetype get_size();
+    [[nodiscard]] QVariant data(const QUuid& uuid, int role) const;
 };
 
 #endif // TreeItemModel_H

@@ -17,6 +17,7 @@
 
 LIST(
     APPEND model_files
+    filteredtagitemmodel.cpp
     filteredtaskitemmodel.cpp
     flatteningproxymodel.cpp
     tag.cpp
@@ -33,6 +34,7 @@ LIST(
     Qt6::Core
     Qt6::Gui
     Qt6::Sql
+    Qt6::Concurrent
     util
 )
 

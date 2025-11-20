@@ -16,23 +16,29 @@
  * qtd. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef MODEL_CONSTANTS_H
-#define MODEL_CONSTANTS_H
+#ifndef FILTEREDTAGITEMMODEL_H
+#define FILTEREDTAGITEMMODEL_H
 
-#include <QObject>
-#include <QtTypes>
+#include <QSet>
+#include <QSortFilterProxyModel>
+#include <QUuid>
 
-enum CustomItemDataRole : quint16 {
-      uuid_role = Qt::UserRole
-    , active_role
-    , start_role
-    , due_role
-    , resolve_role
-    , details_role
-    , document_role
-    , tags_role
-    , add_tag_role
-    , remove_tag_role
+class FilteredTagItemModel : public QSortFilterProxyModel
+{
+    Q_OBJECT
+
+private:
+    QSet<QUuid> tag_whitelist;
+
+public:
+    explicit FilteredTagItemModel(QObject *parent = nullptr);
+    [[nodiscard]] bool filterAcceptsRow(
+        int source_row,
+        const QModelIndex& source_parent
+    ) const override;
+
+public slots:
+    void set_tag_whitelist(const QSet<QUuid>& new_tag_whitelist);
 };
 
-#endif // MODEL_CONSTANTS_H
+#endif // FILTEREDTAGITEMMODEL_H

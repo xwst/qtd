@@ -74,11 +74,12 @@ bool TestHelpers::setup_database() {
     if (QSqlDatabase::contains()) {
         database = QSqlDatabase::database();
         database.close();
-        database.open();
     } else {
         database = QSqlDatabase::addDatabase("QSQLITE");
         database.setDatabaseName(":memory:");
     }
+    database.open();
+    QSqlQuery(database).exec("PRAGMA foreign_keys = ON;");
     return Util::create_tables_if_not_exist(database.connectionName());
 }
 
@@ -199,9 +200,9 @@ QStringList TestHelpers::get_display_roles(
     const QAbstractItemModel& model,
     const QModelIndex& parent
 ) {
-    const std::function<QString(const QModelIndex&)> lambda_get_display_role
+    const std::function<QString(const QModelIndex&)> get_display_role
         = [](const QModelIndex& index) -> QString { return index.data().toString(); };
-    return Util::model_flat_map(model, lambda_get_display_role, parent);
+    return Util::model_flat_map(model, get_display_role, parent);
 }
 
 /**

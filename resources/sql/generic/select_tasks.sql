@@ -8,7 +8,7 @@ WITH RECURSIVE tasks_with_parents AS (
 cte AS (
         SELECT 0 AS lvl, TwP.*
         FROM tasks_with_parents TwP
-        WHERE TwP.parent_uuid = '00000000-0000-0000-0000-000000000000'
+        WHERE TwP.parent_uuid IS NULL
         UNION ALL
         SELECT cte.lvl + 1, TwP.*
         FROM tasks_with_parents TwP

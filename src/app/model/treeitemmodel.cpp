@@ -237,6 +237,13 @@ QVariant TreeItemModel::data(const QModelIndex& index, int role) const {
     return index.isValid() ? this->get_raw_node_pointer(index)->get_data(role) : QVariant();
 }
 
+QVariant TreeItemModel::data(const QUuid& uuid, int role) const {
+    if (auto* node = this->uuid_node_map.value(uuid)) {
+        return node->get_data(role);
+    }
+    return {};
+}
+
 bool TreeItemModel::setData(const QModelIndex& index, const QVariant& value, int role) {
     if (!index.isValid()) {
         return false;
@@ -247,7 +254,7 @@ bool TreeItemModel::setData(const QModelIndex& index, const QVariant& value, int
     this->operate_on_clones(
         index,
         [this, role](TreeNode* node) -> void {
-            auto node_index = this->create_index(node);
+            const auto node_index = this->create_index(node);
             emit this->dataChanged(node_index, node_index, {role});
         }
     );

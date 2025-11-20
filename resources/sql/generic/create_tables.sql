@@ -3,14 +3,14 @@ CREATE TABLE IF NOT EXISTS tags (
     , name        VARCHAR(128)  NOT NULL
     , color       VARCHAR(9)
     , parent_uuid VARCHAR(36)
-    , FOREIGN KEY (parent_uuid) REFERENCES tags(uuid)
+    , FOREIGN KEY (parent_uuid) REFERENCES tags(uuid) ON DELETE CASCADE
 );
 
 
 CREATE TABLE IF NOT EXISTS tasks (
       uuid             VARCHAR(36)   PRIMARY KEY
     , title            VARCHAR(1024) NOT NULL
-    , status           VARCHAR(6)    NOT NULL  DEFAULT 'open'
+    , status           VARCHAR(10)   NOT NULL DEFAULT 'open'
                                      CHECK(status IN ('open', 'closed'))
     , start_datetime   VARCHAR(30)
     , due_datetime     VARCHAR(30)
@@ -26,18 +26,18 @@ CREATE TABLE IF NOT EXISTS tag_assignments (
       task_uuid VARCHAR(36)
     , tag_uuid  VARCHAR(36)
     , UNIQUE       (task_uuid, tag_uuid)
-    , FOREIGN KEY  (task_uuid)           REFERENCES tasks (uuid)
-    , FOREIGN KEY  (tag_uuid)            REFERENCES tags  (uuid)
+    , FOREIGN KEY  (task_uuid)           REFERENCES tasks (uuid) ON DELETE CASCADE
+    , FOREIGN KEY  (tag_uuid)            REFERENCES tags  (uuid) ON DELETE CASCADE
 );
 CREATE INDEX IF NOT EXISTS index_tag_assignments_task_uuid
     ON tag_assignments (task_uuid);
 
 
 CREATE TABLE IF NOT EXISTS dependencies (
-      dependent_uuid    VARCHAR(36)   NOT NULL
+      dependent_uuid    VARCHAR(36)
     , prerequisite_uuid VARCHAR(36)   NOT NULL
                                       CHECK(prerequisite_uuid != dependent_uuid)
     , UNIQUE      (dependent_uuid, prerequisite_uuid)
-    , FOREIGN KEY (dependent_uuid)    REFERENCES tasks(uuid)
-    , FOREIGN KEY (prerequisite_uuid) REFERENCES tasks(uuid)
+    , FOREIGN KEY (dependent_uuid)    REFERENCES tasks(uuid) ON DELETE CASCADE
+    , FOREIGN KEY (prerequisite_uuid) REFERENCES tasks(uuid) ON DELETE CASCADE
 );

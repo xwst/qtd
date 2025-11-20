@@ -79,7 +79,7 @@ void TestTagItemModels::test_remove_rows_with_children() {
     QCOMPARE(Util::count_model_rows(base_model), 4);
     QCOMPARE(Util::count_model_rows(this->flat_model.get()), 4);
 
-    const QStringList remaining_expected = {"Fruits", "Vegetables", "Carrots", "Chickpeas"};
+    const QStringList remaining_expected = {"Private", "Work", "Mails", "Spreadsheet"};
     const auto remaining = TestHelpers::get_display_roles(*base_model);
     const auto remaining_flat = TestHelpers::get_display_roles(*this->flat_model);
     QCOMPARE(remaining, remaining_expected);
@@ -115,7 +115,7 @@ void TestTagItemModels::test_create_tag_with_parent() {
     const int old_row_count_flat_model = this->flat_model->rowCount();
     const auto vegetable_index = this->model->index(1, 0);
     const int vegetable_row_count = this->model->rowCount(vegetable_index);
-    QCOMPARE(vegetable_index.data().toString(), "Vegetables");
+    QCOMPARE(vegetable_index.data().toString(), "Work");
 
     const QString new_tag_name = "new tag name";
     const QColor new_tag_color = QColor::fromString("#1234AB");
@@ -179,9 +179,9 @@ void TestTagItemModels::assert_initial_dataset_representation_base_model() {
     QCOMPARE(this->model->rowCount(), 2);
     for (int row=0; row<this->model->rowCount(); row++) {
         auto row_index = this->model->index(row, 0);
-        if (row_index.data() == "Fruits") {
+        if (row_index.data() == "Private") {
             QCOMPARE(this->model->rowCount(row_index), 4);
-        } else if (row_index.data() == "Vegetables") {
+        } else if (row_index.data() == "Work") {
             QCOMPARE(this->model->rowCount(row_index), 2);
         } else {
             QFAIL("Unexpected model entry at top level!");

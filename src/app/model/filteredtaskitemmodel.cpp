@@ -30,24 +30,29 @@
 #include "model_constants.h"
 #include "treenode.h"
 
+/**
+ * @class FilteredTaskItemModel
+ * @brief A proxy model that filters tasks by a search string and selected tags.
+ *
+ * A given search string filters matching tasks and emits a signal with the tags of
+ * the filtered tasks. Tasks can also be filtered by a set of selected tasks, leaving
+ * the set of emitted tags unaltered.
+ */
 namespace {
+    bool task_index_contains_word(const QModelIndex &index, const QString &word) {
+        return index.data(Qt::DisplayRole).toString().contains(word, Qt::CaseInsensitive)
+               || index.data(details_role).toString().contains(word, Qt::CaseInsensitive);
+    }
 
-bool task_index_contains_word(const QModelIndex& index, const QString& word) {
-    return index.data(Qt::DisplayRole).toString().contains(word, Qt::CaseInsensitive)
-           || index.data(details_role).toString().contains(word, Qt::CaseInsensitive);
-}
-
-QUuid get_uuid(const QModelIndex& index) {
-    return index.isValid() ? index.data(uuid_role).toUuid() : QUuid();
-}
-
+    QUuid get_uuid(const QModelIndex &index) {
+        return index.isValid() ? index.data(uuid_role).toUuid() : QUuid();
+    }
 } // anonymous namespace
 
-const char* FilteredTaskItemModel::split_pattern = "[^\\s\"]+|\"([^\"]+)\"";
+const char *FilteredTaskItemModel::split_pattern = "[^\\s\"]+|\"([^\"]+)\"";
 
-FilteredTaskItemModel::FilteredTaskItemModel(QObject* parent)
-    : QAbstractProxyModel{parent}
-{
+FilteredTaskItemModel::FilteredTaskItemModel(QObject *parent)
+    : QAbstractProxyModel{parent} {
     this->split_regex = QRegularExpression(FilteredTaskItemModel::split_pattern);
 }
 
@@ -126,16 +131,32 @@ void FilteredTaskItemModel::clear_search_string() {
     this->set_search_string("");
 }
 
-bool FilteredTaskItemModel::index_matches_search_string(const QModelIndex& index) const {
+void FilteredTaskItemModel::set_selected_tags(const QSet<QUuid> &tags) {
+    this->beginResetModel();
+    this->selected_tags = tags;
+    this->rebuild_index_mapping();
+    this->endResetModel();
+}
+
+
+bool FilteredTaskItemModel::index_matches_search_string(const QModelIndex &index) const {
     return std::ranges::all_of(
         this->filter_words,
-        [&index](const QString& word) {
+        [&index](const QString &word) {
             return task_index_contains_word(index, word);
         }
     );
 }
 
-QModelIndex FilteredTaskItemModel::find_proxy_parent(const QModelIndex& source_index) const {
+bool FilteredTaskItemModel::index_matches_tag_selection(const QModelIndex &index) const {
+    if (this->selected_tags.isEmpty()) {
+        return true;
+    }
+    auto index_tags = index.data(tags_role).value<QSet<QUuid> >();
+    return index_tags.intersects((this->selected_tags));
+}
+
+QModelIndex FilteredTaskItemModel::find_proxy_parent(const QModelIndex &source_index) const {
     auto source_parent_index = source_index.parent();
     while (source_parent_index.isValid()) {
         auto proxy_parent_index = this->mapFromSource(source_parent_index);
@@ -147,49 +168,69 @@ QModelIndex FilteredTaskItemModel::find_proxy_parent(const QModelIndex& source_i
     return {};
 }
 
-void FilteredTaskItemModel::rebuild_index_mapping() {
+void FilteredTaskItemModel::reset_mapping() {
     this->index_mapping.clear();
     this->proxy_children.clear();
-    Util::model_foreach(
-        *this->sourceModel(),
-        [this](const QModelIndex& source_index) {
-            if (index_matches_search_string(source_index)) {
-                const auto proxy_parent = this->find_proxy_parent(source_index);
-                const auto proxy_index = this->createIndex(
-                    this->rowCount(proxy_parent), 0, source_index.internalPointer()
-                );
-                this->index_mapping.insert(
-                    get_uuid(source_index),
-                    std::make_pair(source_index, proxy_index)
-                );
-                this->proxy_children.insert(proxy_parent, proxy_index);
-            }
-        }
-    );
+    this->remaining_tags.clear();
 }
 
-QModelIndex FilteredTaskItemModel::mapFromSource(const QModelIndex& sourceIndex) const {
+void FilteredTaskItemModel::map_index(const QModelIndex &source_index) {
+    if (index_matches_search_string(source_index)) {
+        this->remaining_tags.unite(
+            source_index.data(tags_role).value<QSet<QUuid> >()
+        );
+        if (!index_matches_tag_selection(source_index)) {
+            return;
+        }
+
+        const auto proxy_parent = this->find_proxy_parent(source_index);
+        const auto proxy_index = this->createIndex(
+            this->rowCount(proxy_parent), 0, source_index.internalPointer()
+        );
+        this->index_mapping.insert(
+            get_uuid(source_index),
+            std::make_pair(source_index, proxy_index)
+        );
+        this->proxy_children.insert(proxy_parent, proxy_index);
+    }
+}
+
+void FilteredTaskItemModel::rebuild_index_mapping() {
+    auto old_remaining_tags = this->remaining_tags;
+    this->reset_mapping();
+    Util::model_foreach(
+        *this->sourceModel(),
+        [this](const QModelIndex &source_index) {
+            this->map_index(source_index);
+        }
+    );
+    if (old_remaining_tags != this->remaining_tags) {
+        emit this->filtered_tags_changed(this->remaining_tags);
+    }
+}
+
+QModelIndex FilteredTaskItemModel::mapFromSource(const QModelIndex &sourceIndex) const {
     if (sourceIndex.isValid()) {
         auto iterator = this->index_mapping.constKeyValueBegin();
         while (iterator != this->index_mapping.constKeyValueEnd()) {
             if (iterator->second.first == sourceIndex) {
                 return iterator->second.second;
             }
-            iterator++;
+            ++iterator;
         }
         return {};
     }
     return {};
 }
 
-QModelIndex FilteredTaskItemModel::mapToSource(const QModelIndex& proxyIndex) const {
+QModelIndex FilteredTaskItemModel::mapToSource(const QModelIndex &proxyIndex) const {
     if (proxyIndex.isValid()) {
         auto iterator = this->index_mapping.constKeyValueBegin();
         while (iterator != this->index_mapping.constKeyValueEnd()) {
             if (iterator->second.second == proxyIndex) {
                 return iterator->second.first;
             }
-            iterator++;
+            ++iterator;
         }
         return {};
     }
@@ -197,7 +238,7 @@ QModelIndex FilteredTaskItemModel::mapToSource(const QModelIndex& proxyIndex) co
 }
 
 
-QModelIndex FilteredTaskItemModel::index(int row, int column, const QModelIndex& parent) const {
+QModelIndex FilteredTaskItemModel::index(int row, int column, const QModelIndex &parent) const {
     if ((row < 0) || (column > 0) || (row >= this->rowCount(parent))) {
         return {};
     }
@@ -206,33 +247,33 @@ QModelIndex FilteredTaskItemModel::index(int row, int column, const QModelIndex&
     return *std::next(it_first_child, this->rowCount(parent) - row - 1);
 }
 
-QModelIndex FilteredTaskItemModel::parent(const QModelIndex& child_index) const {
+QModelIndex FilteredTaskItemModel::parent(const QModelIndex &child_index) const {
     return this->find_proxy_parent(this->mapToSource(child_index));
 }
 
-int FilteredTaskItemModel::columnCount(const QModelIndex& /* parent */) const {
+int FilteredTaskItemModel::columnCount(const QModelIndex & /* parent */) const {
     return 1;
 }
 
-int FilteredTaskItemModel::rowCount(const QModelIndex& parent) const {
+int FilteredTaskItemModel::rowCount(const QModelIndex &parent) const {
     return static_cast<int>(this->proxy_children.count(parent));
 }
 
-bool FilteredTaskItemModel::hasChildren(const QModelIndex& parent) const {
+bool FilteredTaskItemModel::hasChildren(const QModelIndex &parent) const {
     return this->proxy_children.contains(parent);
 }
 
 QVariant FilteredTaskItemModel::data(const QModelIndex &index, int role) const {
     if (index.isValid()) {
-        return static_cast<TreeNode*>(index.internalPointer())->get_data(role);
+        return static_cast<TreeNode *>(index.internalPointer())->get_data(role);
     }
     return {};
 }
 
 void FilteredTaskItemModel::source_data_changed(
-    const QModelIndex& topLeft,
-    const QModelIndex& bottomRight,
-    const QList<int>& roles
+    const QModelIndex &topLeft,
+    const QModelIndex &bottomRight,
+    const QList<int> &roles
 ) {
     auto proxy_top_left = this->mapFromSource(topLeft);
     auto proxy_bottom_right = this->mapFromSource(bottomRight);
@@ -242,7 +283,7 @@ void FilteredTaskItemModel::source_data_changed(
         auto first_index = this->index(0, 0);
         auto last_index = QModelIndex();
         while (this->hasChildren(last_index)) {
-            last_index = this->index(this->rowCount(last_index)-1, 0, last_index);
+            last_index = this->index(this->rowCount(last_index) - 1, 0, last_index);
         }
         emit this->dataChanged(first_index, last_index);
     }

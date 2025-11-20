@@ -21,12 +21,14 @@
 #include <memory>
 #include <utility>
 
+#include <QList>
 #include <QModelIndexList>
 #include <QMultiHash>
 #include <QObject>
 #include <QSet>
 #include <QSqlDatabase>
 #include <QUuid>
+#include <QtConcurrentMap>
 
 #include "../util.h"
 #include "model_constants.h"
@@ -46,7 +48,7 @@ namespace {
  */
 QSet<QUuid> get_parent_uuids_of_parent_indices(const QModelIndexList& indices) {
     if (indices.isEmpty()) {
-        return {QUuid()};
+        return {};
     }
     QSet<QUuid> result;
     for (auto index : indices) {
@@ -89,14 +91,15 @@ void TaskItemModel::setup_tasks_from_db() {
 
     while (query.next()) {
         auto task = create_task_from_query_result(query);
+        this->fetch_and_add_tags_from_db(task.get());
         auto task_uuid = task->get_data(uuid_role).toUuid();
-        auto [first, last] = dependents.equal_range(task_uuid);
+        auto [parents_iterator, parents_end] = dependents.equal_range(task_uuid);
         this->create_tree_node(
             std::move(task),
-            first == dependents.end() ? QUuid() : *(first++)
+            parents_iterator == dependents.end() ? QUuid() : *(parents_iterator++)
         );
-        while (first != last) {
-            this->clone_tree_node(task_uuid, *(first++));
+        while (parents_iterator != parents_end) {
+            this->clone_tree_node(task_uuid, *(parents_iterator++));
         }
     }
 }
@@ -105,7 +108,7 @@ void TaskItemModel::setup_tasks_from_db() {
  * @brief Read dependencies from database
  * @return A mapping of tasks to the tasks that depend on them
  */
-QMultiHash<QUuid, QUuid> TaskItemModel::fetch_dependendents_from_db() {
+QMultiHash<QUuid, QUuid> TaskItemModel::fetch_dependendents_from_db() const {
     QMultiHash<QUuid, QUuid> result;
     auto query = Util::get_sql_query("select_dependencies.sql", this->connection_name);
     while (query.next()) {
@@ -114,6 +117,20 @@ QMultiHash<QUuid, QUuid> TaskItemModel::fetch_dependendents_from_db() {
         result.insert(query.value(1).toUuid(), query.value(0).toUuid());
     }
     return result;
+}
+
+void TaskItemModel::fetch_and_add_tags_from_db(Task* task) const {
+    auto query = QSqlQuery(QSqlDatabase::database(this->connection_name));
+    query.prepare(Util::get_sql_query_string("select_tag_assignments.sql"));
+    query.bindValue(
+        0,
+        task->get_data(uuid_role).toUuid().toString(QUuid::WithoutBraces)
+    );
+    Util::execute_sql_query(query);
+
+    while (query.next()) {
+        task->set_data(query.value(0), add_tag_role);
+    }
 }
 
 QString TaskItemModel::get_sql_column_name(int role) {
@@ -126,7 +143,6 @@ QString TaskItemModel::get_sql_column_name(int role) {
         default:              return "";
     }
 }
-
 /**
  * @brief Insert a dependency in the database without altering the item model.
  *
@@ -134,7 +150,10 @@ QString TaskItemModel::get_sql_column_name(int role) {
  *
  * @return whether the execution of the query succeeded
  */
-bool TaskItemModel::add_dependency_to_database(const QUuid& dependent_uuid, const QUuid& prerequisite_uuid) {
+bool TaskItemModel::add_dependency_to_database(const QUuid& dependent_uuid, const QUuid& prerequisite_uuid) const {
+    if (dependent_uuid.isNull()) {
+        return true;
+    }
     auto query = QSqlQuery(QSqlDatabase::database(this->connection_name));
 
     query.prepare(Util::get_sql_query_string("create_dependency.sql"));
@@ -144,6 +163,7 @@ bool TaskItemModel::add_dependency_to_database(const QUuid& dependent_uuid, cons
     return Util::execute_sql_query(query);
 }
 
+
 /**
  * @brief Insert a task in the database without altering the item model.
  *
@@ -151,7 +171,7 @@ bool TaskItemModel::add_dependency_to_database(const QUuid& dependent_uuid, cons
  *
  * @return whether the execution of the query succeeded
  */
-bool TaskItemModel::add_task_to_database(const Task* new_task) {
+bool TaskItemModel::add_task_to_database(const Task* new_task) const {
     auto query = QSqlQuery(QSqlDatabase::database(this->connection_name));
     query.prepare(Util::get_sql_query_string("create_task.sql"));
 
@@ -166,19 +186,38 @@ bool TaskItemModel::add_task_to_database(const Task* new_task) {
     return Util::execute_sql_query(query);
 }
 
-bool TaskItemModel::remove_dependency_from_database(const QUuid& dependent_uuid, const QUuid& prerequisite_uuid) {
+bool TaskItemModel::remove_dependency_from_database(const QUuid& dependent_uuid, const QUuid& prerequisite_uuid) const {
     auto query = QSqlQuery(QSqlDatabase::database(this->connection_name));
 
     query.prepare(Util::get_sql_query_string("delete_dependency.sql"));
-    query.bindValue(0, dependent_uuid.toString(QUuid::WithoutBraces));
+    query.bindValue(
+        0,
+        dependent_uuid.isNull()
+            ? QVariant(QMetaType::fromType<QString>())
+            : dependent_uuid.toString(QUuid::WithoutBraces)
+    );
     query.bindValue(1, prerequisite_uuid.toString(QUuid::WithoutBraces));
 
     return Util::execute_sql_query(query);
 }
 
-bool TaskItemModel::remove_tasks_without_parent_from_database() {
+bool TaskItemModel::remove_dangling_tasks_from_database(const QList<QUuid>& task_ids) const {
+    if (task_ids.isEmpty()) {
+        return true;
+    }
+
+    auto formatted_ids
+        = QtConcurrent::blockingMapped(
+              task_ids,
+              [](const QUuid& uuid) {
+                  return uuid.toString(QUuid::WithoutBraces);
+              }
+        ).join("', '");
+    auto query_str = Util::get_sql_query_string("delete_dangling_task.sql");
+    query_str.replace("#tasks_to_delete#", "'" + formatted_ids + "'");
+
     auto query = QSqlQuery(QSqlDatabase::database(this->connection_name));
-    query.prepare(Util::get_sql_query_string("delete_tasks_without_parent.sql"));
+    query.prepare(query_str);
     return Util::execute_sql_query(query);
 }
 
@@ -211,10 +250,13 @@ bool TaskItemModel::create_task(const QString& title, const QModelIndexList& par
         }
     }
 
-    auto iterator = parent_uuids.begin();
-    bool success = this->create_tree_node(std::move(new_task), *iterator);
-    for (iterator++; iterator != parent_uuids.end(); iterator++) {
-        success &= this->clone_tree_node(new_task_uuid, *iterator);
+    auto parents_iterator = parent_uuids.begin();
+    bool success = this->create_tree_node(
+        std::move(new_task),
+        parents_iterator == parent_uuids.end() ? QUuid() : *(parents_iterator++)
+    );
+    while (parents_iterator != parent_uuids.end()) {
+        success &= this->clone_tree_node(new_task_uuid, *(parents_iterator++));
     }
 
     if (!success) {
@@ -244,8 +286,7 @@ bool TaskItemModel::setData(const QModelIndex& index, const QVariant& value, int
         },
         [this, &index, &value, &role]() {
             return TreeItemModel::setData(index, value, role);
-        },
-        false
+        }
     );
 }
 
@@ -255,23 +296,28 @@ bool TaskItemModel::removeRows(int row, int count, const QModelIndex &parent) {
         return false;
     }
 
+    QList<QUuid> task_ids(count);
     for (int i=row; i<row+count; i++) {
+        task_ids[i-row] = this->index(i, 0, parent).data(uuid_role).toUuid();
         const bool success = this->remove_dependency_from_database(
             parent.isValid() ? parent.data(uuid_role).toUuid() : QUuid(),
-            this->index(i, 0, parent).data(uuid_role).toUuid()
+            task_ids[i-row]
         );
         if (!success) {
             database.rollback();
             return false;
         }
     }
-    if (!this->remove_tasks_without_parent_from_database() || !TreeItemModel::removeRows(row, count, parent)) {
-        database.rollback();
-        return false;
+    if (
+        this->remove_dangling_tasks_from_database(task_ids)
+        && TreeItemModel::removeRows(row, count, parent)
+    ) {
+        database.commit();
+        return true;
     }
 
-    database.commit();
-    return true;
+    database.rollback();
+    return false;
 }
 
 /**
@@ -292,26 +338,84 @@ bool TaskItemModel::add_dependency(
         return false;
     }
 
-    auto database = QSqlDatabase::database(this->connection_name);
-    if (!database.transaction()) {
-        return false;
-    }
+    const auto dependent_uuid = dependent.data(uuid_role).toUuid();
+    const auto prerequisite_uuid = prerequisite.data(uuid_role).toUuid();
 
-    auto query_successful = this->add_dependency_to_database(
-        dependent.isValid() ? dependent.data(uuid_role).toUuid() : QUuid(),
-        prerequisite.data(uuid_role).toUuid()
+    return Util::alter_model_and_persist_in_database(
+        this->connection_name,
+        Util::get_sql_query_string("create_dependency.sql"),
+        [&dependent_uuid, &prerequisite_uuid](QSqlQuery& query) {
+            query.bindValue(0, dependent_uuid.toString(QUuid::WithoutBraces));
+            query.bindValue(1, prerequisite_uuid.toString(QUuid::WithoutBraces));
+        },
+        [this, &prerequisite_uuid, &dependent_uuid] {
+            return this->clone_tree_node(
+                prerequisite_uuid,
+                dependent_uuid
+            );
+        }
     );
+}
 
-    if (
-        !query_successful
-        or !this->clone_tree_node(
-            prerequisite.data(uuid_role).toUuid(),
-            dependent.data(uuid_role).toUuid()
-        )
-    ) {
-        database.rollback();
+/**
+ * @brief Add a tag to a task.
+ *
+ * If task or tag do not exist, this function aborts and returns false. If the function succeeds, the
+ * association is also persisted in the database.
+ *
+ * @param index the task to which the tag shall be added
+ * @param tag the UUID of the tag to add
+ * @return true if the tag was added
+ */
+bool TaskItemModel::add_tag(
+    const QModelIndex& index,
+    const QUuid& tag
+) {
+    if (!index.isValid()) {
         return false;
     }
-    database.commit();
-    return true;
+
+    return Util::alter_model_and_persist_in_database(
+        this->connection_name,
+        Util::get_sql_query_string("add_tag_association.sql"),
+        [&index, &tag](QSqlQuery& query) {
+            const auto task_uuid = index.data(uuid_role).toUuid();
+            query.bindValue(0, task_uuid.toString(QUuid::WithoutBraces));
+            query.bindValue(1, tag.toString(QUuid::WithoutBraces));
+        },
+        [this, &index, &tag]() {
+            return TreeItemModel::setData(index, tag, add_tag_role);
+        }
+    );
+}
+
+/**
+ * @brief Remove a tag from a task.
+ *
+ * If task or tag do not exist, this function aborts and returns false. If the function succeeds, the
+ * association is also removed from the database.
+ *
+ * @param index the task from which the tag shall be removed
+ * @param tag the UUID of the tag to remove
+ * @return true if the tag was removed
+ */
+bool TaskItemModel::remove_tag(
+    const QModelIndex& index,
+    const QUuid& tag
+) {
+    if (index.isValid() && index.data(tags_role).value<QSet<QUuid>>().contains(tag)) {
+        return Util::alter_model_and_persist_in_database(
+            this->connection_name,
+            Util::get_sql_query_string("remove_tag_association.sql"),
+            [&index, &tag](QSqlQuery& query) {
+                const auto task_uuid = index.data(uuid_role).toUuid();
+                query.bindValue(0, task_uuid.toString(QUuid::WithoutBraces));
+                query.bindValue(1, tag.toString(QUuid::WithoutBraces));
+            },
+            [this, &index, &tag]() {
+                return TreeItemModel::setData(index, tag, remove_tag_role);
+            }
+        );
+    }
+    return false;
 }

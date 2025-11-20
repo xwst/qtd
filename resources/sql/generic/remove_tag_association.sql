@@ -1,0 +1,1 @@
+DELETE FROM tag_assignments WHERE task_uuid = ? AND tag_uuid = ?;

@@ -38,7 +38,7 @@
  * @return a list of individual queries
  */
 QStringList Util::split_queries(const QString& sql_queries) {
-    const QString regex_str = ";\\s*(?:--.*)?\\n";
+    const QString regex_str = ";\\s*(?:--.*\\n)*";
     return sql_queries.split(QRegularExpression(regex_str), Qt::SkipEmptyParts);
 }
 
@@ -212,7 +212,7 @@ bool Util::alter_model_and_persist_in_database(
     const QString& query_str,
     const std::function<void(QSqlQuery&)>& bind_values,
     const std::function<bool(void)>& alter_model,
-    bool use_batch_mode
+    const bool use_batch_mode
 ) {
     auto database = QSqlDatabase::database(database_connection_name);
     auto query = QSqlQuery(database);
@@ -227,11 +227,11 @@ bool Util::alter_model_and_persist_in_database(
         return false;
     }
 
-    if (!Util::execute_sql_query(query, use_batch_mode) || !alter_model()) {
-        database.rollback();
-        return false;
+    if (Util::execute_sql_query(query, use_batch_mode) && alter_model()) {
+        database.commit();
+        return true;
     }
 
-    database.commit();
-    return true;
+    database.rollback();
+    return false;
 }
