@@ -22,13 +22,15 @@
 #include <memory>
 
 #include <QObject>
+#include <QSet>
 #include <QTest>
+#include <QUuid>
 
 #include "../../src/app/model/task.h"
 #include "../../src/app/model/taskitemmodel.h"
 #include "persistedtreeitemmodelstestbase.h"
 
-class TestTaskItemModel : public PersistedTreeItemModelsTestBase
+class TestTaskItemModel final : public PersistedTreeItemModelsTestBase
 {
     Q_OBJECT
 
@@ -36,7 +38,7 @@ private:
     std::unique_ptr<TaskItemModel> model;
 
     // Helper functions:
-    void assert_initial_dataset_representation_base_model();
+    void assert_initial_dataset_representation_base_model() const;
     void assert_model_persistence() const;
     static void assert_index_equality(
         const QModelIndex& index1,
@@ -47,8 +49,9 @@ private:
         Task::Status status,
         const QDateTime& start_datetime,
         const QDateTime& due_datetime,
-        int number_of_children
-    );
+        int number_of_children,
+        const QSet<QUuid>& assigned_tags
+    ) const;
 
 public:
     explicit TestTaskItemModel(QObject *parent = nullptr);
@@ -60,14 +63,15 @@ private slots:
     void cleanup();
 
     // Test functions:
-    void test_initial_dataset_represented_correctly();
-    void test_model_stores_text_documents();
-    void test_data_change_of_unique_task();
-    void test_data_change_of_cloned_task();
-    void test_remove_rows();
-    void test_create_task();
-    void test_add_dependency();
-    void test_can_not_create_dependency_cycle();
+    void test_initial_dataset_represented_correctly() const;
+    void test_model_stores_text_documents() const;
+    void test_data_change_of_unique_task() const;
+    void test_data_change_of_cloned_task() const;
+    void test_remove_rows() const;
+    void test_create_task() const;
+    void test_add_dependency() const;
+    void test_can_not_create_dependency_cycle() const;
+    void test_adding_and_removing_tags() const;
 
 };
 

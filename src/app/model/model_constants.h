@@ -32,6 +32,7 @@ enum CustomItemDataRole : quint16 {
     , document_role
     , tags_role
     , add_tag_role
+    , remove_tag_role
 };
 
 #endif // MODEL_CONSTANTS_H

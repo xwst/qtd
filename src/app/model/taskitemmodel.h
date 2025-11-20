@@ -53,6 +53,7 @@ public:
     bool removeRows(int row, int count, const QModelIndex& parent) override;
     bool add_dependency(const QModelIndex& dependent, const QModelIndex& prerequisite);
     bool add_tag(const QModelIndex& index, const QUuid& tag);
+    bool remove_tag(const QModelIndex& index, const QUuid& tag);
 };
 
 #endif // TASKITEMMODEL_H

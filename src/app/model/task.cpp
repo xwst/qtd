@@ -130,6 +130,9 @@ void Task::set_data(const QVariant& value, int role) {
     case add_tag_role:
         this->tags.insert(value.toUuid());
         break;
+    case remove_tag_role:
+        this->tags.remove(value.toUuid());
+        break;
     default:
         UniqueDataItem::set_data(value, role);
     }

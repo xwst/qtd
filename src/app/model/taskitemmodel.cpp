@@ -388,3 +388,34 @@ bool TaskItemModel::add_tag(
         }
     );
 }
+
+/**
+ * @brief Remove a tag from a task.
+ *
+ * If task or tag do not exist, this function aborts and returns false. If the function succeeds, the
+ * association is also removed from the database.
+ *
+ * @param index the task from which the tag shall be removed
+ * @param tag the UUID of the tag to remove
+ * @return true if the tag was removed
+ */
+bool TaskItemModel::remove_tag(
+    const QModelIndex& index,
+    const QUuid& tag
+) {
+    if (index.isValid() && index.data(tags_role).value<QSet<QUuid>>().contains(tag)) {
+        return Util::alter_model_and_persist_in_database(
+            this->connection_name,
+            Util::get_sql_query_string("remove_tag_association.sql"),
+            [&index, &tag](QSqlQuery& query) {
+                const auto task_uuid = index.data(uuid_role).toUuid();
+                query.bindValue(0, task_uuid.toString(QUuid::WithoutBraces));
+                query.bindValue(1, tag.toString(QUuid::WithoutBraces));
+            },
+            [this, &index, &tag]() {
+                return TreeItemModel::setData(index, tag, remove_tag_role);
+            }
+        );
+    }
+    return false;
+}
