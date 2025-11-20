@@ -179,6 +179,9 @@ void FilteredTaskItemModel::map_index(const QModelIndex &source_index) {
         this->remaining_tags.unite(
             source_index.data(tags_role).value<QSet<QUuid> >()
         );
+        if (!index_matches_tag_selection(source_index)) {
+            return;
+        }
 
         const auto proxy_parent = this->find_proxy_parent(source_index);
         const auto proxy_index = this->createIndex(
@@ -193,6 +196,7 @@ void FilteredTaskItemModel::map_index(const QModelIndex &source_index) {
 }
 
 void FilteredTaskItemModel::rebuild_index_mapping() {
+    auto old_remaining_tags = this->remaining_tags;
     this->reset_mapping();
     Util::model_foreach(
         *this->sourceModel(),
@@ -200,7 +204,9 @@ void FilteredTaskItemModel::rebuild_index_mapping() {
             this->map_index(source_index);
         }
     );
-    emit this->filtered_tags_changed(this->remaining_tags);
+    if (old_remaining_tags != this->remaining_tags) {
+        emit this->filtered_tags_changed(this->remaining_tags);
+    }
 }
 
 QModelIndex FilteredTaskItemModel::mapFromSource(const QModelIndex &sourceIndex) const {

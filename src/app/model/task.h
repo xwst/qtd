@@ -27,8 +27,8 @@
 #include <QObject>
 #include <QSet>
 #include <QTextDocument>
-#include <QtTypes>
 #include <QUuid>
+#include <QtTypes>
 
 
 class Task : public QObject, public UniqueDataItem {

@@ -32,7 +32,7 @@ private:
 
 public:
     explicit FilteredTagItemModel(QObject *parent = nullptr);
-    bool filterAcceptsRow(
+    [[nodiscard]] bool filterAcceptsRow(
         int source_row,
         const QModelIndex& source_parent
     ) const override;

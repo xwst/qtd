@@ -200,9 +200,9 @@ QStringList TestHelpers::get_display_roles(
     const QAbstractItemModel& model,
     const QModelIndex& parent
 ) {
-    const std::function<QString(const QModelIndex&)> lambda_get_display_role
+    const std::function<QString(const QModelIndex&)> get_display_role
         = [](const QModelIndex& index) -> QString { return index.data().toString(); };
-    return Util::model_flat_map(model, lambda_get_display_role, parent);
+    return Util::model_flat_map(model, get_display_role, parent);
 }
 
 /**

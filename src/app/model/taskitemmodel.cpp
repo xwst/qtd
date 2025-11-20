@@ -27,8 +27,8 @@
 #include <QObject>
 #include <QSet>
 #include <QSqlDatabase>
-#include <QtConcurrentMap>
 #include <QUuid>
+#include <QtConcurrentMap>
 
 #include "../util.h"
 #include "model_constants.h"

@@ -229,11 +229,37 @@ void TestFilteredTaskItemModel::test_matching_children_are_kept_if_parents_are_f
 }
 
 void TestFilteredTaskItemModel::test_filter_by_tag_selection() const {
-    QFAIL("Not yet implemented");
+    this->model->set_selected_tags(
+        {QUuid::fromString("54c1f21d-bb9a-41df-9658-5111e153f745")}
+    );
+
+    QCOMPARE(this->model->rowCount(), 1);
+    const auto remaining_index = this->model->index(0, 0);
+    QCOMPARE(this->model->data(remaining_index), "Buy groceries");
+    QCOMPARE(this->model->rowCount(remaining_index), 1);
+    QCOMPARE(
+        this->model->index(0, 0, remaining_index).data(),
+        "Check food supplies"
+    );
 }
 
 void TestFilteredTaskItemModel::test_filter_by_tag_and_search_string() const {
-    QFAIL("Not yet implemented");
+    this->model->set_selected_tags(
+        QSet<QUuid>({
+            QUuid::fromString("10173aba-edd8-4049-a41c-74f28581c31f"),
+            QUuid::fromString("18a2d601-712e-4ac4-b655-93c5a288dc99")
+        })
+    );
+    QCOMPARE(
+        TestHelpers::get_display_roles(*this->model),
+        QStringList({"Do chores", "Cook meal"})
+    );
+
+    this->model->set_search_string("meal");
+    QCOMPARE(
+        TestHelpers::get_display_roles(*this->model),
+        {"Cook meal"}
+    );
 }
 
 QTEST_GUILESS_MAIN(TestFilteredTaskItemModel)
