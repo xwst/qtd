@@ -114,6 +114,17 @@ jobs:
         name: GNU-build
         path: ${{ steps.strings.outputs.build-output-dir }}
 
+    - name: Generage test coverage report
+      run: |
+        mkdir -p ${{ steps.strings.outputs.build-output-dir }}/gcovr
+        cmake --build ${{ steps.strings.outputs.build-output-dir }} --target coverage
+
+    - name: Cache coverage artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-report
+        path: ${{ steps.strings.outputs.build-output-dir }}/gcovr
+
     - name: Test coverage
       run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --target verify-test-coverage -j8
 
