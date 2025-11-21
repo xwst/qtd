@@ -61,11 +61,11 @@ IF(GCOVR AND (${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU"))
         ${GCOVR}
             -r ${CMAKE_SOURCE_DIR}
             --filter ${CMAKE_SOURCE_DIR}/src
-            --html-nested ${CMAKE_BINARY_DIR}/coverage.html
+            --html-nested ${CMAKE_BINARY_DIR}/gcovr/coverage.html
             --exclude-throw-branches
             --exclude-unreachable-branches
         DEPENDS all_tests
-        BYPRODUCTS ${CMAKE_BINARY_DIR}/coverage.html
+        BYPRODUCTS ${CMAKE_BINARY_DIR}/gcovr/coverage.html
     )
     ADD_CUSTOM_TARGET(
         verify-test-coverage
