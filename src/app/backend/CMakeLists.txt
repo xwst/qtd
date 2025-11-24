@@ -14,19 +14,18 @@
 # You should have received a copy of the GNU General Public License along with
 # qtd. If not, see <https://www.gnu.org/licenses/>.
 
-
 LIST(
     APPEND model_files
-    filteredtagitemmodel.cpp
-    filteredtaskitemmodel.cpp
-    flatteningproxymodel.cpp
-    tag.cpp
-    tagitemmodel.cpp
-    task.cpp
-    taskitemmodel.cpp
-    treeitemmodel.cpp
-    treenode.cpp
-    uniquedataitem.cpp
+    dataitems/tag.cpp
+    dataitems/task.cpp
+    dataitems/treenode.cpp
+    dataitems/uniquedataitem.cpp
+    models/filteredtagitemmodel.cpp
+    models/filteredtaskitemmodel.cpp
+    models/flatteningproxymodel.cpp
+    models/tagitemmodel.cpp
+    models/taskitemmodel.cpp
+    models/treeitemmodel.cpp
 )
 
 LIST(

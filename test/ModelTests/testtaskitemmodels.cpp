@@ -27,8 +27,8 @@
 #include <QTest>
 #include <QUuid>
 
-#include "../../src/app/model/model_constants.h"
-#include "../../src/app/model/task.h"
+#include "dataitems/qtditemdatarole.h"
+#include "dataitems/task.h"
 #include "../../src/app/util.h"
 #include "../testhelpers.h"
 #include "persistedtreeitemmodelstestbase.h"

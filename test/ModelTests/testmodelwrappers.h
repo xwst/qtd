@@ -25,7 +25,7 @@
 #ifndef TESTMODELWRAPPERS_H
 #define TESTMODELWRAPPERS_H
 
-#include "../../src/app/model/treeitemmodel.h"
+#include "models/treeitemmodel.h"
 
 class TreeItemModelTestWrapper : public TreeItemModel {
 public:

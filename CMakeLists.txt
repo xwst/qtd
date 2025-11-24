@@ -57,6 +57,7 @@ FILE(GLOB_RECURSE RESOURCE_FILES
      CONFIGURE_DEPENDS
      "${CMAKE_CURRENT_SOURCE_DIR}/resources/*.sql")
 
+INCLUDE_DIRECTORIES(src/app/backend/)
 ADD_SUBDIRECTORY(resources/fonts)
 ADD_SUBDIRECTORY(src/qmltexteditor)
 ADD_SUBDIRECTORY(src/app)

@@ -26,7 +26,7 @@
 #include <QString>
 #include <QUuid>
 
-#include "task.h"
+#include "dataitems/task.h"
 #include "treeitemmodel.h"
 
 class TaskItemModel : public TreeItemModel

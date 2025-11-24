@@ -22,7 +22,7 @@
 
 #include <QVariant>
 
-#include "model_constants.h"
+#include "qtditemdatarole.h"
 
 UniqueDataItem::UniqueDataItem(const QString& uuid_str) {
     if (uuid_str.isEmpty()) { this->uuid = QUuid::createUuid();

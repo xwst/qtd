@@ -27,8 +27,8 @@
 #include <QTest>
 #include <QUuid>
 
-#include "../../src/app/model/model_constants.h"
-#include "../../src/app/model/taskitemmodel.h"
+#include "dataitems/qtditemdatarole.h"
+#include "models/taskitemmodel.h"
 #include "../testhelpers.h"
 
 namespace {

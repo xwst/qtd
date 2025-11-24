@@ -23,8 +23,8 @@
 
 #include <QTest>
 
-#include "../../src/app/model/flatteningproxymodel.h"
-#include "../../src/app/model/tagitemmodel.h"
+#include "models/flatteningproxymodel.h"
+#include "models/tagitemmodel.h"
 #include "persistedtreeitemmodelstestbase.h"
 
 class TestTagItemModels : public PersistedTreeItemModelsTestBase

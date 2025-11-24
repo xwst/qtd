@@ -39,13 +39,13 @@ FUNCTION(create_model_test test_name source_file)
     QT_ADD_RESOURCES(
         ${test_name} "test-resources"
         PREFIX "/"
-        BASE "${CMAKE_CURRENT_SOURCE_DIR}/../"
-        FILES "${CMAKE_CURRENT_SOURCE_DIR}/../resources/sql/generic/populate_database.sql"
+	BASE "${PROJECT_SOURCE_DIR}/test"
+        FILES "${PROJECT_SOURCE_DIR}/test/resources/sql/generic/populate_database.sql"
     )
     QT_ADD_RESOURCES(
         ${test_name} "resources"
         PREFIX "/"
-        BASE "${CMAKE_CURRENT_SOURCE_DIR}/../../"
+	BASE "${PROJECT_SOURCE_DIR}"
         FILES ${RESOURCE_FILES}
     )
 ENDFUNCTION()

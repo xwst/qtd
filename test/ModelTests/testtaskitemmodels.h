@@ -26,8 +26,8 @@
 #include <QTest>
 #include <QUuid>
 
-#include "../../src/app/model/task.h"
-#include "../../src/app/model/taskitemmodel.h"
+#include "dataitems/task.h"
+#include "models/taskitemmodel.h"
 #include "persistedtreeitemmodelstestbase.h"
 
 class TestTaskItemModel final : public PersistedTreeItemModelsTestBase

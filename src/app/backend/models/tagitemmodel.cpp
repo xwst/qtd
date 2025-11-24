@@ -34,10 +34,10 @@
 #include <QUuid>
 #include <QVariantList>
 
-#include "../util.h"
-#include "model_constants.h"
-#include "tag.h"
+#include "../../util.h"
 #include "treeitemmodel.h"
+#include "dataitems/qtditemdatarole.h"
+#include "dataitems/tag.h"
 
 TagItemModel::TagItemModel(QString connection_name, QObject* parent)
     : TreeItemModel(parent), connection_name(std::move(connection_name))

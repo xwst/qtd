@@ -30,10 +30,10 @@
 #include <QUuid>
 #include <QtConcurrentMap>
 
-#include "../util.h"
-#include "model_constants.h"
-#include "task.h"
+#include "../../util.h"
 #include "treeitemmodel.h"
+#include "dataitems/qtditemdatarole.h"
+#include "dataitems/task.h"
 
 namespace {
 

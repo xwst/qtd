@@ -21,7 +21,7 @@
 #include <QSortFilterProxyModel>
 #include <QUuid>
 
-#include "model_constants.h"
+#include "dataitems/qtditemdatarole.h"
 
 /**
  * @class FilteredTagItemModel

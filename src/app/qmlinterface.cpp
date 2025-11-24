@@ -24,10 +24,10 @@
 #include <QStandardPaths>
 #include <QString>
 
-#include "flatteningproxymodel.h"
+#include "backend/models/flatteningproxymodel.h"
+#include "backend/models/tagitemmodel.h"
+#include "backend/models/taskitemmodel.h"
 #include "globaleventfilter.h"
-#include "tagitemmodel.h"
-#include "taskitemmodel.h"
 #include "util.h"
 
 void QmlInterface::open_database(QString& connection_name) {

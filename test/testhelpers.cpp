@@ -32,7 +32,7 @@
 #include <QTest>
 #include <QTextStream>
 
-#include "../src/app/model/model_constants.h"
+#include "dataitems/qtditemdatarole.h"
 #include "../src/app/util.h"
 
 namespace {

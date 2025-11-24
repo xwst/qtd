@@ -29,7 +29,7 @@
 #include <QTextDocument>
 #include <QUuid>
 
-#include "model_constants.h"
+#include "qtditemdatarole.h"
 #include "uniquedataitem.h"
 
 Task::Task(

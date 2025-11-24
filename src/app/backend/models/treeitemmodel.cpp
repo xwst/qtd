@@ -29,9 +29,9 @@
 #include <QUuid>
 #include <QtTypes>
 
-#include "model_constants.h"
-#include "treenode.h"
-#include "uniquedataitem.h"
+#include "dataitems/qtditemdatarole.h"
+#include "dataitems/treenode.h"
+#include "dataitems/uniquedataitem.h"
 
 namespace {
 

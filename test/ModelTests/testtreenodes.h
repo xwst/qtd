@@ -24,7 +24,7 @@
 #include <QObject>
 #include <QTest>
 
-#include "../../src/app/model/treenode.h"
+#include "dataitems/treenode.h"
 
 class TestTreeNodes : public QObject
 {

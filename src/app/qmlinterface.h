@@ -23,10 +23,10 @@
 #include <QObject>
 #include <QQmlEngine>
 
-#include "flatteningproxymodel.h"
+#include "backend/models/flatteningproxymodel.h"
+#include "backend/models/tagitemmodel.h"
+#include "backend/models/taskitemmodel.h"
 #include "globaleventfilter.h"
-#include "tagitemmodel.h"
-#include "taskitemmodel.h"
 
 class QmlInterface : public QObject
 {

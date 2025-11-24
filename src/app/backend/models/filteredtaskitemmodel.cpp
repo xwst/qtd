@@ -26,9 +26,9 @@
 #include <QRegularExpression>
 #include <QUuid>
 
-#include "../util.h"
-#include "model_constants.h"
-#include "treenode.h"
+#include "../../util.h"
+#include "dataitems/qtditemdatarole.h"
+#include "dataitems/treenode.h"
 
 /**
  * @class FilteredTaskItemModel

@@ -24,7 +24,7 @@
 #include <QList>
 #include <QObject>
 
-#include "../util.h"
+#include "../../util.h"
 
 QModelIndex FlatteningProxyModel::find_source_model_index(int proxy_row) const {
     QModelIndex current_index = sourceModel()->index(0, 0);

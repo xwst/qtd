@@ -27,8 +27,8 @@
 #include <QUuid>
 #include <QtTypes>
 
-#include "treenode.h"
-#include "uniquedataitem.h"
+#include "dataitems/treenode.h"
+#include "dataitems/uniquedataitem.h"
 
 
 /**

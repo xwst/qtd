@@ -23,8 +23,8 @@
 
 #include <QObject>
 
-#include "../../src/app/model/filteredtagitemmodel.h"
-#include "../../src/app/model/tagitemmodel.h"
+#include "models/filteredtagitemmodel.h"
+#include "models/tagitemmodel.h"
 
 class TestFilteredTagItemModel : public QObject
 {

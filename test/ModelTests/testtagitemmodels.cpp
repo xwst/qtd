@@ -31,8 +31,8 @@
 #include <QStringList>
 #include <QTest>
 
-#include "../../src/app/model/model_constants.h"
-#include "../../src/app/model/treenode.h"
+#include "dataitems/qtditemdatarole.h"
+#include "dataitems/treenode.h"
 #include "../../src/app/util.h"
 #include "../testhelpers.h"
 #include "persistedtreeitemmodelstestbase.h"

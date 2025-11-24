@@ -16,13 +16,13 @@
  * qtd. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef MODEL_CONSTANTS_H
-#define MODEL_CONSTANTS_H
+#ifndef QTDITEMDATAROLE_H
+#define QTDITEMDATAROLE_H
 
 #include <QObject>
 #include <QtTypes>
 
-enum CustomItemDataRole : quint16 {
+enum QtdItemDataRole : quint16 {
       uuid_role = Qt::UserRole
     , active_role
     , start_role
@@ -35,4 +35,4 @@ enum CustomItemDataRole : quint16 {
     , remove_tag_role
 };
 
-#endif // MODEL_CONSTANTS_H
+#endif // QTDITEMDATAROLE_H

@@ -25,8 +25,8 @@
 #include <QSignalSpy>
 #include <QTest>
 
-#include "../../src/app/model/filteredtaskitemmodel.h"
-#include "../../src/app/model/taskitemmodel.h"
+#include "models/filteredtaskitemmodel.h"
+#include "models/taskitemmodel.h"
 
 class TestFilteredTaskItemModel : public QObject
 {

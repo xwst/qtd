@@ -28,7 +28,7 @@
 #include <QTest>
 #include <QVariant>
 
-#include "../../src/app/model/model_constants.h"
+#include "dataitems/qtditemdatarole.h"
 #include "../../src/app/util.h"
 #include "../testhelpers.h"
 #include "testmodelwrappers.h"

@@ -28,7 +28,7 @@
 #include <QString>
 #include <QStringList>
 
-#include "../src/app/model/tag.h"
+#include "dataitems/tag.h"
 
 class TestHelpers
 {
