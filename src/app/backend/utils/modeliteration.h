@@ -16,25 +16,17 @@
  * qtd. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef UTIL_H
-#define UTIL_H
+#ifndef MODELITERATION_H
+#define MODELITERATION_H
 
 #include <functional>
 
 #include <QAbstractItemModel>
-#include <QSqlQuery>
-#include <QString>
+#include <QModelIndex>
 
+namespace ModelIteration {
 
-namespace Util {
-
-QStringList split_queries(const QString& sql_queries);
-QString get_sql_query_string(const QString& sql_filename);
-QSqlQuery get_sql_query(const QString& sql_filename, const QString& connection_name);
-bool execute_sql_query(QSqlQuery& query, bool batch=false);
-bool create_tables_if_not_exist(const QString& connection_name);
 int count_model_rows(const QAbstractItemModel* model, const QModelIndex &index = QModelIndex());
-bool is_last_child(const QModelIndex& index);
 QModelIndex next_row_index_depth_first(const QAbstractItemModel* model, QModelIndex current_index = QModelIndex());
 QModelIndex model_foreach(
     const QAbstractItemModel& model,
@@ -50,13 +42,6 @@ QModelIndex model_find(
     const QAbstractItemModel& model,
     const std::function<bool(const QModelIndex&)>& operation,
     const QModelIndex& parent_index = QModelIndex()
-);
-[[nodiscard]] bool alter_model_and_persist_in_database(
-    const QString& database_connection_name,
-    const QString& query_str,
-    const std::function<void(QSqlQuery&)>& bind_values,
-    const std::function<bool(void)>& alter_model,
-    bool use_batch_mode = false
 );
 
 /**
@@ -75,18 +60,18 @@ QList<T> model_flat_map(
     const QAbstractItemModel& model,
     const std::function<T(const QModelIndex&)>& operation,
     const QModelIndex& parent_index = QModelIndex()
-) {
+    ) {
     QList<T> result;
-    Util::model_foreach(
+    model_foreach(
         model,
         [&result, &operation](const QModelIndex& index) {
             result.push_back(operation(index));
         },
         parent_index
-    );
+        );
     return result;
 }
 
-} // namespace Util
+}
 
-#endif // UTIL_H
+#endif // MODELITERATION_H

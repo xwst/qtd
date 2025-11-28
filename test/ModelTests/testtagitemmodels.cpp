@@ -33,7 +33,7 @@
 
 #include "dataitems/qtditemdatarole.h"
 #include "dataitems/treenode.h"
-#include "../../src/app/util.h"
+#include "utils/modeliteration.h"
 #include "../testhelpers.h"
 #include "persistedtreeitemmodelstestbase.h"
 
@@ -67,17 +67,17 @@ void TestTagItemModels::test_initial_dataset_represented_correctly() {
 
 void TestTagItemModels::test_remove_single_row() {
     auto* base_model = this->model.get();
-    const int initial_row_number = Util::count_model_rows(base_model);
+    const int initial_row_number = ModelIteration::count_model_rows(base_model);
     remove_single_row_without_children(*base_model);
-    QCOMPARE(Util::count_model_rows(base_model), initial_row_number - 1);
-    QCOMPARE(Util::count_model_rows(this->flat_model.get()), initial_row_number - 1);
+    QCOMPARE(ModelIteration::count_model_rows(base_model), initial_row_number - 1);
+    QCOMPARE(ModelIteration::count_model_rows(this->flat_model.get()), initial_row_number - 1);
 }
 
 void TestTagItemModels::test_remove_rows_with_children() {
     auto* base_model = this->model.get();
     TestTagItemModels::remove_children_of_first_top_level_index(*base_model);
-    QCOMPARE(Util::count_model_rows(base_model), 4);
-    QCOMPARE(Util::count_model_rows(this->flat_model.get()), 4);
+    QCOMPARE(ModelIteration::count_model_rows(base_model), 4);
+    QCOMPARE(ModelIteration::count_model_rows(this->flat_model.get()), 4);
 
     const QStringList remaining_expected = {"Private", "Work", "Mails", "Spreadsheet"};
     const auto remaining = TestHelpers::get_display_roles(*base_model);
@@ -88,8 +88,8 @@ void TestTagItemModels::test_remove_rows_with_children() {
 
 void TestTagItemModels::test_remove_single_row_with_nested_children() {
     this->model->removeRow(0, QModelIndex());
-    QCOMPARE(Util::count_model_rows(this->model.get()), 3);
-    QCOMPARE(Util::count_model_rows(this->flat_model.get()), 3);
+    QCOMPARE(ModelIteration::count_model_rows(this->model.get()), 3);
+    QCOMPARE(ModelIteration::count_model_rows(this->flat_model.get()), 3);
     QCOMPARE(this->model->rowCount(), 1);
 }
 
@@ -187,7 +187,7 @@ void TestTagItemModels::assert_initial_dataset_representation_base_model() {
             QFAIL("Unexpected model entry at top level!");
         }
     }
-    QCOMPARE(Util::count_model_rows(this->model.get()), 10);
+    QCOMPARE(ModelIteration::count_model_rows(this->model.get()), 10);
 }
 
 void TestTagItemModels::assert_correct_from_source_mapping_recursively(
@@ -200,7 +200,7 @@ void TestTagItemModels::assert_correct_from_source_mapping_recursively(
         QCOMPARE(proxy_index.internalPointer(), source_index.internalPointer());
         QCOMPARE(proxy_index.row(), expected_proxy_row++);
     };
-    Util::model_foreach(*this->model, correct_mapping_assertion_operation, source_index);
+    ModelIteration::model_foreach(*this->model, correct_mapping_assertion_operation, source_index);
 }
 
 void TestTagItemModels::assert_correct_proxy_mapping() {
@@ -214,8 +214,8 @@ void TestTagItemModels::assert_correct_proxy_mapping() {
 }
 
 void TestTagItemModels::assert_initial_dataset_representation_flat_model() {
-    const int total_source_rows = Util::count_model_rows(this->model.get());
-    const int total_rows = Util::count_model_rows(this->flat_model.get());
+    const int total_source_rows = ModelIteration::count_model_rows(this->model.get());
+    const int total_rows = ModelIteration::count_model_rows(this->flat_model.get());
     const int top_level_rows = this->flat_model->rowCount();
     QCOMPARE(total_rows, total_source_rows);
     QCOMPARE(top_level_rows, total_source_rows);
@@ -227,8 +227,8 @@ void TestTagItemModels::assert_initial_dataset_representation_flat_model() {
 }
 
 void TestTagItemModels::assert_correctness_of_proxy_models() {
-    const int model_size = Util::count_model_rows(this->model.get());
-    QCOMPARE(Util::count_model_rows(this->flat_model.get()), model_size);
+    const int model_size = ModelIteration::count_model_rows(this->model.get());
+    QCOMPARE(ModelIteration::count_model_rows(this->flat_model.get()), model_size);
     QCOMPARE(this->flat_model->rowCount(), model_size);
 
     auto tag_names = TestHelpers::get_display_roles(*this->model);

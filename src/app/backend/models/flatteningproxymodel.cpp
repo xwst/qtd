@@ -24,12 +24,12 @@
 #include <QList>
 #include <QObject>
 
-#include "../../util.h"
+#include "utils/modeliteration.h"
 
 QModelIndex FlatteningProxyModel::find_source_model_index(int proxy_row) const {
     QModelIndex current_index = sourceModel()->index(0, 0);
     while (proxy_row > 0) {
-        current_index = Util::next_row_index_depth_first(sourceModel(), current_index);
+        current_index = ModelIteration::next_row_index_depth_first(sourceModel(), current_index);
         proxy_row--;
     }
     return current_index;
@@ -71,7 +71,7 @@ void FlatteningProxyModel::on_rows_about_to_be_removed(
     const int first_proxy_row = proxy_parent.row() + 1 + first;
 
     const auto last_src_index = this->sourceModel()->index(last, 0, parent);
-    const int last_src_index_child_count = Util::count_model_rows(this->sourceModel(), last_src_index) - 1;
+    const int last_src_index_child_count = ModelIteration::count_model_rows(this->sourceModel(), last_src_index) - 1;
     const int last_proxy_row = this->mapFromSource(last_src_index).row() + last_src_index_child_count;
 
     this->beginRemoveRows(QModelIndex(), first_proxy_row, last_proxy_row);
@@ -114,7 +114,7 @@ void FlatteningProxyModel::on_rows_about_to_be_inserted(
     const auto mapped_index_before_insert = this->mapFromSource(
         src_index_before_insert
     );
-    const int child_count = -1 + Util::count_model_rows(
+    const int child_count = -1 + ModelIteration::count_model_rows(
         this->sourceModel(), src_index_before_insert
     );
     const int proxy_first = mapped_index_before_insert.row() + child_count + 1;
@@ -144,7 +144,7 @@ QModelIndex FlatteningProxyModel::mapFromSource(const QModelIndex& sourceIndex) 
         return index == sourceIndex;
     };
 
-    Util::model_foreach(*this->sourceModel(), find_source_index_operation);
+    ModelIteration::model_foreach(*this->sourceModel(), find_source_index_operation);
     return createIndex(proxy_row, sourceIndex.column(), sourceIndex.internalPointer());
 }
 
@@ -176,7 +176,7 @@ QModelIndex FlatteningProxyModel::sibling(int row, int column, const QModelIndex
 }
 
 int FlatteningProxyModel::rowCount(const QModelIndex& parent) const {
-    return parent.isValid() ? 0 : Util::count_model_rows(this->sourceModel());
+    return parent.isValid() ? 0 : ModelIteration::count_model_rows(this->sourceModel());
 }
 
 int FlatteningProxyModel::columnCount(const QModelIndex& parent) const {

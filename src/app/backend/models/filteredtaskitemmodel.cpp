@@ -26,9 +26,9 @@
 #include <QRegularExpression>
 #include <QUuid>
 
-#include "../../util.h"
 #include "dataitems/qtditemdatarole.h"
 #include "dataitems/treenode.h"
+#include "utils/modeliteration.h"
 
 /**
  * @class FilteredTaskItemModel
@@ -198,7 +198,7 @@ void FilteredTaskItemModel::map_index(const QModelIndex &source_index) {
 void FilteredTaskItemModel::rebuild_index_mapping() {
     auto old_remaining_tags = this->remaining_tags;
     this->reset_mapping();
-    Util::model_foreach(
+    ModelIteration::model_foreach(
         *this->sourceModel(),
         [this](const QModelIndex &source_index) {
             this->map_index(source_index);

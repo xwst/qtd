@@ -28,7 +28,7 @@
 #include "backend/models/tagitemmodel.h"
 #include "backend/models/taskitemmodel.h"
 #include "globaleventfilter.h"
-#include "util.h"
+#include "backend/utils/query_utilities.h"
 
 void QmlInterface::open_database(QString& connection_name) {
     const QDir dir = QDir(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation));
@@ -37,7 +37,7 @@ void QmlInterface::open_database(QString& connection_name) {
     auto database = QSqlDatabase::addDatabase("QSQLITE", "local");
     database.setDatabaseName(dir.absoluteFilePath(this->local_database_name));
     database.open();
-    Util::create_tables_if_not_exist(connection_name);
+    QueryUtilities::create_tables_if_not_exist(connection_name);
 }
 
 void QmlInterface::set_up(QGuiApplication* app) {

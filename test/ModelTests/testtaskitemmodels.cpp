@@ -29,9 +29,9 @@
 
 #include "dataitems/qtditemdatarole.h"
 #include "dataitems/task.h"
-#include "../../src/app/util.h"
-#include "../testhelpers.h"
+#include "utils/modeliteration.h"
 #include "persistedtreeitemmodelstestbase.h"
+#include "../testhelpers.h"
 
 TestTaskItemModel::TestTaskItemModel(QObject *parent)
     : PersistedTreeItemModelsTestBase{parent}
@@ -125,7 +125,7 @@ void TestTaskItemModel::test_remove_rows() const {
     const auto index_parent = index_to_remove.parent();
     const int number_of_siblings = this->model->rowCount(index_parent) - 1;
     QVERIFY(this->model->removeRows(index_to_remove.row(), 1, index_parent));
-    QCOMPARE(this->model->get_size(), Util::count_model_rows(this->model.get()));
+    QCOMPARE(this->model->get_size(), ModelIteration::count_model_rows(this->model.get()));
     QCOMPARE(this->model->get_size(), 6);
 
     QCOMPARE(this->model->rowCount(index_parent), number_of_siblings);
@@ -143,7 +143,7 @@ void TestTaskItemModel::test_create_task() const {
 
     const QString new_task_title = "My new test task";
     QVERIFY(this->model->create_task(new_task_title, {parent1, parent2}));
-    QCOMPARE(this->model->get_size(), Util::count_model_rows(this->model.get()));
+    QCOMPARE(this->model->get_size(), ModelIteration::count_model_rows(this->model.get()));
     QCOMPARE(this->model->get_size(), 12);
 
     const auto new_index1 = this->model->index(this->model->rowCount(parent1)-1, 0, parent1);
@@ -196,7 +196,7 @@ void TestTaskItemModel::test_can_not_create_dependency_cycle() const {
 void TestTaskItemModel::assert_initial_dataset_representation_base_model() const {
     QCOMPARE(this->model->rowCount(), 3);
     QCOMPARE(this->model->get_size(), 10);
-    QCOMPARE(this->model->get_size(), Util::count_model_rows(this->model.get()));
+    QCOMPARE(this->model->get_size(), ModelIteration::count_model_rows(this->model.get()));
 
     this->find_task_by_title_and_assert_correctness_of_data(
         "Cook meal",

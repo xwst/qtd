@@ -26,6 +26,8 @@ LIST(
     models/tagitemmodel.cpp
     models/taskitemmodel.cpp
     models/treeitemmodel.cpp
+    utils/modeliteration.cpp
+    utils/query_utilities.cpp
 )
 
 LIST(
@@ -34,7 +36,6 @@ LIST(
     Qt6::Gui
     Qt6::Sql
     Qt6::Concurrent
-    util
 )
 
 QT_ADD_LIBRARY(models STATIC ${model_files})

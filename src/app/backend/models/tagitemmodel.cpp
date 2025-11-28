@@ -34,15 +34,15 @@
 #include <QUuid>
 #include <QVariantList>
 
-#include "../../util.h"
-#include "treeitemmodel.h"
 #include "dataitems/qtditemdatarole.h"
 #include "dataitems/tag.h"
+#include "utils/query_utilities.h"
+#include "treeitemmodel.h"
 
 TagItemModel::TagItemModel(QString connection_name, QObject* parent)
     : TreeItemModel(parent), connection_name(std::move(connection_name))
 {
-    auto query = Util::get_sql_query("select_tags.sql", this->connection_name);
+    auto query = QueryUtilities::get_sql_query("select_tags.sql", this->connection_name);
     while (query.next()) {
         // 0: uuid, 1: name, 2: color, 3: parent_uuid
         auto tag = std::make_unique<Tag>(
@@ -72,9 +72,9 @@ bool TagItemModel::setData(const QModelIndex& index, const QVariant& value, int 
         return false;
     }
 
-    return Util::alter_model_and_persist_in_database(
+    return QueryUtilities::alter_model_and_persist_in_database(
         this->connection_name,
-        Util::get_sql_query_string("update_tag.sql").replace("#column_name#", column_name),
+        QueryUtilities::get_sql_query_string("update_tag.sql").replace("#column_name#", column_name),
         [&update_value, &index](QSqlQuery& query) {
             query.bindValue(0, update_value);
             query.bindValue(1, index.data(uuid_role).toString());
@@ -90,9 +90,9 @@ bool TagItemModel::create_tag(const QString& name, const QColor& color, const QM
     auto new_tag = std::make_unique<Tag>(name, color);
     const QVariant parent_uuid = parent.isValid() ? parent.data(uuid_role) : QUuid();
 
-    return Util::alter_model_and_persist_in_database(
+    return QueryUtilities::alter_model_and_persist_in_database(
         this->connection_name,
-        Util::get_sql_query_string("create_tag.sql"),
+        QueryUtilities::get_sql_query_string("create_tag.sql"),
         [&new_tag, &color, &parent_uuid](QSqlQuery& query) {
             query.bindValue(0, new_tag->get_uuid_string());
             query.bindValue(1, new_tag->get_name());
@@ -112,9 +112,9 @@ bool TagItemModel::removeRows(int row, int count, const QModelIndex &parent) {
         uuids_to_remove << this->index(i, 0, parent).data(uuid_role);
     }
 
-    return Util::alter_model_and_persist_in_database(
+    return QueryUtilities::alter_model_and_persist_in_database(
         this->connection_name,
-        Util::get_sql_query_string("delete_tags.sql"),
+        QueryUtilities::get_sql_query_string("delete_tags.sql"),
         [&uuids_to_remove](QSqlQuery& query) {
             query.addBindValue(uuids_to_remove);
         },

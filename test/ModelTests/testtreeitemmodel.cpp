@@ -29,7 +29,7 @@
 #include <QVariant>
 
 #include "dataitems/qtditemdatarole.h"
-#include "../../src/app/util.h"
+#include "utils/modeliteration.h"
 #include "../testhelpers.h"
 #include "testmodelwrappers.h"
 
@@ -179,7 +179,7 @@ void TestTreeItemModel::test_clone_tree_node_clones_children_recursiveley() {
         B_index,
         clone_index
     );
-    QCOMPARE(this->model->get_size(), Util::count_model_rows(this->model.get()));
+    QCOMPARE(this->model->get_size(), ModelIteration::count_model_rows(this->model.get()));
 }
 
 void TestTreeItemModel::test_adding_children_to_clones() {
