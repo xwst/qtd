@@ -19,7 +19,6 @@
 #include "query_utilities.h"
 
 #include <functional>
-#include <stack>
 
 #include <QAbstractItemModel>
 #include <QFile>
@@ -126,4 +125,4 @@ bool alter_model_and_persist_in_database(
     return false;
 }
 
-}
+} // namespace QueryUtilities

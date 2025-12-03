@@ -28,10 +28,10 @@
 #include <QTest>
 #include <QVariant>
 
-#include "dataitems/qtditemdatarole.h"
-#include "utils/modeliteration.h"
 #include "../testhelpers.h"
+#include "dataitems/qtditemdatarole.h"
 #include "testmodelwrappers.h"
+#include "utils/modeliteration.h"
 
 TestTreeItemModel::TestTreeItemModel(QObject *parent)
     : QObject{parent}

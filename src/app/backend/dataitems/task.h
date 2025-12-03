@@ -28,6 +28,7 @@
 #include <QSet>
 #include <QTextDocument>
 #include <QUuid>
+#include <QVariantList>
 #include <QtTypes>
 
 
@@ -45,12 +46,19 @@ public:
 
     explicit Task(
           QString        title
-        , Status         status       = Status::open
-        , QDateTime      start_date   = QDateTime()
-        , QDateTime      due_date     = QDateTime()
-        , QDateTime      resolve_date = QDateTime()
-        , const QString& uuid_str     = ""
+        , Status         status        = Status::open
+        , QDateTime      start_date    = QDateTime()
+        , QDateTime      due_date      = QDateTime()
+        , QDateTime      resolve_date  = QDateTime()
+        , const QString& document_html = ""
+        , const QString& uuid_str      = ""
     );
+    explicit Task(const QVariantList& args);
+    Task(Task&& other) noexcept;
+    Task(Task& other) = delete;
+    Task& operator=(Task& other) = delete;
+    Task& operator=(Task&& other) = delete;
+    ~Task() override = default;
 
     [[nodiscard]] QString        get_title()            const;
     [[nodiscard]] QTextDocument* get_text_document()    const;
@@ -60,11 +68,12 @@ public:
     [[nodiscard]] QDateTime      get_resolve_datetime() const;
     [[nodiscard]] QSet<QUuid>    get_tags()             const;
 
-    void set_start_datetime  (const QDateTime& start_datetime  );
-    void set_status          (Status           new_status      );
-    void set_title           (const QString&   new_title       );
-    void set_due_datetime    (const QDateTime& due_datetime    );
-    void set_resolve_datetime(const QDateTime& resolve_datetime);
+    void set_start_datetime  (const QDateTime&   start_datetime  );
+    void set_status          (Status             new_status      );
+    void set_title           (const QString&     new_title       );
+    void set_due_datetime    (const QDateTime&   due_datetime    );
+    void set_resolve_datetime(const QDateTime&   resolve_datetime);
+    void set_tags            (const QSet<QUuid>& new_tags        );
 
     [[nodiscard]] QVariant get_data(int role) const override;
     void set_data(const QVariant& value, int role) override;

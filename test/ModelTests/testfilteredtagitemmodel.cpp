@@ -25,9 +25,9 @@
 #include <QTest>
 #include <QUuid>
 
+#include "../testhelpers.h"
 #include "models/filteredtagitemmodel.h"
 #include "models/tagitemmodel.h"
-#include "../testhelpers.h"
 
 TestFilteredTagItemModel::TestFilteredTagItemModel(QObject *parent)
     : QObject{parent}

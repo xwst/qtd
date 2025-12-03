@@ -27,9 +27,9 @@
 #include <QTest>
 #include <QUuid>
 
+#include "../testhelpers.h"
 #include "dataitems/qtditemdatarole.h"
 #include "models/taskitemmodel.h"
-#include "../testhelpers.h"
 
 namespace {
 

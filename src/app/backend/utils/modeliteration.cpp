@@ -18,6 +18,7 @@
 
 #include "modeliteration.h"
 
+#include <functional>
 #include <stack>
 
 #include <QAbstractItemModel>
@@ -141,4 +142,4 @@ QModelIndex model_find(
     return model_foreach(model, operation, parent_index);
 }
 
-}
+} // namespace ModelIteration

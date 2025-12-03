@@ -26,101 +26,63 @@
 #include <QFile>
 #include <QHash>
 #include <QObject>
-#include <QSqlDatabase>
-#include <QSqlError>
-#include <QSqlQuery>
-#include <QSqlRecord>
 #include <QTextStream>
 #include <QUuid>
 #include <QVariantList>
 
 #include "dataitems/qtditemdatarole.h"
 #include "dataitems/tag.h"
-#include "utils/query_utilities.h"
+#include "repositories/tagrepository.h"
 #include "treeitemmodel.h"
 
 TagItemModel::TagItemModel(QString connection_name, QObject* parent)
     : TreeItemModel(parent), connection_name(std::move(connection_name))
 {
-    auto query = QueryUtilities::get_sql_query("select_tags.sql", this->connection_name);
-    while (query.next()) {
-        // 0: uuid, 1: name, 2: color, 3: parent_uuid
-        auto tag = std::make_unique<Tag>(
-            query.value(1).toString(),
-            QColor::fromString(query.value(2).toString()),
-            query.value(0).toString()
+    auto all_tags = TagRepository::create(this->connection_name).get_all_tags();
+    for (auto tag_iterator = all_tags.begin(); tag_iterator != all_tags.end(); ++tag_iterator) {
+        this->create_tree_node(
+            std::make_unique<Tag>(*tag_iterator),
+            tag_iterator.get_raw(TagRepository::columns::parent_uuid).toUuid()
         );
-        this->create_tree_node(std::move(tag), query.value(3).toUuid());
     }
 }
 
 bool TagItemModel::setData(const QModelIndex& index, const QVariant& value, int role) {
-    if (!index.isValid()) {
+    if (!index.isValid() || (role != Qt::DisplayRole && role != Qt::DecorationRole)) {
         return false;
     }
+    auto tag_repository = TagRepository::create(this->connection_name);
+    auto tag_uuid = index.data(uuid_role).toUuid();
+    const bool success = (role == Qt::DisplayRole)
+        ? tag_repository.update_name (value.toString(),      tag_uuid)
+        : tag_repository.update_color(value.value<QColor>(), tag_uuid);
 
-    QString column_name;
-    QString update_value;
-    if (role == Qt::DisplayRole) {
-        column_name = "name";
-        update_value = value.toString();
-    } else if (role == Qt::DecorationRole) {
-        column_name = "color";
-        const auto color = value.value<QColor>();
-        update_value = color.isValid() ? color.name(QColor::HexArgb) : "";
-    } else {
-        return false;
-    }
-
-    return QueryUtilities::alter_model_and_persist_in_database(
-        this->connection_name,
-        QueryUtilities::get_sql_query_string("update_tag.sql").replace("#column_name#", column_name),
-        [&update_value, &index](QSqlQuery& query) {
-            query.bindValue(0, update_value);
-            query.bindValue(1, index.data(uuid_role).toString());
-        },
-        [this, &index, &value, &role]() {
-            return TreeItemModel::setData(index, value, role);
-        },
-        false
+    return tag_repository.roll_back_on_failure(
+        success && TreeItemModel::setData(index, value, role)
     );
 }
 
 bool TagItemModel::create_tag(const QString& name, const QColor& color, const QModelIndex& parent) {
     auto new_tag = std::make_unique<Tag>(name, color);
-    const QVariant parent_uuid = parent.isValid() ? parent.data(uuid_role) : QUuid();
+    const QUuid parent_uuid
+        = parent.isValid() ? parent.data(uuid_role).toUuid() : QUuid();
 
-    return QueryUtilities::alter_model_and_persist_in_database(
-        this->connection_name,
-        QueryUtilities::get_sql_query_string("create_tag.sql"),
-        [&new_tag, &color, &parent_uuid](QSqlQuery& query) {
-            query.bindValue(0, new_tag->get_uuid_string());
-            query.bindValue(1, new_tag->get_name());
-            query.bindValue(2, color.isValid() ? color.name(QColor::HexArgb) : "");
-            query.bindValue(3, parent_uuid);
-        },
-        [this, &new_tag, &parent_uuid]() {
-            return this->create_tree_node(std::move(new_tag), parent_uuid.toUuid());
-        },
-        false
+    auto tag_repository = TagRepository::create(this->connection_name);
+    return tag_repository.roll_back_on_failure(
+        tag_repository.save(*new_tag, parent_uuid)
+        && this->create_tree_node(std::move(new_tag), parent_uuid)
     );
 }
 
 bool TagItemModel::removeRows(int row, int count, const QModelIndex &parent) {
-    QVariantList uuids_to_remove;
+    QVariantList uuids_to_remove(count);
     for (int i=row; i<row+count; i++) {
-        uuids_to_remove << this->index(i, 0, parent).data(uuid_role);
+        uuids_to_remove << this->index(i, 0, parent).data(uuid_role).toUuid().toString(QUuid::WithoutBraces);
     }
 
-    return QueryUtilities::alter_model_and_persist_in_database(
-        this->connection_name,
-        QueryUtilities::get_sql_query_string("delete_tags.sql"),
-        [&uuids_to_remove](QSqlQuery& query) {
-            query.addBindValue(uuids_to_remove);
-        },
-        [this, &row, &count, &parent]() {
-            return TreeItemModel::removeRows(row, count, parent);
-        },
-        true
+    auto tag_repository = TagRepository::create(this->connection_name);
+    return tag_repository.roll_back_on_failure(
+        tag_repository.remove(uuids_to_remove)
+        && TreeItemModel::removeRows(row, count, parent)
     );
 }

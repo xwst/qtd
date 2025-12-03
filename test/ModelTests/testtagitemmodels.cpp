@@ -31,11 +31,11 @@
 #include <QStringList>
 #include <QTest>
 
+#include "../testhelpers.h"
 #include "dataitems/qtditemdatarole.h"
 #include "dataitems/treenode.h"
-#include "utils/modeliteration.h"
-#include "../testhelpers.h"
 #include "persistedtreeitemmodelstestbase.h"
+#include "utils/modeliteration.h"
 
 TestTagItemModels::TestTagItemModels(QObject *parent)
     : PersistedTreeItemModelsTestBase{parent}

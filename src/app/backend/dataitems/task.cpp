@@ -28,6 +28,7 @@
 #include <QString>
 #include <QTextDocument>
 #include <QUuid>
+#include <QVariantList>
 
 #include "qtditemdatarole.h"
 #include "uniquedataitem.h"
@@ -38,6 +39,7 @@ Task::Task(
     , QDateTime      start_date
     , QDateTime      due_date
     , QDateTime      resolve_date
+    , const QString& document_html
     , const QString& uuid_str
 ) : UniqueDataItem(uuid_str)
     , title(std::move(title))
@@ -47,7 +49,33 @@ Task::Task(
     , resolve_date(std::move(resolve_date))
 {
     this->description = std::make_unique<QTextDocument>();
+    this->description->setHtml(document_html);
 }
+
+Task::Task(Task&& other) noexcept
+    :
+    UniqueDataItem(other),
+    title       (std::move(other.title)),
+    description (std::move(other.description)),
+    status      (          other.status),
+    start_date  (std::move(other.start_date)),
+    due_date    (std::move(other.due_date)),
+    resolve_date(std::move(other.resolve_date)),
+    tags        (std::move(other.tags))
+{}
+
+// NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
+Task::Task(const QVariantList& args)
+    : Task(
+        args[0].toString(),
+        args[1].value<Status>(),
+        args[2].toDateTime(),
+        args[3].toDateTime(),
+        args[4].toDateTime(),
+        args[5].toString(),
+        args[6].toString()
+    ) {}
+// NOLINTEND(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
 
 QString Task::get_title() const {
     return this->title;
@@ -95,6 +123,10 @@ void Task::set_due_datetime(const QDateTime& due_datetime) {
 
 void Task::set_resolve_datetime(const QDateTime& resolve_datetime) {
     this->resolve_date = resolve_datetime;
+}
+
+void Task::set_tags(const QSet<QUuid> &new_tags) {
+    this->tags = new_tags;
 }
 
 QVariant Task::get_data(int role) const {

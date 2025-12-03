@@ -15,7 +15,7 @@
 # qtd. If not, see <https://www.gnu.org/licenses/>.
 
 LIST(
-    APPEND model_files
+    APPEND backend_files
     dataitems/tag.cpp
     dataitems/task.cpp
     dataitems/treenode.cpp
@@ -28,22 +28,25 @@ LIST(
     models/treeitemmodel.cpp
     utils/modeliteration.cpp
     utils/query_utilities.cpp
+    repositories/tagrepository.cpp
+    repositories/taskrepository.cpp
+    repositories/transactionalrepository.cpp
 )
 
 LIST(
-    APPEND model_dependencies
+    APPEND backend_dependencies
     Qt6::Core
     Qt6::Gui
     Qt6::Sql
     Qt6::Concurrent
 )
 
-QT_ADD_LIBRARY(models STATIC ${model_files})
-TARGET_LINK_LIBRARIES(models PRIVATE ${model_dependencies})
-TARGET_COMPILE_OPTIONS(models PRIVATE -O3)
+QT_ADD_LIBRARY(backend STATIC ${backend_files})
+TARGET_LINK_LIBRARIES(backend PRIVATE ${backend_dependencies})
+TARGET_COMPILE_OPTIONS(backend PRIVATE -O3)
 
-QT_ADD_LIBRARY(models_internal STATIC ${model_files})
-TARGET_LINK_LIBRARIES(models_internal PRIVATE ${model_dependencies})
+QT_ADD_LIBRARY(backend_internal STATIC ${backend_files})
+TARGET_LINK_LIBRARIES(backend_internal PRIVATE ${backend_dependencies})
 IF(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
-    TARGET_COMPILE_OPTIONS(models_internal PRIVATE -O0 --coverage)
+    TARGET_COMPILE_OPTIONS(backend_internal PRIVATE -O0 --coverage)
 ENDIF()

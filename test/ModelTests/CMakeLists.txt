@@ -32,7 +32,7 @@ FUNCTION(create_model_test test_name source_file)
         Qt6::Gui
         Qt6::Test
         Qt6::Sql
-        models_internal
+        backend_internal
     )
     ADD_TEST(NAME ${test_name} COMMAND ${test_name})
     ADD_DEPENDENCIES(all_tests ${test_name})

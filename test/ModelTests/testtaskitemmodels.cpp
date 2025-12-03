@@ -27,11 +27,11 @@
 #include <QTest>
 #include <QUuid>
 
+#include "../testhelpers.h"
 #include "dataitems/qtditemdatarole.h"
 #include "dataitems/task.h"
-#include "utils/modeliteration.h"
 #include "persistedtreeitemmodelstestbase.h"
-#include "../testhelpers.h"
+#include "utils/modeliteration.h"
 
 TestTaskItemModel::TestTaskItemModel(QObject *parent)
     : PersistedTreeItemModelsTestBase{parent}

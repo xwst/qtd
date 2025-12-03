@@ -21,11 +21,16 @@
 #include <utility>
 
 #include <QVariant>
+#include <QVariantList>
 
 #include "uniquedataitem.h"
 
 Tag::Tag(QString name, const QColor& color, const QString& uuid_str)
     : UniqueDataItem(uuid_str), name(std::move(name)), color(color)
+{}
+
+Tag::Tag(const QVariantList& args)
+    : Tag(args[0].toString(), args[1].value<QColor>(), args[2].toString())
 {}
 
 QString Tag::get_name() const {

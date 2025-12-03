@@ -44,5 +44,5 @@ TARGET_LINK_LIBRARIES(qtd
     Qt6::Widgets
     Qt6::Sql
     qmltexteditorplugin
-    models
+    backend
 )

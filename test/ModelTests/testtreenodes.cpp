@@ -27,9 +27,9 @@
 #include <QTest>
 #include <QUuid>
 
+#include "../testhelpers.h"
 #include "dataitems/qtditemdatarole.h"
 #include "dataitems/uniquedataitem.h"
-#include "../testhelpers.h"
 
 TestTreeNodes::TestTreeNodes(QObject *parent)
     : QObject{parent}

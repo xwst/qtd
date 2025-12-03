@@ -72,6 +72,6 @@ QList<T> model_flat_map(
     return result;
 }
 
-}
+} // namespace ModelIteration
 
 #endif // MODELITERATION_H

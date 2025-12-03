@@ -27,8 +27,8 @@
 #include "backend/models/flatteningproxymodel.h"
 #include "backend/models/tagitemmodel.h"
 #include "backend/models/taskitemmodel.h"
-#include "globaleventfilter.h"
 #include "backend/utils/query_utilities.h"
+#include "globaleventfilter.h"
 
 void QmlInterface::open_database(QString& connection_name) {
     const QDir dir = QDir(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation));

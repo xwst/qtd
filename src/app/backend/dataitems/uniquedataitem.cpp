@@ -29,7 +29,7 @@ UniqueDataItem::UniqueDataItem(const QString& uuid_str) {
     } else {
         this->uuid = QUuid::fromString(uuid_str);
         if (this->uuid.isNull()) {
-            throw std::invalid_argument("Passed uuid is neither empty nor valid!");
+            throw std::invalid_argument("Passed UUID is neither empty nor valid!");
         }
     }
 }

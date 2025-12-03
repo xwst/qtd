@@ -22,6 +22,7 @@
 #include <QColor>
 #include <QString>
 #include <QUuid>
+#include <QVariantList>
 
 #include "uniquedataitem.h"
 
@@ -32,6 +33,7 @@ private:
 
 public:
     explicit Tag(QString name, const QColor& color = QColor(), const QString& uuid_str = "");
+    explicit Tag(const QVariantList& args);
     [[nodiscard]] QString get_name() const;
     [[nodiscard]] QColor get_color() const;
 
