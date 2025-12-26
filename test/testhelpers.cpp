@@ -32,6 +32,7 @@
 #include <QTest>
 #include <QTextStream>
 
+#include "dataitems/qtdid.h"
 #include "dataitems/qtditemdatarole.h"
 #include "utils/modeliteration.h"
 #include "utils/query_utilities.h"
@@ -231,5 +232,5 @@ bool TestHelpers::compare_indices_by_uuid(
     const QModelIndex& index_1,
     const QModelIndex& index_2
 ) {
-    return index_1.data(uuid_role).toUuid() < index_2.data(uuid_role).toUuid();
+    return index_1.data(uuid_role).value<QtdId>() < index_2.data(uuid_role).value<QtdId>();
 }

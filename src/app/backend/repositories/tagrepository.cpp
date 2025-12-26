@@ -23,9 +23,9 @@
 #include <QColor>
 #include <QSqlQuery>
 #include <QString>
-#include <QUuid>
 #include <QVariantList>
 
+#include "dataitems/qtdid.h"
 #include "dataitems/tag.h"
 #include "sqlresultview.h"
 #include "utils/query_utilities.h"
@@ -49,22 +49,22 @@ SqlResultView<Tag> TagRepository::get_all_tags() const {
     return SqlResultView<Tag>(std::move(query));
 }
 
-bool TagRepository::update_name(const QString& new_name, const QUuid& tag) const {
+bool TagRepository::update_name(const QString& new_name, const TagId& tag) const {
     return this->alter_database(
         "update_tag.sql",
-        {new_name, tag.toString(QUuid::WithoutBraces)},
+        {new_name, tag.toString()},
         false,
         "#column_name#",
         "name"
     );
 }
 
-bool TagRepository::update_color(const QColor& new_color, const QUuid& tag) const {
+bool TagRepository::update_color(const QColor& new_color, const TagId& tag) const {
     return this->alter_database(
         "update_tag.sql",
         {
             new_color.isValid() ? new_color.name(QColor::HexArgb) : "",
-            tag.toString(QUuid::WithoutBraces)
+            tag.toString()
         },
         false,
         "#column_name#",
@@ -72,7 +72,7 @@ bool TagRepository::update_color(const QColor& new_color, const QUuid& tag) cons
     );
 }
 
-bool TagRepository::save(const Tag& tag, const QUuid& parent) const {
+bool TagRepository::save(const Tag& tag, const TagId& parent) const {
     return this->alter_database(
         "create_tag.sql",
         {
@@ -81,17 +81,17 @@ bool TagRepository::save(const Tag& tag, const QUuid& parent) const {
             tag.get_color().isValid()
                 ? tag.get_color().name(QColor::HexArgb)
                 : "",
-            parent.isNull()
-                ? QVariant(parent)
-                : QVariant(parent.toString(QUuid::WithoutBraces))
+            parent.is_valid()
+                ? QVariant(parent.toString())
+                : QVariant(QMetaType::fromType<TagId>())
         }
     );
 }
 
-bool TagRepository::remove(const QVariantList& tag_uuids) const {
+bool TagRepository::remove(const QVariantList& tag_ids) const {
     return this->alter_database(
         "delete_tags.sql",
-        { tag_uuids },
+        { tag_ids },
         true
     );
 }

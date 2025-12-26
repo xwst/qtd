@@ -25,11 +25,12 @@
 #include <QSignalSpy>
 #include <QSqlDatabase>
 #include <QTest>
-#include <QUuid>
 
 #include "../testhelpers.h"
+#include "dataitems/qtdid.h"
 #include "dataitems/qtditemdatarole.h"
 #include "models/taskitemmodel.h"
+#include "utils/initialize.h"
 
 namespace {
 
@@ -59,6 +60,7 @@ TestFilteredTaskItemModel::TestFilteredTaskItemModel(QObject *parent)
 
 void TestFilteredTaskItemModel::initTestCase() {
     QLoggingCategory::setFilterRules("qt.modeltest.debug=true");
+    initialize_qt_meta_types();
 }
 
 void TestFilteredTaskItemModel::init() {
@@ -87,8 +89,8 @@ void TestFilteredTaskItemModel::test_filter_single_word() const {
 
     QCOMPARE(this->spy->count(), 1);
     QCOMPARE(
-        this->spy->takeFirst().at(0).value<QSet<QUuid>>(),
-        { QUuid::fromString("54c1f21d-bb9a-41df-9658-5111e153f745") }
+        this->spy->takeFirst().at(0).value<QSet<TagId>>(),
+        { TagId("54c1f21d-bb9a-41df-9658-5111e153f745") }
     );
 }
 
@@ -124,7 +126,10 @@ void TestFilteredTaskItemModel::test_filter_for_task_details() const {
     QCOMPARE(this->model->rowCount(), 1);
 
     const auto remaining_index = this->model->index(0, 0);
-    QCOMPARE(remaining_index.data(uuid_role), "dc1f5ff8-db45-6630-9340-13a7d860d910");
+    QCOMPARE(
+        remaining_index.data(uuid_role).toString(),
+        "dc1f5ff8-db45-6630-9340-13a7d860d910"
+    );
     QCOMPARE(this->model->rowCount(remaining_index), 0);
 }
 
@@ -230,7 +235,7 @@ void TestFilteredTaskItemModel::test_matching_children_are_kept_if_parents_are_f
 
 void TestFilteredTaskItemModel::test_filter_by_tag_selection() const {
     this->model->set_selected_tags(
-        {QUuid::fromString("54c1f21d-bb9a-41df-9658-5111e153f745")}
+        {TagId("54c1f21d-bb9a-41df-9658-5111e153f745")}
     );
 
     QCOMPARE(this->model->rowCount(), 1);
@@ -245,9 +250,9 @@ void TestFilteredTaskItemModel::test_filter_by_tag_selection() const {
 
 void TestFilteredTaskItemModel::test_filter_by_tag_and_search_string() const {
     this->model->set_selected_tags(
-        QSet<QUuid>({
-            QUuid::fromString("10173aba-edd8-4049-a41c-74f28581c31f"),
-            QUuid::fromString("18a2d601-712e-4ac4-b655-93c5a288dc99")
+        QSet<TagId>({
+            TagId("10173aba-edd8-4049-a41c-74f28581c31f"),
+            TagId("18a2d601-712e-4ac4-b655-93c5a288dc99")
         })
     );
     QCOMPARE(

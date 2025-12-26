@@ -24,8 +24,8 @@
 #include <QMultiHash>
 #include <QObject>
 #include <QString>
-#include <QUuid>
 
+#include "dataitems/qtdid.h"
 #include "treeitemmodel.h"
 
 class TaskItemModel : public TreeItemModel
@@ -45,8 +45,8 @@ public:
     Q_INVOKABLE bool create_task(const QString& title, const QModelIndexList& parents = {});
     bool removeRows(int row, int count, const QModelIndex& parent) override;
     bool add_dependency(const QModelIndex& dependent, const QModelIndex& prerequisite);
-    bool add_tag(const QModelIndex& index, const QUuid& tag);
-    bool remove_tag(const QModelIndex& index, const QUuid& tag);
+    bool add_tag(const QModelIndex& index, const TagId& tag);
+    bool remove_tag(const QModelIndex& index, const TagId& tag);
 };
 
 #endif // TASKITEMMODEL_H

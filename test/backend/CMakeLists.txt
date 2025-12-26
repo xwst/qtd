@@ -80,7 +80,7 @@ IF(GCOVR AND (${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU"))
     )
 ENDIF()
 
-
+CREATE_MODEL_TEST(test_ids testqtdid.cpp)
 CREATE_MODEL_TEST(test_treenodes testtreenodes.cpp)
 CREATE_MODEL_TEST(test_treeitemmodel testtreeitemmodel.cpp)
 CREATE_MODEL_TEST(test_tagitemmodels testtagitemmodels.cpp)

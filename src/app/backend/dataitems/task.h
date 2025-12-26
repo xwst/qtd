@@ -19,17 +19,17 @@
 #ifndef TASK_H
 #define TASK_H
 
-#include "uniquedataitem.h"
-
 #include <memory>
 
 #include <QDateTime>
 #include <QObject>
 #include <QSet>
 #include <QTextDocument>
-#include <QUuid>
 #include <QVariantList>
 #include <QtTypes>
+
+#include "qtdid.h"
+#include "uniquedataitem.h"
 
 
 class Task : public QObject, public UniqueDataItem {
@@ -51,7 +51,7 @@ public:
         , QDateTime      due_date      = QDateTime()
         , QDateTime      resolve_date  = QDateTime()
         , const QString& document_html = ""
-        , const QString& uuid_str      = ""
+        , const QString& task_id       = ""
     );
     explicit Task(const QVariantList& args);
     Task(Task&& other) noexcept;
@@ -66,14 +66,14 @@ public:
     [[nodiscard]] QDateTime      get_start_datetime()   const;
     [[nodiscard]] QDateTime      get_due_datetime()     const;
     [[nodiscard]] QDateTime      get_resolve_datetime() const;
-    [[nodiscard]] QSet<QUuid>    get_tags()             const;
+    [[nodiscard]] QSet<TagId>    get_tags()             const;
 
     void set_start_datetime  (const QDateTime&   start_datetime  );
     void set_status          (Status             new_status      );
     void set_title           (const QString&     new_title       );
     void set_due_datetime    (const QDateTime&   due_datetime    );
     void set_resolve_datetime(const QDateTime&   resolve_datetime);
-    void set_tags            (const QSet<QUuid>& new_tags        );
+    void set_tags            (const QSet<TagId>& new_tags        );
 
     [[nodiscard]] QVariant get_data(int role) const override;
     void set_data(const QVariant& value, int role) override;
@@ -87,7 +87,7 @@ private:
     QDateTime                      start_date;
     QDateTime                      due_date;
     QDateTime                      resolve_date;
-    QSet<QUuid>                    tags;
+    QSet<TagId>                    tags;
 };
 
 #endif // TASK_H

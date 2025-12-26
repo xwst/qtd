@@ -18,20 +18,22 @@
 
 #include <QCoreApplication>
 #include <QGuiApplication>
+#include <QMetaType>
 #include <QObject>
 #include <QQmlApplicationEngine>
 #include <QtQml/QQmlExtensionPlugin>
 
+#include "backend/utils/initialize.h"
 #include "qmlinterface.h"
 
 Q_IMPORT_QML_PLUGIN(src_qmltexteditorPlugin)
-
 
 int main(int argc, char *argv[]) {
 
     QGuiApplication app(argc, argv);
     QQmlApplicationEngine engine;
 
+    initialize_qt_meta_types();
     auto* models = engine.singletonInstance<QmlInterface*>("src.app", "QmlInterface");
     models->set_up(&app);
 

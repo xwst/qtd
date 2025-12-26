@@ -25,9 +25,9 @@
 #include <QSignalSpy>
 #include <QString>
 #include <QTest>
-#include <QUuid>
 
 #include "../testhelpers.h"
+#include "dataitems/qtdid.h"
 #include "dataitems/qtditemdatarole.h"
 #include "dataitems/uniquedataitem.h"
 
@@ -130,7 +130,7 @@ void TestTreeNodes::test_set_data() {
     QCOMPARE(node_A->get_data(Qt::DisplayRole), "new name");
     QCOMPARE(node_A->get_data(uuid_role), uuid);
 
-    node_A->set_data(QUuid::createUuid(), uuid_role);
+    node_A->set_data(QtdId::create(), uuid_role);
     QCOMPARE(node_A->get_data(Qt::DisplayRole), "new name");
     QCOMPARE(node_A->get_data(uuid_role), uuid);
 }

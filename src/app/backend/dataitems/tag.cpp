@@ -25,8 +25,8 @@
 
 #include "uniquedataitem.h"
 
-Tag::Tag(QString name, const QColor& color, const QString& uuid_str)
-    : UniqueDataItem(uuid_str), name(std::move(name)), color(color)
+Tag::Tag(QString name, const QColor& color, const QString& tag_id)
+    : UniqueDataItem(tag_id), name(std::move(name)), color(color)
 {}
 
 Tag::Tag(const QVariantList& args)

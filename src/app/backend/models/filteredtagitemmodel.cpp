@@ -19,8 +19,8 @@
 #include "filteredtagitemmodel.h"
 
 #include <QSortFilterProxyModel>
-#include <QUuid>
 
+#include "dataitems/qtdid.h"
 #include "dataitems/qtditemdatarole.h"
 
 /**
@@ -39,10 +39,10 @@ bool FilteredTagItemModel::filterAcceptsRow(
     const QModelIndex &source_parent
 ) const {
     auto source_row_index = this->sourceModel()->index(source_row, 0, source_parent);
-    return this->tag_whitelist.contains(source_row_index.data(uuid_role).toUuid());
+    return this->tag_whitelist.contains(source_row_index.data(uuid_role).value<TagId>());
 }
 
-void FilteredTagItemModel::set_tag_whitelist(const QSet<QUuid>& new_tag_whitelist) {
+void FilteredTagItemModel::set_tag_whitelist(const QSet<TagId>& new_tag_whitelist) {
     this->tag_whitelist = new_tag_whitelist;
     this->invalidateRowsFilter();
 }

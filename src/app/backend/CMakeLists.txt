@@ -16,16 +16,17 @@
 
 LIST(
     APPEND backend_files
+    dataitems/qtdid.cpp
     dataitems/tag.cpp
     dataitems/task.cpp
     dataitems/treenode.cpp
-    dataitems/uniquedataitem.cpp
     models/filteredtagitemmodel.cpp
     models/filteredtaskitemmodel.cpp
     models/flatteningproxymodel.cpp
     models/tagitemmodel.cpp
     models/taskitemmodel.cpp
     models/treeitemmodel.cpp
+    utils/initialize.cpp
     utils/modeliteration.cpp
     utils/query_utilities.cpp
     repositories/tagrepository.cpp

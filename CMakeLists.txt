@@ -61,7 +61,7 @@ INCLUDE_DIRECTORIES(src/app/backend/)
 ADD_SUBDIRECTORY(resources/fonts)
 ADD_SUBDIRECTORY(src/qmltexteditor)
 ADD_SUBDIRECTORY(src/app)
-ADD_SUBDIRECTORY(test/ModelTests)
+ADD_SUBDIRECTORY(test/backend)
 ADD_SUBDIRECTORY(test/frontend/component/)
 ADD_SUBDIRECTORY(test/frontend/journey/)
 

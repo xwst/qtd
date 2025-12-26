@@ -27,9 +27,9 @@
 #include <QHash>
 #include <QObject>
 #include <QTextStream>
-#include <QUuid>
 #include <QVariantList>
 
+#include "dataitems/qtdid.h"
 #include "dataitems/qtditemdatarole.h"
 #include "dataitems/tag.h"
 #include "repositories/tagrepository.h"
@@ -42,7 +42,7 @@ TagItemModel::TagItemModel(QString connection_name, QObject* parent)
     for (auto tag_iterator = all_tags.begin(); tag_iterator != all_tags.end(); ++tag_iterator) {
         this->create_tree_node(
             std::make_unique<Tag>(*tag_iterator),
-            tag_iterator.get_raw(TagRepository::columns::parent_uuid).toUuid()
+            tag_iterator.get_raw(TagRepository::columns::parent_uuid).value<TagId>()
         );
     }
 }
@@ -52,7 +52,7 @@ bool TagItemModel::setData(const QModelIndex& index, const QVariant& value, int 
         return false;
     }
     auto tag_repository = TagRepository::create(this->connection_name);
-    auto tag_uuid = index.data(uuid_role).toUuid();
+    auto tag_uuid = index.data(uuid_role).value<TagId>();
     const bool success = (role == Qt::DisplayRole)
         ? tag_repository.update_name (value.toString(),      tag_uuid)
         : tag_repository.update_color(value.value<QColor>(), tag_uuid);
@@ -64,8 +64,8 @@ bool TagItemModel::setData(const QModelIndex& index, const QVariant& value, int 
 
 bool TagItemModel::create_tag(const QString& name, const QColor& color, const QModelIndex& parent) {
     auto new_tag = std::make_unique<Tag>(name, color);
-    const QUuid parent_uuid
-        = parent.isValid() ? parent.data(uuid_role).toUuid() : QUuid();
+    const TagId parent_uuid
+        = parent.isValid() ? parent.data(uuid_role).value<TagId>() : TagId();
 
     auto tag_repository = TagRepository::create(this->connection_name);
     return tag_repository.roll_back_on_failure(
@@ -77,7 +77,7 @@ bool TagItemModel::create_tag(const QString& name, const QColor& color, const QM
 bool TagItemModel::removeRows(int row, int count, const QModelIndex &parent) {
     QVariantList uuids_to_remove(count);
     for (int i=row; i<row+count; i++) {
-        uuids_to_remove << this->index(i, 0, parent).data(uuid_role).toUuid().toString(QUuid::WithoutBraces);
+        uuids_to_remove << this->index(i, 0, parent).data(uuid_role).toString();
     }
 
     auto tag_repository = TagRepository::create(this->connection_name);

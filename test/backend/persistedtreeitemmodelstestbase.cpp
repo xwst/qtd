@@ -25,6 +25,7 @@
 #include <QTest>
 
 #include "../testhelpers.h"
+#include "utils/initialize.h"
 
 PersistedTreeItemModelsTestBase::PersistedTreeItemModelsTestBase(QObject *parent)
     : QObject{parent}
@@ -33,6 +34,7 @@ PersistedTreeItemModelsTestBase::PersistedTreeItemModelsTestBase(QObject *parent
 void PersistedTreeItemModelsTestBase::initTestCase() {
 
     QLoggingCategory::setFilterRules("qt.modeltest.debug=true");
+    initialize_qt_meta_types();
 
     QVERIFY(TestHelpers::setup_database());
     this->db_connection_name = QSqlDatabase::database().connectionName();

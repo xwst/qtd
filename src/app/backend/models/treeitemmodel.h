@@ -24,9 +24,9 @@
 
 #include <QAbstractItemModel>
 #include <QMultiHash>
-#include <QUuid>
 #include <QtTypes>
 
+#include "dataitems/qtdid.h"
 #include "dataitems/treenode.h"
 #include "dataitems/uniquedataitem.h"
 
@@ -51,31 +51,31 @@ private:
     /**
      * @brief Maps an ID to a list of corresponding TreeNodes.
      */
-    QMultiHash<QUuid, TreeNode*> uuid_node_map;
+    QMultiHash<QtdId, TreeNode*> uuid_node_map;
 
     [[nodiscard]] TreeNode* get_raw_node_pointer(const QModelIndex& index) const;
     void remove_recursively_from_node_map(TreeNode* item);
     QModelIndex create_index(const TreeNode* node) const;
 
     void operate_on_clones(
-        const QUuid& uuid,
+        const QtdId& uuid,
         const std::function<void(TreeNode*)>& operation
     );
     void operate_on_clones(
         const QModelIndex& node_index,
         const std::function<void(TreeNode*)>& operation
     );
-    bool add_tree_node(std::unique_ptr<TreeNode> new_node, const QUuid& parent_uuid);
+    bool add_tree_node(std::unique_ptr<TreeNode> new_node, const QtdId& parent_uuid);
     void add_recursively_to_uuid_node_map(TreeNode* node);
 
 protected:
     bool create_tree_node(
         std::unique_ptr<UniqueDataItem> data_item,
-        const QUuid& parent_uuid = QUuid()
+        const QtdId& parent_uuid = QtdId()
     );
     bool clone_tree_node(
-        const QUuid& uuid,
-        const QUuid& parent_uuid = QUuid()
+        const QtdId& uuid,
+        const QtdId& parent_uuid = QtdId()
     );
 
 
@@ -102,7 +102,7 @@ public:
 
     // Convenience functions:
     qsizetype get_size();
-    [[nodiscard]] QVariant data(const QUuid& uuid, int role) const;
+    [[nodiscard]] QVariant data(const QtdId& uuid, int role) const;
 };
 
 #endif // TreeItemModel_H

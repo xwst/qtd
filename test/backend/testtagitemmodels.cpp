@@ -32,6 +32,7 @@
 #include <QTest>
 
 #include "../testhelpers.h"
+#include "dataitems/qtdid.h"
 #include "dataitems/qtditemdatarole.h"
 #include "dataitems/treenode.h"
 #include "persistedtreeitemmodelstestbase.h"
@@ -106,8 +107,8 @@ void TestTagItemModels::test_create_toplevel_tag() {
     QCOMPARE(new_tag_index.data().toString(), new_tag_name);
     const auto tag1_color = new_tag_index.data(Qt::DecorationRole).value<QColor>();
     QVERIFY(!tag1_color.isValid());
-    const auto tag1_uuid_str = new_tag_index.data(uuid_role).toString();
-    QVERIFY(!QUuid::fromString(tag1_uuid_str).isNull());
+    const auto tag1_uuid = new_tag_index.data(uuid_role).value<TagId>();
+    QVERIFY(tag1_uuid.is_valid());
 }
 
 void TestTagItemModels::test_create_tag_with_parent() {
@@ -128,8 +129,8 @@ void TestTagItemModels::test_create_tag_with_parent() {
     QCOMPARE(new_tag_index.data().toString(), new_tag_name);
     QCOMPARE(new_tag_index.data(Qt::DecorationRole), new_tag_color);
     QCOMPARE(new_tag_index.parent(), vegetable_index);
-    const auto new_tag_uuid = QUuid::fromString(new_tag_index.data(uuid_role).toString());
-    QVERIFY(!new_tag_uuid.isNull());
+    const auto new_tag_uuid = new_tag_index.data(uuid_role).value<TagId>();
+    QVERIFY(new_tag_uuid.is_valid());
 
     const auto *new_tag_item = static_cast<TreeNode*>(
         new_tag_index.internalPointer()
@@ -159,12 +160,12 @@ void TestTagItemModels::test_data_change_of_child_item() {
     auto index = this->model->index(2, 0, this->model->index(0, 0));
     const QString new_display_role = "new name";
 
-    auto old_uuid = index.data(uuid_role).toUuid();
-    auto new_uuid = QUuid::createUuid();
+    auto old_uuid = index.data(uuid_role).value<TagId>();
+    auto new_uuid = TagId::create();
     QVERIFY(!this->model->setData(index, new_uuid, uuid_role));
     QCOMPARE(
         index.data(uuid_role).toString(),
-        old_uuid.toString(QUuid::WithoutBraces)
+        old_uuid.toString()
     );
 
     QVERIFY(this->model->setData(index, new_display_role, Qt::DisplayRole));

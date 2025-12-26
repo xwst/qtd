@@ -16,31 +16,15 @@
  * qtd. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef TAG_H
-#define TAG_H
+#include "initialize.h"
 
-#include <QColor>
+#include <QMetaType>
 #include <QString>
-#include <QVariantList>
 
-#include "uniquedataitem.h"
+#include "dataitems/qtdid.h"
 
-class Tag : public UniqueDataItem {
-private:
-    QString name;
-    QColor color;
-
-public:
-    explicit Tag(QString name, const QColor& color = QColor(), const QString& tag_id = "");
-    explicit Tag(const QVariantList& args);
-    [[nodiscard]] QString get_name() const;
-    [[nodiscard]] QColor get_color() const;
-
-    void set_name(const QString& new_name);
-    void set_color(const QColor& new_color);
-
-    [[nodiscard]] QVariant get_data(int role) const override;
-    void set_data(const QVariant& value, int role) override;
-};
-
-#endif // TAG_H
+void initialize_qt_meta_types() {
+    qRegisterMetaType<QtdId>("QtdId");
+    QMetaType::registerConverter<QString, QtdId>();
+    QMetaType::registerConverter<QtdId, QString>();
+}

@@ -26,6 +26,7 @@
 #include <QTest>
 #include <QUuid>
 
+#include "dataitems/qtdid.h"
 #include "dataitems/task.h"
 #include "models/taskitemmodel.h"
 #include "persistedtreeitemmodelstestbase.h"
@@ -50,7 +51,7 @@ private:
         const QDateTime& start_datetime,
         const QDateTime& due_datetime,
         int number_of_children,
-        const QSet<QUuid>& assigned_tags
+        const QSet<TagId>& assigned_tags
     ) const;
 
 public:

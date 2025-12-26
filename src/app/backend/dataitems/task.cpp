@@ -27,9 +27,9 @@
 #include <QSet>
 #include <QString>
 #include <QTextDocument>
-#include <QUuid>
 #include <QVariantList>
 
+#include "qtdid.h"
 #include "qtditemdatarole.h"
 #include "uniquedataitem.h"
 
@@ -40,8 +40,8 @@ Task::Task(
     , QDateTime      due_date
     , QDateTime      resolve_date
     , const QString& document_html
-    , const QString& uuid_str
-) : UniqueDataItem(uuid_str)
+    , const QString& task_id
+) : UniqueDataItem(task_id)
     , title(std::move(title))
     , status(status)
     , start_date(std::move(start_date))
@@ -101,7 +101,7 @@ QDateTime Task::get_resolve_datetime() const {
     return this->resolve_date;
 }
 
-QSet<QUuid> Task::get_tags() const {
+QSet<TagId> Task::get_tags() const {
     return this->tags;
 }
 
@@ -125,7 +125,7 @@ void Task::set_resolve_datetime(const QDateTime& resolve_datetime) {
     this->resolve_date = resolve_datetime;
 }
 
-void Task::set_tags(const QSet<QUuid> &new_tags) {
+void Task::set_tags(const QSet<TagId> &new_tags) {
     this->tags = new_tags;
 }
 
@@ -160,10 +160,10 @@ void Task::set_data(const QVariant& value, int role) {
         this->set_resolve_datetime(value.toDateTime());
         break;
     case add_tag_role:
-        this->tags.insert(value.toUuid());
+        this->tags.insert(value.value<QtdId>());
         break;
     case remove_tag_role:
-        this->tags.remove(value.toUuid());
+        this->tags.remove(value.value<TagId>());
         break;
     default:
         UniqueDataItem::set_data(value, role);

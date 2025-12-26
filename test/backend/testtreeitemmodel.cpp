@@ -29,6 +29,7 @@
 #include <QVariant>
 
 #include "../testhelpers.h"
+#include "dataitems/qtdid.h"
 #include "dataitems/qtditemdatarole.h"
 #include "testmodelwrappers.h"
 #include "utils/modeliteration.h"
@@ -54,7 +55,7 @@ void TestTreeItemModel::setup_initial_model() {
     const auto B_index = this->model->index(1, 0);
     QVERIFY(this->model->create_tree_node(
         std::make_unique<TestHelpers::TestTag>("B1"),
-        B_index.data(uuid_role).toUuid()
+        B_index.data(uuid_role).value<QtdId>()
     ));
     QCOMPARE(this->model->get_size(), 3);
 }
@@ -80,7 +81,7 @@ void TestTreeItemModel::test_set_data() {
     QCOMPARE(A_index.data(), "new name");
 
     const auto A_uuid = A_index.data(uuid_role);
-    QVERIFY(!this->model->setData(A_index, QUuid::createUuid(), uuid_role));
+    QVERIFY(!this->model->setData(A_index, QtdId::create(), uuid_role));
     QCOMPARE(A_index.data(uuid_role), A_uuid);
 }
 
@@ -147,7 +148,7 @@ void TestTreeItemModel::test_clone_tree_node_clones_children_recursiveley() {
     auto A_index = this->model->index(0, 0);
     auto B_index = this->model->index(1, 0);
     auto B1_index = this->model->index(0, 0, B_index);
-    auto B1_uuid = this->model->index(0, 0, B_index).data(uuid_role).toUuid();
+    auto B1_uuid = this->model->index(0, 0, B_index).data(uuid_role).value<QtdId>();
 
     this->model->create_tree_node(
         std::make_unique<TestHelpers::TestTag>("child 1"), B1_uuid
@@ -157,13 +158,13 @@ void TestTreeItemModel::test_clone_tree_node_clones_children_recursiveley() {
     );
     this->model->create_tree_node(
         std::make_unique<TestHelpers::TestTag>("child 1a"),
-        this->model->index(0, 0, B1_index).data(uuid_role).toUuid()
+        this->model->index(0, 0, B1_index).data(uuid_role).value<QtdId>()
     );
 
     QVERIFY(
         this->model->clone_tree_node(
-            B_index.data(uuid_role).toUuid(),
-            A_index.data(uuid_role).toUuid()
+            B_index.data(uuid_role).value<QtdId>(),
+            A_index.data(uuid_role).value<QtdId>()
         )
     );
     auto clone_index = this->model->index(0, 0, A_index);
@@ -185,7 +186,7 @@ void TestTreeItemModel::test_clone_tree_node_clones_children_recursiveley() {
 void TestTreeItemModel::test_adding_children_to_clones() {
     auto B_index = this->model->index(1, 0);
     auto B1_index = this->model->index(0, 0, B_index);
-    auto B1_uuid = this->model->index(0, 0, B_index).data(uuid_role).toUuid();
+    auto B1_uuid = this->model->index(0, 0, B_index).data(uuid_role).value<QtdId>();
 
     QVERIFY(this->model->clone_tree_node(B1_uuid));
     auto clone_index = this->model->index(2, 0);
@@ -215,7 +216,7 @@ void TestTreeItemModel::test_adding_children_to_clones() {
 
     this->model->create_tree_node(
         std::make_unique<TestHelpers::TestTag>("child 2"),
-        clone_index.data(uuid_role).toUuid()
+        clone_index.data(uuid_role).value<QtdId>()
     );
     TestHelpers::assert_index_equality(
         B1_index,
@@ -231,13 +232,13 @@ void TestTreeItemModel::test_adding_children_to_clones() {
 void TestTreeItemModel::test_remove_clone() {
     const auto B_index = this->model->index(1, 0);
     const auto B1_index = this->model->index(0, 0, B_index);
-    const auto B1_uuid = this->model->index(0, 0, B_index).data(uuid_role).toUuid();
+    const auto B1_uuid = this->model->index(0, 0, B_index).data(uuid_role).value<QtdId>();
 
     QVERIFY(this->model->clone_tree_node(B1_uuid));
     const auto clone_index = this->model->index(2, 0);
     this->model->create_tree_node(
         std::make_unique<TestHelpers::TestTag>("child 1"),
-        B1_index.data(uuid_role).toUuid()
+        B1_index.data(uuid_role).value<QtdId>()
     );
 
     this->model->removeRows(B1_index.row(), 1, B_index);
@@ -250,13 +251,13 @@ void TestTreeItemModel::test_remove_clone() {
 void TestTreeItemModel::test_remove_child_of_clone() {
     const auto B_index = this->model->index(1, 0);
     const auto B1_index = this->model->index(0, 0, B_index);
-    const auto B1_uuid = this->model->index(0, 0, B_index).data(uuid_role).toUuid();
+    const auto B1_uuid = this->model->index(0, 0, B_index).data(uuid_role).value<QtdId>();
 
     QVERIFY(this->model->clone_tree_node(B1_uuid));
     const auto clone_index = this->model->index(2, 0);
     this->model->create_tree_node(
         std::make_unique<TestHelpers::TestTag>("child 1"),
-        B1_index.data(uuid_role).toUuid()
+        B1_index.data(uuid_role).value<QtdId>()
     );
 
     const QSignalSpy spy(this->model.get(), SIGNAL(rowsRemoved(const QModelIndex&, int, int)));

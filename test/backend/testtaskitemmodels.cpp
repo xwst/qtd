@@ -25,9 +25,9 @@
 #include <QSet>
 #include <QString>
 #include <QTest>
-#include <QUuid>
 
 #include "../testhelpers.h"
+#include "dataitems/qtdid.h"
 #include "dataitems/qtditemdatarole.h"
 #include "dataitems/task.h"
 #include "persistedtreeitemmodelstestbase.h"
@@ -68,7 +68,7 @@ void TestTaskItemModel::test_data_change_of_unique_task() const {
     QVERIFY(test_index.isValid());
 
     const auto due_time = test_index.data(due_role).toDateTime();
-    const auto uuid = test_index.data(uuid_role).toUuid();
+    const auto uuid = test_index.data(uuid_role).value<TaskId>();
     QCOMPARE(test_index.data(active_role), Task::open);
 
     const auto new_start_time = QDateTime::currentDateTime();
@@ -80,7 +80,7 @@ void TestTaskItemModel::test_data_change_of_unique_task() const {
 
     QCOMPARE(test_index.data().toString(), title);
     QCOMPARE(test_index.data(due_role).toDateTime(), due_time);
-    QCOMPARE(test_index.data(uuid_role).toUuid(), uuid);
+    QCOMPARE(test_index.data(uuid_role).value<TaskId>(), uuid);
 }
 
 void TestTaskItemModel::test_data_change_of_cloned_task() const {
@@ -204,7 +204,7 @@ void TestTaskItemModel::assert_initial_dataset_representation_base_model() const
         QDateTime::fromString("2025-12-01 16:00:00", Qt::ISODate),
         QDateTime::fromString("2025-12-01 18:15:00", Qt::ISODate),
         2,
-        {QUuid::fromString("10173aba-edd8-4049-a41c-74f28581c31f")}
+        {TaskId("10173aba-edd8-4049-a41c-74f28581c31f")}
     );
     this->find_task_by_title_and_assert_correctness_of_data(
         "Do chores",
@@ -212,7 +212,7 @@ void TestTaskItemModel::assert_initial_dataset_representation_base_model() const
         QDateTime(),
         QDateTime(),
         0,
-        {QUuid::fromString("18a2d601-712e-4ac4-b655-93c5a288dc99")}
+        {TaskId("18a2d601-712e-4ac4-b655-93c5a288dc99")}
     );
     this->find_task_by_title_and_assert_correctness_of_data(
         "Print shopping list",
@@ -255,7 +255,7 @@ void TestTaskItemModel::find_task_by_title_and_assert_correctness_of_data(
     const QDateTime& start_datetime,
     const QDateTime& due_datetime,
     const int number_of_children,
-    const QSet<QUuid>& assigned_tags
+    const QSet<TagId>& assigned_tags
 ) const {
     const auto index = TestHelpers::find_model_index_by_display_role(*this->model, title);
     QVERIFY(index.isValid());
@@ -263,53 +263,53 @@ void TestTaskItemModel::find_task_by_title_and_assert_correctness_of_data(
     QCOMPARE(index.data(start_role).toDateTime(), start_datetime);
     QCOMPARE(index.data(due_role).toDateTime(), due_datetime);
     QCOMPARE(model->rowCount(index), number_of_children);
-    QCOMPARE(index.data(tags_role).value<QSet<QUuid>>(), assigned_tags);
+    QCOMPARE(index.data(tags_role).value<QSet<TagId>>(), assigned_tags);
 }
 
 void TestTaskItemModel::test_adding_and_removing_tags() const {
     const auto index = TestHelpers::find_model_index_by_display_role(*this->model, "Cook meal");
-    const auto initial_tag = QUuid::fromString("10173aba-edd8-4049-a41c-74f28581c31f");
-    QCOMPARE(index.data(tags_role).value<QSet<QUuid>>(), {initial_tag});
+    const auto initial_tag = TagId("10173aba-edd8-4049-a41c-74f28581c31f");
+    QCOMPARE(index.data(tags_role).value<QSet<TagId>>(), {initial_tag});
 
-    const auto unknown_tag = QUuid::createUuid();
+    const auto unknown_tag = TagId::create();
     QVERIFY(!this->model->add_tag(index, unknown_tag));
-    QCOMPARE(index.data(tags_role).value<QSet<QUuid>>(), {initial_tag});
+    QCOMPARE(index.data(tags_role).value<QSet<TagId>>(), {initial_tag});
 
-    const auto test_tag1 = QUuid::fromString("0baf3308-5899-44ad-9e55-a8e83f2b82ee");
-    const auto test_tag2 = QUuid::fromString("fcff6021-2d4c-46df-92bd-6cabe0ae75b1");
+    const auto test_tag1 = TagId("0baf3308-5899-44ad-9e55-a8e83f2b82ee");
+    const auto test_tag2 = TagId("fcff6021-2d4c-46df-92bd-6cabe0ae75b1");
     QVERIFY(this->model->add_tag(index, test_tag1));
     QCOMPARE(
-        index.data(tags_role).value<QSet<QUuid>>(),
+        index.data(tags_role).value<QSet<TagId>>(),
         QSet({initial_tag, test_tag1})
     );
 
     QVERIFY(!this->model->add_tag(index, test_tag1));
     QCOMPARE(
-        index.data(tags_role).value<QSet<QUuid>>(),
+        index.data(tags_role).value<QSet<TagId>>(),
         QSet({initial_tag, test_tag1})
     );
 
     QVERIFY(this->model->add_tag(index, test_tag2));
     QCOMPARE(
-        index.data(tags_role).value<QSet<QUuid>>(),
+        index.data(tags_role).value<QSet<TagId>>(),
         QSet({initial_tag, test_tag1, test_tag2})
     );
     this->assert_model_persistence();
 
     QVERIFY(!this->model->remove_tag(index, unknown_tag));
     QCOMPARE(
-        index.data(tags_role).value<QSet<QUuid>>(),
+        index.data(tags_role).value<QSet<TagId>>(),
         QSet({initial_tag, test_tag1, test_tag2})
     );
 
     QVERIFY(this->model->remove_tag(index, test_tag1));
     QCOMPARE(
-        index.data(tags_role).value<QSet<QUuid>>(),
+        index.data(tags_role).value<QSet<TagId>>(),
         QSet({initial_tag, test_tag2})
     );
 
     QVERIFY(this->model->remove_tag(index, test_tag2));
-    QCOMPARE(index.data(tags_role).value<QSet<QUuid>>(), {initial_tag});
+    QCOMPARE(index.data(tags_role).value<QSet<TagId>>(), {initial_tag});
 }
 
 

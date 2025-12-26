@@ -25,8 +25,8 @@
 #include <QList>
 #include <QMultiHash>
 #include <QSet>
-#include <QUuid>
 
+#include "dataitems/qtdid.h"
 #include "dataitems/task.h"
 #include "sqlresultview.h"
 
@@ -42,20 +42,20 @@ public:
     static TaskRepository create(const QString &database_connection_name);
 
     [[nodiscard]] SqlResultView<Task> get_all_tasks() const;
-    [[nodiscard]] QHash<QUuid, QSet<QUuid>> get_all_tag_assignments() const;
-    [[nodiscard]] QMultiHash<QUuid, QUuid> get_all_dependencies() const;
+    [[nodiscard]] QHash<TaskId, QSet<TagId>> get_all_tag_assignments() const;
+    [[nodiscard]] QMultiHash<TaskId, TaskId> get_all_dependencies() const;
 
     // NOLINTBEGIN (modernize-use-nodiscard)
     bool save(const Task& task) const;
-    bool update_column(const QUuid& task, const QString& column_name, const QVariant& new_value) const;
+    bool update_column(const TaskId& task, const QString& column_name, const QVariant& new_value) const;
 
-    bool add_prerequisites   (const QUuid& dependent,    const QList<QVariant>& prerequisites) const;
-    bool add_dependents      (const QUuid& prerequisite, const QList<QVariant>& dependents   ) const;
-    bool remove_prerequisites(const QUuid& dependent,    const QList<QVariant>& prerequisites) const;
-    bool remove_dependents   (const QUuid& prerequisite, const QList<QVariant>& dependents   ) const;
+    bool add_prerequisites   (const TaskId& dependent,    const QList<QVariant>& prerequisites) const;
+    bool add_dependents      (const TaskId& prerequisite, const QList<QVariant>& dependents   ) const;
+    bool remove_prerequisites(const TaskId& dependent,    const QList<QVariant>& prerequisites) const;
+    bool remove_dependents   (const TaskId& prerequisite, const QList<QVariant>& dependents   ) const;
 
-    bool add_tag   (const QUuid& task, const QUuid& tag) const;
-    bool remove_tag(const QUuid& task, const QUuid& tag) const;
+    bool add_tag   (const TaskId& task, const TagId& tag) const;
+    bool remove_tag(const TaskId& task, const TagId& tag) const;
     // NOLINTEND (modernize-use-nodiscard)
 };
 

@@ -19,21 +19,33 @@
 #ifndef UNIQUEDATAITEM_H
 #define UNIQUEDATAITEM_H
 
-#include <QUuid>
+#include <stdexcept>
+
+#include "qtdid.h"
+#include "qtditemdatarole.h"
 
 class UniqueDataItem
 {
-
 private:
-    QUuid uuid;
+    QtdId item_id;
 
 public:
-    explicit UniqueDataItem(const QString& uuid_str = "");
+    explicit UniqueDataItem(const QString& data_item_id = "") {
+        this->item_id = data_item_id.trimmed().isEmpty() ? QtdId::create() : QtdId(data_item_id);
+        if (!this->item_id.is_valid()) {
+            throw std::invalid_argument("Passed ID is neither empty nor valid!");
+        }
+    }
     virtual ~UniqueDataItem() = default;
-    [[nodiscard]] QUuid get_uuid() const;
-    [[nodiscard]] QString get_uuid_string() const;
+    [[nodiscard]] QtdId get_uuid() const { return this->item_id; }
+    [[nodiscard]] QString get_uuid_string() const { return this->item_id.toString(); }
 
-    [[nodiscard]] virtual QVariant get_data(int role) const;
+    [[nodiscard]] virtual QVariant get_data(int role) const {
+        if (role == uuid_role) {
+            return this->get_uuid();
+        }
+        return {};
+    }
     virtual void set_data(const QVariant& /* value */, int /* role */) {}
 };
 

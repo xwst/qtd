@@ -23,17 +23,19 @@
 #include <QSet>
 #include <QSqlDatabase>
 #include <QTest>
-#include <QUuid>
 
 #include "../testhelpers.h"
+#include "dataitems/qtdid.h"
 #include "models/filteredtagitemmodel.h"
 #include "models/tagitemmodel.h"
+#include "utils/initialize.h"
 
 TestFilteredTagItemModel::TestFilteredTagItemModel(QObject *parent)
     : QObject{parent}
 {}
 
 void TestFilteredTagItemModel::initTestCase() {
+    initialize_qt_meta_types();
     QVERIFY(TestHelpers::setup_database());
     TestHelpers::populate_database();
 
@@ -45,7 +47,7 @@ void TestFilteredTagItemModel::initTestCase() {
 }
 
 void TestFilteredTagItemModel::test_empty_whitelist_yields_empty_model() const {
-    this->model->set_tag_whitelist(QSet<QUuid>());
+    this->model->set_tag_whitelist(QSet<TagId>());
     QCOMPARE(this->model->rowCount(), 0);
 }
 
@@ -55,8 +57,8 @@ void TestFilteredTagItemModel::test_whitelisting_parent() const {
 
 void TestFilteredTagItemModel::test_whitelisting_children() const {
     this->model->set_tag_whitelist( {
-        QUuid::fromString("b7f5d20c-3ea7-4d20-86e2-3c682fc05756"),
-        QUuid::fromString("3fd213cf-1c50-47a0-9237-c2da78bf4fcc")
+        TagId("b7f5d20c-3ea7-4d20-86e2-3c682fc05756"),
+        TagId("3fd213cf-1c50-47a0-9237-c2da78bf4fcc")
     });
     QCOMPARE(this->model->rowCount(), 2);
 
@@ -84,8 +86,8 @@ void TestFilteredTagItemModel::test_whitelisting_children() const {
 
 void TestFilteredTagItemModel::test_removing_tags_from_whitelist() const {
     this->model->set_tag_whitelist( {
-        QUuid::fromString("b7f5d20c-3ea7-4d20-86e2-3c682fc05756"),
-        QUuid::fromString("3fd213cf-1c50-47a0-9237-c2da78bf4fcc")
+        TagId("b7f5d20c-3ea7-4d20-86e2-3c682fc05756"),
+        TagId("3fd213cf-1c50-47a0-9237-c2da78bf4fcc")
     });
 
     QCOMPARE(this->model->rowCount(), 2);
@@ -94,7 +96,7 @@ void TestFilteredTagItemModel::test_removing_tags_from_whitelist() const {
 
 void TestFilteredTagItemModel::whitelist_single_parent_tag_and_validate() const {
     this->model->set_tag_whitelist(
-        { QUuid::fromString("c99586cb-3910-4fab-b5a4-d936c9e58471") }
+        { TagId("c99586cb-3910-4fab-b5a4-d936c9e58471") }
         );
     QCOMPARE(this->model->rowCount(), 1);
 

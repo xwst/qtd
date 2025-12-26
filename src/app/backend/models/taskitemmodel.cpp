@@ -26,9 +26,9 @@
 #include <QMultiHash>
 #include <QObject>
 #include <QSet>
-#include <QUuid>
 #include <QtConcurrentMap>
 
+#include "dataitems/qtdid.h"
 #include "dataitems/qtditemdatarole.h"
 #include "dataitems/task.h"
 #include "repositories/taskrepository.h"
@@ -41,12 +41,12 @@ void TaskItemModel::setup_tasks_from_db() {
     auto tag_assignments = task_repository.get_all_tag_assignments();
 
     for (auto& task : task_repository.get_all_tasks()) {
-        auto task_uuid = task.get_data(uuid_role).toUuid();
+        auto task_uuid = task.get_data(uuid_role).value<TaskId>();
         task.set_tags(tag_assignments[task_uuid]);
         auto [parents_iterator, parents_end] = dependents.equal_range(task_uuid);
         this->create_tree_node(
             std::make_unique<Task>(std::move(task)),
-            parents_iterator == dependents.end() ? QUuid() : *(parents_iterator++)
+            parents_iterator == dependents.end() ? TaskId() : *(parents_iterator++)
         );
         while (parents_iterator != parents_end) {
             this->clone_tree_node(task_uuid, *(parents_iterator++));
@@ -73,7 +73,7 @@ TaskItemModel::TaskItemModel(QString connection_name, QObject* parent)
 
 bool TaskItemModel::create_task(const QString& title, const QModelIndexList& parents) {
     auto new_task = std::make_unique<Task>(title.isEmpty() ? "New Task" : title);
-    auto new_task_uuid = new_task->get_data(uuid_role).toUuid();
+    auto new_task_uuid = new_task->get_data(uuid_role).value<TaskId>();
     auto parent_uuids = ContainerUtils::transform(
         parents,
         [](const QModelIndex& index){ return index.data(uuid_role); }
@@ -92,10 +92,10 @@ bool TaskItemModel::create_task(const QString& title, const QModelIndexList& par
     auto parents_iterator = parent_uuids.begin();
     bool success = this->create_tree_node(
         std::move(new_task),
-        parents_iterator == parent_uuids.end() ? QUuid() : (parents_iterator++)->toUuid()
+        parents_iterator == parent_uuids.end() ? TaskId() : (parents_iterator++)->value<TaskId>()
     );
     while (parents_iterator != parent_uuids.end()) {
-        success &= this->clone_tree_node(new_task_uuid, (parents_iterator++)->toUuid());
+        success &= this->clone_tree_node(new_task_uuid, (parents_iterator++)->value<TaskId>());
     }
 
     return task_repository.roll_back_on_failure(success);
@@ -112,7 +112,7 @@ bool TaskItemModel::setData(const QModelIndex& index, const QVariant& value, int
 
     auto task_repository = TaskRepository::create(this->connection_name);
     const bool success = task_repository.update_column(
-        index.data(uuid_role).toUuid(),
+        index.data(uuid_role).value<TaskId>(),
         column_name,
         (role == active_role) ? Task::status_to_string(value.value<Task::Status>()) : value
     );
@@ -123,7 +123,7 @@ bool TaskItemModel::setData(const QModelIndex& index, const QVariant& value, int
 
 bool TaskItemModel::removeRows(int row, int count, const QModelIndex &parent) {
     auto task_repository = TaskRepository::create(this->connection_name);
-    auto parent_uuid = parent.isValid() ? parent.data(uuid_role).toUuid() : QUuid();
+    auto parent_uuid = parent.isValid() ? parent.data(uuid_role).value<TaskId>() : TaskId();
 
     QList<QVariant> task_ids(count);
     for (int i=row; i<row+count; i++) {
@@ -154,17 +154,17 @@ bool TaskItemModel::add_dependency(
         return false;
     }
 
-    const auto dependent_uuid = dependent.data(uuid_role).toUuid();
+    const auto dependent_uuid = dependent.data(uuid_role).value<TaskId>();
     auto task_repository = TaskRepository::create(this->connection_name);
 
     return task_repository.roll_back_on_failure(
         task_repository.add_prerequisites(
-            dependent.data(uuid_role).toUuid(),
+            dependent.data(uuid_role).value<TaskId>(),
             { prerequisite.data(uuid_role) }
         )
         &&
         this->clone_tree_node(
-            prerequisite.data(uuid_role).toUuid(),
+            prerequisite.data(uuid_role).value<TaskId>(),
             dependent_uuid
         )
     );
@@ -182,14 +182,14 @@ bool TaskItemModel::add_dependency(
  */
 bool TaskItemModel::add_tag(
     const QModelIndex& index,
-    const QUuid& tag
+    const TagId& tag
 ) {
     if (!index.isValid()) {
         return false;
     }
     auto task_repository = TaskRepository::create(this->connection_name);
     return task_repository.roll_back_on_failure(
-        task_repository.add_tag(index.data(uuid_role).toUuid(), tag)
+        task_repository.add_tag(index.data(uuid_role).value<TaskId>(), tag)
         && TreeItemModel::setData(index, tag, add_tag_role)
     );
 }
@@ -206,14 +206,14 @@ bool TaskItemModel::add_tag(
  */
 bool TaskItemModel::remove_tag(
     const QModelIndex& index,
-    const QUuid& tag
+    const TagId& tag
 ) {
-    if (!(index.isValid() && index.data(tags_role).value<QSet<QUuid>>().contains(tag))) {
+    if (!(index.isValid() && index.data(tags_role).value<QSet<TagId>>().contains(tag))) {
         return false;
     }
     auto task_repository = TaskRepository::create(this->connection_name);
     return task_repository.roll_back_on_failure(
-        task_repository.remove_tag(index.data(uuid_role).toUuid(), tag)
+        task_repository.remove_tag(index.data(uuid_role).value<TaskId>(), tag)
         && TreeItemModel::setData(index, tag, remove_tag_role)
     );
 }

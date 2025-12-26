@@ -27,7 +27,8 @@
 #include <QObject>
 #include <QRegularExpression>
 #include <QStringList>
-#include <QUuid>
+
+#include "dataitems/qtdid.h"
 
 class FilteredTaskItemModel : public QAbstractProxyModel
 {
@@ -37,11 +38,11 @@ private:
     const static char* split_pattern;
 
     QStringList filter_words;
-    QMultiHash<QUuid, std::pair<QModelIndex, QModelIndex>> index_mapping;
+    QMultiHash<TaskId, std::pair<QModelIndex, QModelIndex>> index_mapping;
     QMultiHash<QModelIndex, QModelIndex> proxy_children;
     QRegularExpression split_regex;
-    QSet<QUuid> remaining_tags;
-    QSet<QUuid> selected_tags;
+    QSet<TagId> remaining_tags;
+    QSet<TagId> selected_tags;
 
     void reset_mapping();
     void map_index(const QModelIndex& source_index);
@@ -58,7 +59,7 @@ public:
     void set_search_string(const QString& search_string);
     void clear_search_string();
 
-    void set_selected_tags(const QSet<QUuid>& tags);
+    void set_selected_tags(const QSet<TagId>& tags);
 
     [[nodiscard]] QModelIndex mapFromSource(const QModelIndex& sourceIndex) const override;
     [[nodiscard]] QModelIndex mapToSource(const QModelIndex& proxyIndex) const override;
@@ -85,7 +86,7 @@ public slots:
     void source_model_changed();
 
 signals:
-    void filtered_tags_changed(QSet<QUuid>);
+    void filtered_tags_changed(QSet<TagId>);
 };
 
 #endif // FILTEREDTASKITEMMODEL_H

@@ -23,10 +23,10 @@
 
 #include <QColor>
 #include <QString>
-#include <QUuid>
 #include <QVariantList>
 #include <QtTypes>
 
+#include "dataitems/qtdid.h"
 #include "dataitems/tag.h"
 #include "sqlresultview.h"
 
@@ -47,10 +47,10 @@ public:
 
     [[nodiscard]] SqlResultView<Tag> get_all_tags() const;
     // NOLINTBEGIN (modernize-use-nodiscard)
-    bool update_name(const QString& new_name, const QUuid& tag) const;
-    bool update_color(const QColor& new_color, const QUuid& tag) const;
-    bool save(const Tag& tag, const QUuid& parent) const;
-    bool remove(const QVariantList& tag_uuids) const;
+    bool update_name(const QString& new_name, const TagId& tag) const;
+    bool update_color(const QColor& new_color, const TagId& tag) const;
+    bool save(const Tag& tag, const TagId& parent) const;
+    bool remove(const QVariantList& tag_ids) const;
     // NOLINTEND (modernize-use-nodiscard)
 };
 

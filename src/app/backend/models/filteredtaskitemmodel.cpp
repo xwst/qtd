@@ -24,8 +24,8 @@
 
 #include <QAbstractProxyModel>
 #include <QRegularExpression>
-#include <QUuid>
 
+#include "dataitems/qtdid.h"
 #include "dataitems/qtditemdatarole.h"
 #include "dataitems/treenode.h"
 #include "utils/modeliteration.h"
@@ -38,14 +38,15 @@
  * the filtered tasks. Tasks can also be filtered by a set of selected tasks, leaving
  * the set of emitted tags unaltered.
  */
+
 namespace {
     bool task_index_contains_word(const QModelIndex &index, const QString &word) {
         return index.data(Qt::DisplayRole).toString().contains(word, Qt::CaseInsensitive)
                || index.data(details_role).toString().contains(word, Qt::CaseInsensitive);
     }
 
-    QUuid get_uuid(const QModelIndex &index) {
-        return index.isValid() ? index.data(uuid_role).toUuid() : QUuid();
+    TaskId get_uuid(const QModelIndex &index) {
+        return index.isValid() ? index.data(uuid_role).value<TaskId>() : TaskId();
     }
 } // anonymous namespace
 
@@ -131,7 +132,7 @@ void FilteredTaskItemModel::clear_search_string() {
     this->set_search_string("");
 }
 
-void FilteredTaskItemModel::set_selected_tags(const QSet<QUuid> &tags) {
+void FilteredTaskItemModel::set_selected_tags(const QSet<TagId> &tags) {
     this->beginResetModel();
     this->selected_tags = tags;
     this->rebuild_index_mapping();
@@ -152,7 +153,7 @@ bool FilteredTaskItemModel::index_matches_tag_selection(const QModelIndex &index
     if (this->selected_tags.isEmpty()) {
         return true;
     }
-    auto index_tags = index.data(tags_role).value<QSet<QUuid> >();
+    auto index_tags = index.data(tags_role).value<QSet<TagId> >();
     return index_tags.intersects((this->selected_tags));
 }
 
@@ -177,7 +178,7 @@ void FilteredTaskItemModel::reset_mapping() {
 void FilteredTaskItemModel::map_index(const QModelIndex &source_index) {
     if (index_matches_search_string(source_index)) {
         this->remaining_tags.unite(
-            source_index.data(tags_role).value<QSet<QUuid> >()
+            source_index.data(tags_role).value<QSet<TagId> >()
         );
         if (!index_matches_tag_selection(source_index)) {
             return;

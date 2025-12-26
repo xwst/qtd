@@ -16,31 +16,34 @@
  * qtd. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef TAG_H
-#define TAG_H
+#ifndef TESTQTDID_H
+#define TESTQTDID_H
 
-#include <QColor>
-#include <QString>
-#include <QVariantList>
+#include <functional>
 
-#include "uniquedataitem.h"
+#include <QObject>
+#include <QTest>
 
-class Tag : public UniqueDataItem {
-private:
-    QString name;
-    QColor color;
+#include "dataitems/qtdid.h"
 
+class TestQtdId : public QObject
+{
+    Q_OBJECT
 public:
-    explicit Tag(QString name, const QColor& color = QColor(), const QString& tag_id = "");
-    explicit Tag(const QVariantList& args);
-    [[nodiscard]] QString get_name() const;
-    [[nodiscard]] QColor get_color() const;
+    explicit TestQtdId(QObject *parent = nullptr);
 
-    void set_name(const QString& new_name);
-    void set_color(const QColor& new_color);
+private:
+    static void helper_test_conversion(
+        const std::function<QVariant(QtdId)>& convert_id
+    );
 
-    [[nodiscard]] QVariant get_data(int role) const override;
-    void set_data(const QVariant& value, int role) override;
+private slots:
+    static void initTestCase();
+
+    static void test_creation_from_string();
+    static void test_implicit_qvariant_conversion();
+    static void test_qvariant_conversion();
+    static void test_database_serialization();
 };
 
-#endif // TAG_H
+#endif // TESTQTDID_H

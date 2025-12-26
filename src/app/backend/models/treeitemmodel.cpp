@@ -26,9 +26,9 @@
 #include <QAbstractItemModel>
 #include <QList>
 #include <QObject>
-#include <QUuid>
 #include <QtTypes>
 
+#include "dataitems/qtdid.h"
 #include "dataitems/qtditemdatarole.h"
 #include "dataitems/treenode.h"
 #include "dataitems/uniquedataitem.h"
@@ -68,18 +68,18 @@ const TreeNode* tree_nodes_foreach(
     return nullptr;
 }
 
-bool tree_node_has_nested_child_with_uuid(TreeNode* node, const QUuid& uuid) {
+bool tree_node_has_nested_child_with_uuid(TreeNode* node, const QtdId& uuid) {
     const auto* node_with_matching_uuid
         = tree_nodes_foreach(
             node,
             [&uuid](TreeNode* node) {
-                return node->get_data(uuid_role).toUuid() == uuid;
+                return node->get_data(uuid_role).value<QtdId>() == uuid;
             }
-            );
+        );
     return node_with_matching_uuid != nullptr;
 }
 
-bool adding_node_creates_dependency_cycle(TreeNode* new_node, const QUuid& parent_uuid) {
+bool adding_node_creates_dependency_cycle(TreeNode* new_node, const QtdId& parent_uuid) {
     return tree_node_has_nested_child_with_uuid(new_node, parent_uuid);
 }
 
@@ -90,7 +90,7 @@ TreeItemModel::TreeItemModel(QObject *parent)
 {
     this->root = TreeNode::create(std::make_unique<UniqueDataItem>());
     this->uuid_node_map.insert(
-        this->root->get_data(uuid_role).toUuid(),
+        this->root->get_data(uuid_role).value<QtdId>(),
         this->root.get()
     );
 }
@@ -102,12 +102,12 @@ QModelIndex TreeItemModel::create_index(const TreeNode *node) const {
 }
 
 /**
- * @brief Invoke a function on all clones associated with the given UUID
- * @param uuid The UUID identifying the nodes to operate on
+ * @brief Invoke a function on all clones associated with the given ID
+ * @param uuid The QtdId identifying the nodes to operate on
  * @param operation The function to execute
  */
 void TreeItemModel::operate_on_clones(
-    const QUuid& uuid,
+    const QtdId& uuid,
     const std::function<void(TreeNode*)>& operation
 ) {
     const QList<TreeNode*> clones = this->uuid_node_map.values(uuid);
@@ -126,29 +126,29 @@ void TreeItemModel::operate_on_clones(
     const std::function<void(TreeNode*)>& operation
 ) {
     auto node_uuid = node_index.isValid()
-                    ? node_index.data(uuid_role).toUuid()
-                    : this->root->get_data(uuid_role).toUuid();
+                    ? node_index.data(uuid_role).value<QtdId>()
+                    : this->root->get_data(uuid_role).value<QtdId>();
     this->operate_on_clones(node_uuid, operation);
 }
 
 /**
- * @brief Adds a tree node as a child of all nodes associated with the given uuid
+ * @brief Adds a tree node as a child of all nodes associated with the given id
  *
- * If the UUID is invalid, the tree node will be added without a parent (top level),
- * if the UUID is valid but unknown, the node is not created and the function returns
+ * If the id is invalid, the tree node will be added without a parent (top level),
+ * if the id is valid but unknown, the node is not created and the function returns
  * false.
  *
  * @param new_node The tree node to add
- * @param parent_uuid The UUID identifying the parents of the new node
+ * @param parent_uuid The id identifying the parents of the new node
  * @return true if the tree node could be added to the model, false otherwise
  */
 bool TreeItemModel::add_tree_node(
     std::unique_ptr<TreeNode> new_node,
-    const QUuid& parent_uuid
+    const QtdId& parent_uuid
 ) {
-    auto parent_or_root_uuid = parent_uuid.isNull()
-                             ? this->root->get_data(uuid_role).toUuid()
-                             : parent_uuid;
+    auto parent_or_root_uuid = parent_uuid.is_valid()
+                             ? parent_uuid
+                             : this->root->get_data(uuid_role).value<QtdId>();
 
     if (!this->uuid_node_map.contains(parent_or_root_uuid)) {
         return false;
@@ -181,7 +181,7 @@ bool TreeItemModel::add_tree_node(
 
 void TreeItemModel::add_recursively_to_uuid_node_map(TreeNode* node) {
     tree_nodes_foreach(node, [this](TreeNode* node) {
-        this->uuid_node_map.insert(node->get_data(uuid_role).toUuid(), node);
+        this->uuid_node_map.insert(node->get_data(uuid_role).value<QtdId>(), node);
         return false;
     });
 }
@@ -194,7 +194,7 @@ TreeNode* TreeItemModel::get_raw_node_pointer(const QModelIndex& index) const {
 
 void TreeItemModel::remove_recursively_from_node_map(TreeNode* item) {
     tree_nodes_foreach(item, [this](TreeNode* node) {
-        this->uuid_node_map.remove(node->get_data(uuid_role).toUuid(), node);
+        this->uuid_node_map.remove(node->get_data(uuid_role).value<QtdId>(), node);
         return false;
     });
 }
@@ -237,7 +237,7 @@ QVariant TreeItemModel::data(const QModelIndex& index, int role) const {
     return index.isValid() ? this->get_raw_node_pointer(index)->get_data(role) : QVariant();
 }
 
-QVariant TreeItemModel::data(const QUuid& uuid, int role) const {
+QVariant TreeItemModel::data(const QtdId& uuid, int role) const {
     if (auto* node = this->uuid_node_map.value(uuid)) {
         return node->get_data(role);
     }
@@ -285,19 +285,19 @@ bool TreeItemModel::removeRows(int row, int count, const QModelIndex &parent) {
 }
 
 /**
- * @brief Creates a tree node as a child of all nodes associated with the given uuid
+ * @brief Creates a tree node as a child of all nodes associated with the given id
  *
- * If the UUID is invalid, the tree node will be added without a parent (top level),
- * if the UUID is valid but unknown, the node is not created and the function returns
+ * If the id is invalid, the tree node will be added without a parent (top level),
+ * if the id is valid but unknown, the node is not created and the function returns
  * false.
  *
  * @param data_item The data that is stored in the node
- * @param parent_uuid The UUID identifying the parents of the new node
+ * @param parent_uuid The id identifying the parents of the new node
  * @return true if the tree node could be added to the model, false otherwise
  */
 bool TreeItemModel::create_tree_node(
     std::unique_ptr<UniqueDataItem> data_item,
-    const QUuid& parent_uuid
+    const QtdId& parent_uuid
 ) {
     return this->add_tree_node(
         TreeNode::create(std::move(data_item)),
@@ -313,13 +313,13 @@ bool TreeItemModel::create_tree_node(
  * If cloning the tree node would create a dependency cycle, this function
  * does nothing and returns false.
  *
- * @param uuid The UUID of the node to be cloned
- * @param parent_uuid the UUID of the tree node that shall become the parent of the clone
+ * @param uuid The id of the node to be cloned
+ * @param parent_uuid the id of the tree node that shall become the parent of the clone
  * @return true on success, false otherwise
  */
 bool TreeItemModel::clone_tree_node(
-    const QUuid& uuid,
-    const QUuid& parent_uuid
+    const QtdId& uuid,
+    const QtdId& parent_uuid
 ){
     if (!this->uuid_node_map.contains(uuid)) {
         return false;

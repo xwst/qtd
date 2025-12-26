@@ -21,14 +21,15 @@
 
 #include <QSet>
 #include <QSortFilterProxyModel>
-#include <QUuid>
+
+#include "dataitems/qtdid.h"
 
 class FilteredTagItemModel : public QSortFilterProxyModel
 {
     Q_OBJECT
 
 private:
-    QSet<QUuid> tag_whitelist;
+    QSet<TagId> tag_whitelist;
 
 public:
     explicit FilteredTagItemModel(QObject *parent = nullptr);
@@ -38,7 +39,7 @@ public:
     ) const override;
 
 public slots:
-    void set_tag_whitelist(const QSet<QUuid>& new_tag_whitelist);
+    void set_tag_whitelist(const QSet<TagId>& new_tag_whitelist);
 };
 
 #endif // FILTEREDTAGITEMMODEL_H

@@ -16,35 +16,9 @@
  * qtd. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "uniquedataitem.h"
+#ifndef INITIALIZE_H
+#define INITIALIZE_H
 
-#include <stdexcept>
+void initialize_qt_meta_types();
 
-#include <QVariant>
-
-#include "qtditemdatarole.h"
-
-UniqueDataItem::UniqueDataItem(const QString& uuid_str) {
-    if (uuid_str.isEmpty()) { this->uuid = QUuid::createUuid();
-    } else {
-        this->uuid = QUuid::fromString(uuid_str);
-        if (this->uuid.isNull()) {
-            throw std::invalid_argument("Passed UUID is neither empty nor valid!");
-        }
-    }
-}
-
-QUuid UniqueDataItem::get_uuid() const {
-    return this->uuid;
-}
-
-QString UniqueDataItem::get_uuid_string() const {
-    return this->uuid.toString(QUuid::WithoutBraces);
-}
-
-QVariant UniqueDataItem::get_data(int role) const {
-    if (role == uuid_role) {
-        return this->get_uuid_string();
-    }
-    return {};
-}
+#endif // INITIALIZE_H
