@@ -16,8 +16,7 @@
  * qtd. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef TESTTAGITEMMODELS_H
-#define TESTTAGITEMMODELS_H
+#pragma once
 
 #include <memory>
 
@@ -68,5 +67,3 @@ private slots:
     void test_data_change_of_toplevel_item();
     void test_data_change_of_child_item();
 };
-
-#endif // TESTTAGITEMMODELST_H

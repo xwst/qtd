@@ -16,8 +16,7 @@
  * qtd. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef TAGITEMMODEL_H
-#define TAGITEMMODEL_H
+#pragma once
 
 #include <QColor>
 
@@ -42,5 +41,3 @@ public:
     bool removeRows(int row, int count, const QModelIndex& parent) override;
 
 };
-
-#endif // TAGITEMMODEL_H

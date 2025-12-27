@@ -16,8 +16,7 @@
  * qtd. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef SQLRESULTVIEW_H
-#define SQLRESULTVIEW_H
+#pragma once
 
 #include <iterator>
 #include <ranges>
@@ -51,6 +50,3 @@ public:
         >
     );
 };
-
-
-#endif // SQLRESULTVIEW_H

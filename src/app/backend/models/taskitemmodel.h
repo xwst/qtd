@@ -16,8 +16,7 @@
  * qtd. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef TASKITEMMODEL_H
-#define TASKITEMMODEL_H
+#pragma once
 
 #include <QList>
 #include <QModelIndex>
@@ -48,5 +47,3 @@ public:
     bool add_tag(const QModelIndex& index, const TagId& tag);
     bool remove_tag(const QModelIndex& index, const TagId& tag);
 };
-
-#endif // TASKITEMMODEL_H

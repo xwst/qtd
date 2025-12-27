@@ -16,9 +16,6 @@
  * qtd. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef INITIALIZE_H
-#define INITIALIZE_H
+#pragma once
 
 void initialize_qt_meta_types();
-
-#endif // INITIALIZE_H

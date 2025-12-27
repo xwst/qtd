@@ -16,8 +16,7 @@
  * qtd. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef TreeItemModel_H
-#define TreeItemModel_H
+#pragma once
 
 #include <functional>
 #include <memory>
@@ -104,5 +103,3 @@ public:
     qsizetype get_size();
     [[nodiscard]] QVariant data(const QtdId& uuid, int role) const;
 };
-
-#endif // TreeItemModel_H

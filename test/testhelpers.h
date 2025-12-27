@@ -16,8 +16,7 @@
  * qtd. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef TESTHELPERS_H
-#define TESTHELPERS_H
+#pragma once
 
 #include <functional>
 #include <memory>
@@ -113,5 +112,3 @@ public:
         return result;
     }
 };
-
-#endif // TESTHELPERS_H

@@ -16,8 +16,7 @@
  * qtd. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef FLATTENINGPROXYMODEL_H
-#define FLATTENINGPROXYMODEL_H
+#pragma once
 
 #include <QAbstractProxyModel>
 #include <QObject>
@@ -61,5 +60,3 @@ public:
     [[nodiscard]] int columnCount(const QModelIndex& parent = QModelIndex()) const override;
     [[nodiscard]] bool hasChildren(const QModelIndex& parent) const override;
 };
-
-#endif // FLATTENINGPROXYMODEL_H

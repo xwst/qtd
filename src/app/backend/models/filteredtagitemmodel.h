@@ -16,8 +16,7 @@
  * qtd. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef FILTEREDTAGITEMMODEL_H
-#define FILTEREDTAGITEMMODEL_H
+#pragma once
 
 #include <QSet>
 #include <QSortFilterProxyModel>
@@ -41,5 +40,3 @@ public:
 public slots:
     void set_tag_whitelist(const QSet<TagId>& new_tag_whitelist);
 };
-
-#endif // FILTEREDTAGITEMMODEL_H

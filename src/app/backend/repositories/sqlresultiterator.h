@@ -16,8 +16,7 @@
  * qtd. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef SQLRESULTITERATOR_H
-#define SQLRESULTITERATOR_H
+#pragma once
 
 #include <cstddef>
 #include <iterator>
@@ -107,5 +106,3 @@ private:
         }
     }
 };
-
-#endif // SQLRESULTITERATOR_H

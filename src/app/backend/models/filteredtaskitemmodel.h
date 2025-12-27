@@ -16,8 +16,7 @@
  * qtd. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef FILTEREDTASKITEMMODEL_H
-#define FILTEREDTASKITEMMODEL_H
+#pragma once
 
 #include <utility>
 
@@ -88,5 +87,3 @@ public slots:
 signals:
     void filtered_tags_changed(QSet<TagId>);
 };
-
-#endif // FILTEREDTASKITEMMODEL_H

@@ -16,8 +16,7 @@
  * qtd. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef GLOBALEVENTFILTER_H
-#define GLOBALEVENTFILTER_H
+#pragma once
 
 #include <QObject>
 #include <QWheelEvent>
@@ -38,5 +37,3 @@ signals:
     void zoomReset();
     void quit();
 };
-
-#endif // GLOBALEVENTFILTER_H

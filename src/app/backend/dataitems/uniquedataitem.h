@@ -16,8 +16,7 @@
  * qtd. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef UNIQUEDATAITEM_H
-#define UNIQUEDATAITEM_H
+#pragma once
 
 #include <stdexcept>
 
@@ -48,5 +47,3 @@ public:
     }
     virtual void set_data(const QVariant& /* value */, int /* role */) {}
 };
-
-#endif // UNIQUEDATAITEM_H

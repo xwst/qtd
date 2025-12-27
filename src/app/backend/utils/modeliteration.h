@@ -16,8 +16,7 @@
  * qtd. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef MODELITERATION_H
-#define MODELITERATION_H
+#pragma once
 
 #include <functional>
 
@@ -73,5 +72,3 @@ QList<T> model_flat_map(
 }
 
 } // namespace ModelIteration
-
-#endif // MODELITERATION_H

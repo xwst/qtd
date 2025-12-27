@@ -16,8 +16,7 @@
  * qtd. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef TREENODE_H
-#define TREENODE_H
+#pragma once
 
 #include <memory>
 #include <vector>
@@ -61,5 +60,3 @@ public:
     [[nodiscard]] QVariant get_data(int role) const;
     void set_data(const QVariant& value, int role);
 };
-
-#endif // TREENODE_H

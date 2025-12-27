@@ -16,8 +16,7 @@
  * qtd. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef PERSISTEDTREEITEMMODELSTESTBASE_H
-#define PERSISTEDTREEITEMMODELSTESTBASE_H
+#pragma once
 
 #include <QObject>
 
@@ -42,5 +41,3 @@ protected slots:
     static void init();
     static void cleanup();
 };
-
-#endif // PERSISTEDTREEITEMMODELSTESTBASE_H

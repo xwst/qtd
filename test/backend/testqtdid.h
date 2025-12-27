@@ -16,8 +16,7 @@
  * qtd. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef TESTQTDID_H
-#define TESTQTDID_H
+#pragma once
 
 #include <functional>
 
@@ -45,5 +44,3 @@ private slots:
     static void test_qvariant_conversion();
     static void test_database_serialization();
 };
-
-#endif // TESTQTDID_H

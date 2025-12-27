@@ -16,8 +16,7 @@
  * qtd. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef QMLINTERFACE_H
-#define QMLINTERFACE_H
+#pragma once
 
 #include <QGuiApplication>
 #include <QObject>
@@ -53,5 +52,3 @@ public:
 
     void set_up(QGuiApplication* app);
 };
-
-#endif // QMLINTERFACE_H

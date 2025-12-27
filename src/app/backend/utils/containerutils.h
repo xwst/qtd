@@ -16,8 +16,7 @@
  * qtd. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef CONTAINERUTILS_H
-#define CONTAINERUTILS_H
+#pragma once
 
 #include <ranges>
 #include <type_traits>
@@ -56,4 +55,3 @@ public:
     }
 };
 
-#endif // CONTAINERUTILS_H

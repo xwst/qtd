@@ -16,8 +16,7 @@
  * qtd. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef TAGREPOSITORY_H
-#define TAGREPOSITORY_H
+#pragma once
 
 #include "transactionalrepository.h"
 
@@ -53,5 +52,3 @@ public:
     bool remove(const QVariantList& tag_ids) const;
     // NOLINTEND (modernize-use-nodiscard)
 };
-
-#endif // TAGREPOSITORY_H

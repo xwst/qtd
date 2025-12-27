@@ -16,8 +16,7 @@
  * qtd. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef TRANSACTIONALREPOSITORY_H
-#define TRANSACTIONALREPOSITORY_H
+#pragma once
 
 #include <initializer_list>
 
@@ -53,5 +52,3 @@ public:
     void roll_back();
     bool roll_back_on_failure(bool execution_result);
 };
-
-#endif // TRANSACTIONALREPOSITORY_H

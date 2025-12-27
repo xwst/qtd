@@ -16,8 +16,7 @@
  * qtd. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef TEXTFORMATTER_H
-#define TEXTFORMATTER_H
+#pragma once
 
 #include <list>
 
@@ -51,5 +50,3 @@ private:
 signals:
     void document_changed();
 };
-
-#endif // TEXTFORMATTER_H

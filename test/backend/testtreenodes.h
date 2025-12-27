@@ -16,8 +16,7 @@
  * qtd. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef TESTTREENODES_H
-#define TESTTREENODES_H
+#pragma once
 
 #include <memory>
 
@@ -53,5 +52,3 @@ private slots:
     void test_cloning();
     void test_set_data();
 };
-
-#endif // TESTTREENODES_H

@@ -16,8 +16,7 @@
  * qtd. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef QTDID_H
-#define QTDID_H
+#pragma once
 
 #include <cstddef>
 
@@ -60,5 +59,3 @@ size_t qHash(const QtdId& qtd_id);
 
 using TagId = QtdId;
 using TaskId = QtdId;
-
-#endif // QTDID_H

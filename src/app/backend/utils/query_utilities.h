@@ -16,8 +16,7 @@
  * qtd. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef QUERYUTILITIES_H
-#define QUERYUTILITIES_H
+#pragma once
 
 #include <functional>
 
@@ -42,5 +41,3 @@ bool create_tables_if_not_exist(const QString& connection_name);
 );
 
 } // namespace QueryUtilities
-
-#endif // QUERYUTILITIES_H

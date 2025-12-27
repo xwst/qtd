@@ -16,8 +16,7 @@
  * qtd. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef TASK_H
-#define TASK_H
+#pragma once
 
 #include <memory>
 
@@ -89,5 +88,3 @@ private:
     QDateTime                      resolve_date;
     QSet<TagId>                    tags;
 };
-
-#endif // TASK_H

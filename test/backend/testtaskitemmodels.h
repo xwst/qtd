@@ -16,8 +16,7 @@
  * qtd. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef TESTTASKITEMMODEL_H
-#define TESTTASKITEMMODEL_H
+#pragma once
 
 #include <memory>
 
@@ -75,5 +74,3 @@ private slots:
     void test_adding_and_removing_tags() const;
 
 };
-
-#endif // TESTTASKITEMMODEL_H

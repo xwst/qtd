@@ -16,8 +16,7 @@
  * qtd. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef TAG_H
-#define TAG_H
+#pragma once
 
 #include <QColor>
 #include <QString>
@@ -42,5 +41,3 @@ public:
     [[nodiscard]] QVariant get_data(int role) const override;
     void set_data(const QVariant& value, int role) override;
 };
-
-#endif // TAG_H

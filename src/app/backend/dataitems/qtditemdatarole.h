@@ -16,8 +16,7 @@
  * qtd. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef QTDITEMDATAROLE_H
-#define QTDITEMDATAROLE_H
+#pragma once
 
 #include <QObject>
 #include <QtTypes>
@@ -34,5 +33,3 @@ enum QtdItemDataRole : quint16 {
     , add_tag_role
     , remove_tag_role
 };
-
-#endif // QTDITEMDATAROLE_H

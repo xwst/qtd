@@ -16,8 +16,7 @@
  * qtd. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef TESTTREEITEMMODEL_H
-#define TESTTREEITEMMODEL_H
+#pragma once
 
 #include <memory>
 
@@ -58,5 +57,3 @@ private slots:
     void test_remove_clone();
     void test_remove_child_of_clone();
 };
-
-#endif // TESTTREEITEMMODEL_H

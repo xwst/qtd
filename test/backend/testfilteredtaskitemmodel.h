@@ -16,8 +16,7 @@
  * qtd. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef TESTFILTEREDTASKITEMMODEL_H
-#define TESTFILTEREDTASKITEMMODEL_H
+#pragma once
 
 #include <memory>
 
@@ -65,5 +64,3 @@ private slots:
     void test_filter_by_tag_selection() const;
     void test_filter_by_tag_and_search_string() const;
 };
-
-#endif // TESTFILTEREDTASKITEMMODEL_H

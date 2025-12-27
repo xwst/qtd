@@ -16,8 +16,7 @@
  * qtd. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef TESTFILTEREDTAGITEMMODEL_H
-#define TESTFILTEREDTAGITEMMODEL_H
+#pragma once
 
 #include <memory>
 
@@ -49,5 +48,3 @@ private slots:
     void test_removing_tags_from_whitelist() const;
 
 };
-
-#endif // TESTFILTEREDTAGITEMMODEL_H

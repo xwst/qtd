@@ -16,8 +16,7 @@
  * qtd. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef TASKREPOSITORY_H
-#define TASKREPOSITORY_H
+#pragma once
 
 #include "transactionalrepository.h"
 
@@ -58,5 +57,3 @@ public:
     bool remove_tag(const TaskId& task, const TagId& tag) const;
     // NOLINTEND (modernize-use-nodiscard)
 };
-
-#endif // TASKREPOSITORY_H
