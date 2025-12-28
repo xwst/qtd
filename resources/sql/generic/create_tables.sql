@@ -16,11 +16,25 @@ CREATE TABLE IF NOT EXISTS tasks (
     , due_datetime     VARCHAR(30)
     , resolve_datetime VARCHAR(30)
     , content_text     TEXT
-    , content_data     BLOB
 );
 CREATE INDEX IF NOT EXISTS index_tasks_status_due_datetime
     ON tasks (status, due_datetime);
 
+CREATE TABLE IF NOT EXISTS media (
+      media_hash VARCHAR(64)
+    , media_data BLOB
+);
+CREATE INDEX IF NOT EXISTS index_media_hash
+    ON media (media_hash);
+
+CREATE TABLE IF NOT EXISTS task_media (
+      task_uuid  VARCHAR(36)
+    , media_hash VARCHAR(64)
+    , FOREIGN KEY (task_uuid)  REFERENCES atasks (uuid)       ON DELETE CASCADE
+    , FOREIGN KEY (media_hash) REFERENCES media (media_hash) ON DELETE CASCADE
+);
+CREATE INDEX IF NOT EXISTS index_task_media_task_uuid
+    ON task_media (task_uuid);
 
 CREATE TABLE IF NOT EXISTS tag_assignments (
       task_uuid VARCHAR(36)
