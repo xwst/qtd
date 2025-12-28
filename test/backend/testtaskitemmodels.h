@@ -70,7 +70,9 @@ private slots:
     void test_remove_rows() const;
     void test_create_task() const;
     void test_add_dependency() const;
+    void test_adding_dependency_with_invalid_parent() const;
     void test_can_not_create_dependency_cycle() const;
     void test_adding_and_removing_tags() const;
+    void test_task_creation_with_unknown_parents() const;
 
 };

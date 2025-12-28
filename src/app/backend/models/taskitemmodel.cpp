@@ -95,7 +95,8 @@ bool TaskItemModel::create_task(const QString& title, const QModelIndexList& par
         parents_iterator == parent_uuids.end() ? TaskId() : (parents_iterator++)->value<TaskId>()
     );
     while (parents_iterator != parent_uuids.end()) {
-        success &= this->clone_tree_node(new_task_uuid, (parents_iterator++)->value<TaskId>());
+        success &= this->clone_tree_node(new_task_uuid, parents_iterator->value<TaskId>());
+        ++parents_iterator;
     }
 
     return task_repository.roll_back_on_failure(success);
@@ -150,7 +151,7 @@ bool TaskItemModel::add_dependency(
     const QModelIndex& dependent,
     const QModelIndex& prerequisite
 ) {
-    if (!prerequisite.isValid()) {
+    if (!(dependent.isValid() && prerequisite.isValid())) {
         return false;
     }
 
@@ -159,7 +160,7 @@ bool TaskItemModel::add_dependency(
 
     return task_repository.roll_back_on_failure(
         task_repository.add_prerequisites(
-            dependent.data(uuid_role).value<TaskId>(),
+            dependent_uuid,
             { prerequisite.data(uuid_role) }
         )
         &&
