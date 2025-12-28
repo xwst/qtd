@@ -16,17 +16,16 @@
  * qtd. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef QMLINTERFACE_H
-#define QMLINTERFACE_H
+#pragma once
 
 #include <QGuiApplication>
 #include <QObject>
 #include <QQmlEngine>
 
-#include "flatteningproxymodel.h"
+#include "backend/models/flatteningproxymodel.h"
+#include "backend/models/tagitemmodel.h"
+#include "backend/models/taskitemmodel.h"
 #include "globaleventfilter.h"
-#include "tagitemmodel.h"
-#include "taskitemmodel.h"
 
 class QmlInterface : public QObject
 {
@@ -53,5 +52,3 @@ public:
 
     void set_up(QGuiApplication* app);
 };
-
-#endif // QMLINTERFACE_H

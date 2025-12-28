@@ -14,7 +14,8 @@ Checks: "*,
         -openmp-*,
         -zircon-*,
         -readability-redundant-access-specifiers,
-        -bugprone-easily-swappable-parameters
+        -bugprone-easily-swappable-parameters,
+        -cert-dcl21-cpp
 "
 CheckOptions:
     - key: misc-include-cleaner.IgnoreHeaders

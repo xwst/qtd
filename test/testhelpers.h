@@ -16,8 +16,7 @@
  * qtd. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef TESTHELPERS_H
-#define TESTHELPERS_H
+#pragma once
 
 #include <functional>
 #include <memory>
@@ -28,7 +27,7 @@
 #include <QString>
 #include <QStringList>
 
-#include "../src/app/model/tag.h"
+#include "dataitems/tag.h"
 
 class TestHelpers
 {
@@ -113,5 +112,3 @@ public:
         return result;
     }
 };
-
-#endif // TESTHELPERS_H

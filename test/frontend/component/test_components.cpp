@@ -18,8 +18,8 @@
 
 #include <memory>
 
-// Includes are required but not all used directly, as the macros are defined
-// in referenced header files
+// Includes are required but not all are used directly,
+// because the macros are defined in referenced header files
 // NOLINTNEXTLINE(misc-include-cleaner)
 #include <QQmlContext>
 #include <QQmlEngine>

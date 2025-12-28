@@ -14,31 +14,26 @@
 # You should have received a copy of the GNU General Public License along with
 # qtd. If not, see <https://www.gnu.org/licenses/>.
 
-
 QT_ADD_EXECUTABLE(qtd
     main.cpp
     globaleventfilter.cpp
 )
 
-ADD_SUBDIRECTORY(model)
-INCLUDE_DIRECTORIES(model)
-
-ADD_LIBRARY(util STATIC util.cpp)
-TARGET_LINK_LIBRARIES(util PRIVATE Qt6::Sql)
+ADD_SUBDIRECTORY(backend)
 
 QT_ADD_QML_MODULE(qtd
     URI src.app
     QML_FILES
-        Main.qml
+        frontend/Main.qml
         SOURCES qmlinterface.cpp
         QML_FILES
-            TagOutline.qml
-            TagEditor.qml
-            LineEdit.qml
-            TagForm.qml
-            TaskPage.qml
-            SelectableTreeViewDelegate.qml
-            SelectableTreeView.qml
+            frontend/components/TagOutline.qml
+            frontend/components/TagEditor.qml
+            frontend/components/LineEdit.qml
+            frontend/components/TagForm.qml
+            frontend/components/TaskPage.qml
+            frontend/components/SelectableTreeViewDelegate.qml
+            frontend/components/SelectableTreeView.qml
 )
 
 TARGET_LINK_LIBRARIES(qtd
@@ -49,5 +44,5 @@ TARGET_LINK_LIBRARIES(qtd
     Qt6::Widgets
     Qt6::Sql
     qmltexteditorplugin
-    models
+    backend
 )

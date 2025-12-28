@@ -32,8 +32,10 @@
 #include <QTest>
 #include <QTextStream>
 
-#include "../src/app/model/model_constants.h"
-#include "../src/app/util.h"
+#include "dataitems/qtdid.h"
+#include "dataitems/qtditemdatarole.h"
+#include "utils/modeliteration.h"
+#include "utils/query_utilities.h"
 
 namespace {
 
@@ -80,7 +82,7 @@ bool TestHelpers::setup_database() {
     }
     database.open();
     QSqlQuery(database).exec("PRAGMA foreign_keys = ON;");
-    return Util::create_tables_if_not_exist(database.connectionName());
+    return QueryUtilities::create_tables_if_not_exist(database.connectionName());
 }
 
 void TestHelpers::assert_table_exists(const QString& table_name) {
@@ -97,7 +99,7 @@ void TestHelpers::populate_database() {
     const QString all_queries_str = in_stream.readAll();
 
     QSqlQuery query;
-    for (const QString& query_str : Util::split_queries(all_queries_str)) {
+    for (const QString& query_str : QueryUtilities::split_queries(all_queries_str)) {
         QVERIFY2(
             query.exec(query_str),
             qPrintable("Error while populating test database: " + query.lastError().text())
@@ -202,7 +204,7 @@ QStringList TestHelpers::get_display_roles(
 ) {
     const std::function<QString(const QModelIndex&)> get_display_role
         = [](const QModelIndex& index) -> QString { return index.data().toString(); };
-    return Util::model_flat_map(model, get_display_role, parent);
+    return ModelIteration::model_flat_map(model, get_display_role, parent);
 }
 
 /**
@@ -217,7 +219,7 @@ QModelIndex TestHelpers::find_model_index_by_display_role(
     const QString& display_role,
     const QModelIndex& parent
 ) {
-    return Util::model_find(
+    return ModelIteration::model_find(
         model,
         [&display_role](const QModelIndex& index){
             return index.data().toString() == display_role;
@@ -230,5 +232,5 @@ bool TestHelpers::compare_indices_by_uuid(
     const QModelIndex& index_1,
     const QModelIndex& index_2
 ) {
-    return index_1.data(uuid_role).toUuid() < index_2.data(uuid_role).toUuid();
+    return index_1.data(uuid_role).value<QtdId>() < index_2.data(uuid_role).value<QtdId>();
 }
