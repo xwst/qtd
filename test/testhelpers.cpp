@@ -96,7 +96,7 @@ void TestHelpers::populate_database() {
     QFile file(":/resources/sql/generic/populate_database.sql");
     file.open(QFile::ReadOnly | QFile::Text);
     QTextStream in_stream(&file);
-    const QString all_queries_str = in_stream.readAll();
+    const QString all_queries_str = QueryUtilities::remove_sql_comments(in_stream.readAll());
 
     QSqlQuery query;
     for (const QString& query_str : QueryUtilities::split_queries(all_queries_str)) {

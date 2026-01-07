@@ -27,6 +27,7 @@
 namespace QueryUtilities {
 
 QStringList split_queries(const QString& sql_queries);
+QString remove_sql_comments(QString queries);
 QString get_sql_query_string(const QString& sql_filename);
 QSqlQuery get_sql_query(const QString& sql_filename, const QString& connection_name);
 bool execute_sql_query(QSqlQuery& query, bool batch=false);
