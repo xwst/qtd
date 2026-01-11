@@ -15,6 +15,18 @@ while read FILE_NAME; do
         echo "$FILE_NAME is not properly licensed!"
         RESULT=1
     fi
+
+    EXPECTED_COPYRIGHT_YEARS=$(
+        git log --date=format:'%Y' --format='%cd' -- $FILE_NAME \
+            | sort -u \
+            | tr '\n' ',' \
+            | sed -e 's/,$/\n/' -e 's/,/, /g'
+    )
+    if [[ -z $(grep "Copyright $EXPECTED_COPYRIGHT_YEARS" $FILE_NAME) ]]; then
+        echo -n "The specified years in the copyright note in $FILE_NAME are incomplete!"
+        echo " Required years: $EXPECTED_COPYRIGHT_YEARS"
+        RESULT=1
+    fi
 done < <(find . \( \
 		-name "*.cpp" \
 		-o -name "*.h" \
