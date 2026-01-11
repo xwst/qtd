@@ -1,5 +1,5 @@
 /**
- * Copyright 2025 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
+ * Copyright 2025, 2026 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
  *
  * This file is part of qtd.
  *
@@ -39,14 +39,19 @@ namespace QueryUtilities {
  * @return a list of individual queries
  */
 QStringList split_queries(const QString& sql_queries) {
-    const QString regex_str = ";\\s*(?:--.*\\n)*";
+    const QString regex_str = R"([\r\n]\s*(?:--.*)?[\r\n])";
     return sql_queries.split(QRegularExpression(regex_str), Qt::SkipEmptyParts);
+}
+
+QString remove_sql_comments(QString queries) {
+    const QString comment_regex = "--.*\n";
+    return queries.remove(QRegularExpression(comment_regex));
 }
 
 QString get_sql_query_string(const QString& sql_filename) {
     QFile file(":/resources/sql/generic/" + sql_filename);
     file.open(QFile::ReadOnly | QFile::Text);
-    return QTextStream(&file).readAll();
+    return remove_sql_comments(QTextStream(&file).readAll());
 }
 
 QSqlQuery get_sql_query(const QString& sql_filename, const QString& connection_name) {

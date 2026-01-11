@@ -1,5 +1,5 @@
 /**
- * Copyright 2025 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
+ * Copyright 2024, 2025, 2026 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
  *
  * This file is part of qtd.
  *
@@ -96,7 +96,7 @@ void TestHelpers::populate_database() {
     QFile file(":/resources/sql/generic/populate_database.sql");
     file.open(QFile::ReadOnly | QFile::Text);
     QTextStream in_stream(&file);
-    const QString all_queries_str = in_stream.readAll();
+    const QString all_queries_str = QueryUtilities::remove_sql_comments(in_stream.readAll());
 
     QSqlQuery query;
     for (const QString& query_str : QueryUtilities::split_queries(all_queries_str)) {

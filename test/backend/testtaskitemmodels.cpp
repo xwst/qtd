@@ -30,6 +30,7 @@
 #include "dataitems/qtdid.h"
 #include "dataitems/qtditemdatarole.h"
 #include "dataitems/task.h"
+#include "models/tagitemmodel.h"
 #include "persistedtreeitemmodelstestbase.h"
 #include "utils/modeliteration.h"
 
@@ -175,6 +176,13 @@ void TestTaskItemModel::test_add_dependency() const {
     QCOMPARE(this->model->rowCount(cloned_index), this->model->rowCount(index_buy_groceries));
 }
 
+void TestTaskItemModel::test_adding_dependency_with_invalid_parent() const {
+    const auto child = TestHelpers::find_model_index_by_display_role(
+        *this->model, "Buy groceries"
+    );
+    QVERIFY(!this->model->add_dependency(QModelIndex(), child));
+}
+
 void TestTaskItemModel::test_can_not_create_dependency_cycle() const {
     const auto parent_index = TestHelpers::find_model_index_by_display_role(
         *this->model, "Buy groceries"
@@ -310,6 +318,24 @@ void TestTaskItemModel::test_adding_and_removing_tags() const {
 
     QVERIFY(this->model->remove_tag(index, test_tag2));
     QCOMPARE(index.data(tags_role).value<QSet<TagId>>(), {initial_tag});
+}
+
+void TestTaskItemModel::test_task_creation_with_unknown_parents() const {
+    auto valid_parent = TestHelpers::find_model_index_by_display_role(
+        *this->model,
+        "Fix printer"
+    );
+
+    auto tag_model = std::make_unique<TagItemModel>(this->get_db_connection_name());
+    tag_model->create_tag("dummy tag");
+    auto unknown_parent = tag_model->index(0, 0);
+    QVERIFY(unknown_parent.isValid());
+
+    QVERIFY(!this->model->create_task("new task", { unknown_parent }));
+    QVERIFY(!this->model->create_task("new task", { unknown_parent, valid_parent }));
+    QCOMPARE(0, this->model->rowCount(valid_parent));
+    QVERIFY(!this->model->create_task("new task", { valid_parent, unknown_parent }));
+    QCOMPARE(0, this->model->rowCount(valid_parent));
 }
 
 

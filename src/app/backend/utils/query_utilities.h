@@ -1,5 +1,5 @@
 /**
- * Copyright 2025 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
+ * Copyright 2025, 2026 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
  *
  * This file is part of qtd.
  *
@@ -27,6 +27,7 @@
 namespace QueryUtilities {
 
 QStringList split_queries(const QString& sql_queries);
+QString remove_sql_comments(QString queries);
 QString get_sql_query_string(const QString& sql_filename);
 QSqlQuery get_sql_query(const QString& sql_filename, const QString& connection_name);
 bool execute_sql_query(QSqlQuery& query, bool batch=false);
