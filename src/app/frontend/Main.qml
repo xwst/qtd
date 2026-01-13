@@ -22,6 +22,7 @@ import QtQuick
 import QtQuick.Controls 2.15
 import QtQuick.Layouts
 import Qt.labs.qmlmodels
+import src.app
 
 ApplicationWindow {
     id: main_window
@@ -40,7 +41,7 @@ ApplicationWindow {
     property var pages_model: [
           { name: "Open",       tag_model: QmlInterface.tags_model, task_model: QmlInterface.task_model }
         , { name: "Actionable", tag_model: QmlInterface.tags_model, task_model: QmlInterface.task_model }
-        , { name: "Projetcs",   tag_model: QmlInterface.tags_model, task_model: QmlInterface.task_model }
+        , { name: "Projects",   tag_model: QmlInterface.tags_model, task_model: QmlInterface.task_model }
         , { name: "Archive",    tag_model: QmlInterface.tags_model, task_model: QmlInterface.task_model }
     ]
 

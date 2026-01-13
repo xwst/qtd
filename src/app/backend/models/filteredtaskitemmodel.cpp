@@ -52,8 +52,12 @@ namespace {
 
 const char *FilteredTaskItemModel::split_pattern = "[^\\s\"]+|\"([^\"]+)\"";
 
-FilteredTaskItemModel::FilteredTaskItemModel(QObject *parent)
-    : QAbstractProxyModel{parent} {
+FilteredTaskItemModel::FilteredTaskItemModel(
+    TaskFilterFunction is_task_accepted,
+    QObject *parent
+) : QAbstractProxyModel{parent},
+    is_task_accepted(std::move(is_task_accepted))
+{
     this->split_regex = QRegularExpression(FilteredTaskItemModel::split_pattern);
 }
 
@@ -175,25 +179,30 @@ void FilteredTaskItemModel::reset_mapping() {
     this->remaining_tags.clear();
 }
 
-void FilteredTaskItemModel::map_index(const QModelIndex &source_index) {
-    if (index_matches_search_string(source_index)) {
-        this->remaining_tags.unite(
-            source_index.data(tags_role).value<QSet<TagId> >()
-        );
-        if (!index_matches_tag_selection(source_index)) {
-            return;
-        }
-
-        const auto proxy_parent = this->find_proxy_parent(source_index);
-        const auto proxy_index = this->createIndex(
-            this->rowCount(proxy_parent), 0, source_index.internalPointer()
-        );
-        this->index_mapping.insert(
-            get_uuid(source_index),
-            std::make_pair(source_index, proxy_index)
-        );
-        this->proxy_children.insert(proxy_parent, proxy_index);
+void FilteredTaskItemModel::map_index(const QModelIndex& source_index) {
+    if (
+        !this->is_task_accepted(source_index) ||
+        !index_matches_search_string(source_index)
+    ) {
+        return;
     }
+
+    this->remaining_tags.unite(
+        source_index.data(tags_role).value<QSet<TagId> >()
+    );
+    if (!index_matches_tag_selection(source_index)) {
+        return;
+    }
+
+    const auto proxy_parent = this->find_proxy_parent(source_index);
+    const auto proxy_index = this->createIndex(
+        this->rowCount(proxy_parent), 0, source_index.internalPointer()
+    );
+    this->index_mapping.insert(
+        get_uuid(source_index),
+        std::make_pair(source_index, proxy_index)
+    );
+    this->proxy_children.insert(proxy_parent, proxy_index);
 }
 
 void FilteredTaskItemModel::rebuild_index_mapping() {

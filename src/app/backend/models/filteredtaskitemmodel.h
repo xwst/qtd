@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include <functional>
 #include <utility>
 
 #include <QAbstractProxyModel>
@@ -33,9 +34,13 @@ class FilteredTaskItemModel : public QAbstractProxyModel
 {
     Q_OBJECT
 
+public:
+    using TaskFilterFunction = std::function<bool(const QModelIndex&)>;
+
 private:
     const static char* split_pattern;
 
+    const TaskFilterFunction is_task_accepted;
     QStringList filter_words;
     QMultiHash<TaskId, std::pair<QModelIndex, QModelIndex>> index_mapping;
     QMultiHash<QModelIndex, QModelIndex> proxy_children;
@@ -52,7 +57,10 @@ private:
     void setup_signal_slot_connections();
 
 public:
-    explicit FilteredTaskItemModel(QObject* parent = nullptr);
+    explicit FilteredTaskItemModel(
+        TaskFilterFunction is_task_accepted = [](const QModelIndex&) { return true; },
+        QObject* parent = nullptr
+    );
 
     void setSourceModel(QAbstractItemModel* sourceModel) override;
     void set_search_string(const QString& search_string);

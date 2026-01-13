@@ -72,7 +72,7 @@ void TestFilteredTaskItemModel::init() {
     );
     QCOMPARE(this->base_model->rowCount(), 3);
 
-    TestHelpers::setup_proxy_item_model(this->model, this->base_model.get(), nullptr);
+    TestHelpers::setup_proxy_item_model(this->model, this->base_model.get());
     this->model->clear_search_string();
     this->spy = std::make_unique<QSignalSpy>(
         this->model.get(),
