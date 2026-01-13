@@ -66,8 +66,6 @@ public:
     void set_search_string(const QString& search_string);
     void clear_search_string();
 
-    void set_selected_tags(const QSet<TagId>& tags);
-
     [[nodiscard]] QModelIndex mapFromSource(const QModelIndex& sourceIndex) const override;
     [[nodiscard]] QModelIndex mapToSource(const QModelIndex& proxyIndex) const override;
 
@@ -91,6 +89,7 @@ public slots:
         const QList<int>& roles = QList<int>()
     );
     void source_model_changed();
+    void set_selected_tags(const QSet<TagId>& tags);
 
 signals:
     void filtered_tags_changed(QSet<TagId>);

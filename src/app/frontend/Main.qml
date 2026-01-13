@@ -39,10 +39,10 @@ ApplicationWindow {
     property int max_control_font_size: 40;
 
     property var pages_model: [
-          { name: "Open",       tag_model: QmlInterface.tags_model, task_model: QmlInterface.task_model }
-        , { name: "Actionable", tag_model: QmlInterface.tags_model, task_model: QmlInterface.task_model }
-        , { name: "Projects",   tag_model: QmlInterface.tags_model, task_model: QmlInterface.task_model }
-        , { name: "Archive",    tag_model: QmlInterface.tags_model, task_model: QmlInterface.task_model }
+          { name: "Open",       tag_model: QmlInterface.tags_open,       task_model: QmlInterface.open_tasks       }
+        , { name: "Actionable", tag_model: QmlInterface.tags_actionable, task_model: QmlInterface.actionable_tasks }
+        , { name: "Projects",   tag_model: QmlInterface.tags_project,    task_model: QmlInterface.project_tasks    }
+        , { name: "Archive",    tag_model: QmlInterface.tags_archived,    task_model: QmlInterface.archived_tasks  }
     ]
 
     FontLoader {

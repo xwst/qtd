@@ -56,7 +56,7 @@ FilteredTaskItemModel::FilteredTaskItemModel(
     TaskFilterFunction is_task_accepted,
     QObject *parent
 ) : QAbstractProxyModel{parent},
-    is_task_accepted(std::move(is_task_accepted))
+    is_task_accepted(is_task_accepted)
 {
     this->split_regex = QRegularExpression(FilteredTaskItemModel::split_pattern);
 }

@@ -39,4 +39,7 @@ public:
 
 public slots:
     void set_tag_whitelist(const QSet<TagId>& new_tag_whitelist);
+
+signals:
+    void tag_selection_changed(QSet<TagId>);
 };
