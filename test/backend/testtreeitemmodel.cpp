@@ -1,5 +1,5 @@
 /**
- * Copyright 2025 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
+ * Copyright 2025, 2026 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
  *
  * This file is part of qtd.
  *
@@ -55,7 +55,7 @@ void TestTreeItemModel::setup_initial_model() {
     const auto B_index = this->model->index(1, 0);
     QVERIFY(this->model->create_tree_node(
         std::make_unique<TestHelpers::TestTag>("B1"),
-        B_index.data(uuid_role).value<QtdId>()
+        B_index.data(UuidRole).value<QtdId>()
     ));
     QCOMPARE(this->model->get_size(), 3);
 }
@@ -80,9 +80,9 @@ void TestTreeItemModel::test_set_data() {
     QVERIFY(this->model->setData(A_index, "new name", Qt::DisplayRole));
     QCOMPARE(A_index.data(), "new name");
 
-    const auto A_uuid = A_index.data(uuid_role);
-    QVERIFY(!this->model->setData(A_index, QtdId::create(), uuid_role));
-    QCOMPARE(A_index.data(uuid_role), A_uuid);
+    const auto A_uuid = A_index.data(UuidRole);
+    QVERIFY(!this->model->setData(A_index, QtdId::create(), UuidRole));
+    QCOMPARE(A_index.data(UuidRole), A_uuid);
 }
 
 void TestTreeItemModel::test_remove_single_row() {
@@ -148,7 +148,7 @@ void TestTreeItemModel::test_clone_tree_node_clones_children_recursiveley() {
     auto A_index = this->model->index(0, 0);
     auto B_index = this->model->index(1, 0);
     auto B1_index = this->model->index(0, 0, B_index);
-    auto B1_uuid = this->model->index(0, 0, B_index).data(uuid_role).value<QtdId>();
+    auto B1_uuid = this->model->index(0, 0, B_index).data(UuidRole).value<QtdId>();
 
     this->model->create_tree_node(
         std::make_unique<TestHelpers::TestTag>("child 1"), B1_uuid
@@ -158,13 +158,13 @@ void TestTreeItemModel::test_clone_tree_node_clones_children_recursiveley() {
     );
     this->model->create_tree_node(
         std::make_unique<TestHelpers::TestTag>("child 1a"),
-        this->model->index(0, 0, B1_index).data(uuid_role).value<QtdId>()
+        this->model->index(0, 0, B1_index).data(UuidRole).value<QtdId>()
     );
 
     QVERIFY(
         this->model->clone_tree_node(
-            B_index.data(uuid_role).value<QtdId>(),
-            A_index.data(uuid_role).value<QtdId>()
+            B_index.data(UuidRole).value<QtdId>(),
+            A_index.data(UuidRole).value<QtdId>()
         )
     );
     auto clone_index = this->model->index(0, 0, A_index);
@@ -175,7 +175,7 @@ void TestTreeItemModel::test_clone_tree_node_clones_children_recursiveley() {
     TestHelpers::assert_model_equality(
         *this->model,
         *this->model,
-        {Qt::DisplayRole, Qt::DecorationRole, uuid_role},
+        {Qt::DisplayRole, Qt::DecorationRole, UuidRole},
         TestHelpers::compare_indices_by_uuid,
         B_index,
         clone_index
@@ -186,7 +186,7 @@ void TestTreeItemModel::test_clone_tree_node_clones_children_recursiveley() {
 void TestTreeItemModel::test_adding_children_to_clones() {
     auto B_index = this->model->index(1, 0);
     auto B1_index = this->model->index(0, 0, B_index);
-    auto B1_uuid = this->model->index(0, 0, B_index).data(uuid_role).value<QtdId>();
+    auto B1_uuid = this->model->index(0, 0, B_index).data(UuidRole).value<QtdId>();
 
     QVERIFY(this->model->clone_tree_node(B1_uuid));
     auto clone_index = this->model->index(2, 0);
@@ -194,7 +194,7 @@ void TestTreeItemModel::test_adding_children_to_clones() {
     TestHelpers::assert_index_equality(
         B1_index,
         clone_index,
-        {Qt::DisplayRole, static_cast<Qt::ItemDataRole>(uuid_role)}
+        {Qt::DisplayRole, static_cast<Qt::ItemDataRole>(UuidRole)}
     );
     QCOMPARE(this->model->rowCount(B1_index), 0);
 
@@ -205,7 +205,7 @@ void TestTreeItemModel::test_adding_children_to_clones() {
     TestHelpers::assert_index_equality(
         B1_index,
         clone_index,
-        {Qt::DisplayRole, static_cast<Qt::ItemDataRole>(uuid_role)}
+        {Qt::DisplayRole, static_cast<Qt::ItemDataRole>(UuidRole)}
     );
     QCOMPARE(this->model->rowCount(B1_index), 1);
     QCOMPARE(spy.count(), 2);
@@ -216,12 +216,12 @@ void TestTreeItemModel::test_adding_children_to_clones() {
 
     this->model->create_tree_node(
         std::make_unique<TestHelpers::TestTag>("child 2"),
-        clone_index.data(uuid_role).value<QtdId>()
+        clone_index.data(UuidRole).value<QtdId>()
     );
     TestHelpers::assert_index_equality(
         B1_index,
         clone_index,
-        {Qt::DisplayRole, static_cast<Qt::ItemDataRole>(uuid_role)}
+        {Qt::DisplayRole, static_cast<Qt::ItemDataRole>(UuidRole)}
     );
     QCOMPARE(this->model->rowCount(B1_index), 2);
 
@@ -232,13 +232,13 @@ void TestTreeItemModel::test_adding_children_to_clones() {
 void TestTreeItemModel::test_remove_clone() {
     const auto B_index = this->model->index(1, 0);
     const auto B1_index = this->model->index(0, 0, B_index);
-    const auto B1_uuid = this->model->index(0, 0, B_index).data(uuid_role).value<QtdId>();
+    const auto B1_uuid = this->model->index(0, 0, B_index).data(UuidRole).value<QtdId>();
 
     QVERIFY(this->model->clone_tree_node(B1_uuid));
     const auto clone_index = this->model->index(2, 0);
     this->model->create_tree_node(
         std::make_unique<TestHelpers::TestTag>("child 1"),
-        B1_index.data(uuid_role).value<QtdId>()
+        B1_index.data(UuidRole).value<QtdId>()
     );
 
     this->model->removeRows(B1_index.row(), 1, B_index);
@@ -251,13 +251,13 @@ void TestTreeItemModel::test_remove_clone() {
 void TestTreeItemModel::test_remove_child_of_clone() {
     const auto B_index = this->model->index(1, 0);
     const auto B1_index = this->model->index(0, 0, B_index);
-    const auto B1_uuid = this->model->index(0, 0, B_index).data(uuid_role).value<QtdId>();
+    const auto B1_uuid = this->model->index(0, 0, B_index).data(UuidRole).value<QtdId>();
 
     QVERIFY(this->model->clone_tree_node(B1_uuid));
     const auto clone_index = this->model->index(2, 0);
     this->model->create_tree_node(
         std::make_unique<TestHelpers::TestTag>("child 1"),
-        B1_index.data(uuid_role).value<QtdId>()
+        B1_index.data(UuidRole).value<QtdId>()
     );
 
     const QSignalSpy spy(this->model.get(), SIGNAL(rowsRemoved(const QModelIndex&, int, int)));

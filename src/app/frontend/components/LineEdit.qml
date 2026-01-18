@@ -1,5 +1,5 @@
 /**
- * Copyright 2025 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
+ * Copyright 2025, 2026 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
  *
  * This file is part of qtd.
  *
@@ -21,10 +21,10 @@ import QtQuick
 Rectangle {
     property alias text: text_field.text
     property alias font: text_field.font
-    color: "white"
-    border.color: "lightgray"
-    border.width: 2
-    radius: 4
+    color: (enabled ? palette.active : palette.disabled).base
+    border.color: (enabled ? palette.active : palette.disabled).dark
+    border.width: 1
+    radius: 2
     height: text_field.height + 10
 
     TextInput {
@@ -32,6 +32,6 @@ Rectangle {
         anchors.centerIn: parent
         width: parent.width - 6
         clip: true
-        text: "empty"
+        color: (enabled ? palette.active : palette.disabled).text
     }
 }

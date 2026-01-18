@@ -1,5 +1,5 @@
 /**
- * Copyright 2025 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
+ * Copyright 2025, 2026 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
  *
  * This file is part of qtd.
  *
@@ -26,7 +26,7 @@ Rectangle {
 
     required property font control_font
     required property var model
-    property var tag_editor_component: Qt.createComponent("qrc:/qt/qml/src/app/TagEditor.qml")
+    property var tag_editor_component: Qt.createComponent("qrc:/qt/qml/src/app/frontend/components/TagEditor.qml")
 
     SelectableTreeView {
         id: tag_view
@@ -37,17 +37,24 @@ Rectangle {
 
         control_font: tag_view_container.control_font
         model: tag_view_container.model
-        selectionModel: ItemSelectionModel {}
+        selectionModel: ItemSelectionModel {
+            onSelectionChanged: (selected, deselected) => model.tag_selection_changed(selectedIndexes)
+        }
 
         delegate: TreeViewDelegate {
             MouseArea {
                 anchors.fill: parent
                 onClicked: (click) => {
-                   if (click.modifiers & Qt.ControlModifier)
-                       tag_view.selectionModel.select(tag_view.index(parent.row, 0),  ItemSelectionModel.Toggle | ItemSelectionModel.Rows)
-                    else {
-                        tag_view.selectionModel.clear()
-                        tag_view.selectionModel.select(tag_view.index(parent.row, 0),  ItemSelectionModel.Select | ItemSelectionModel.Rows)
+                    var selected = tag_view.selectionModel.selectedIndexes
+                    var clicked_index = tag_view.index(parent.row, 0)
+                    if (click.modifiers & Qt.ControlModifier) {
+                        tag_view.selectionModel.select(clicked_index,  ItemSelectionModel.Toggle)
+                    } else {
+                        if (selected.length === 1 && selected[0] === clicked_index) {
+                            tag_view.selectionModel.select(clicked_index,  ItemSelectionModel.Clear)
+                        } else {
+                            tag_view.selectionModel.select(clicked_index,  ItemSelectionModel.ClearAndSelect)
+                        }
                     }
                     click.accepted = true
                 }

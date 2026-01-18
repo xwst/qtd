@@ -1,5 +1,5 @@
 /**
- * Copyright 2025 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
+ * Copyright 2025, 2026 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
  *
  * This file is part of qtd.
  *
@@ -73,7 +73,7 @@ bool tree_node_has_nested_child_with_uuid(TreeNode* node, const QtdId& uuid) {
         = tree_nodes_foreach(
             node,
             [&uuid](TreeNode* node) {
-                return node->get_data(uuid_role).value<QtdId>() == uuid;
+                return node->get_data(UuidRole).value<QtdId>() == uuid;
             }
         );
     return node_with_matching_uuid != nullptr;
@@ -90,7 +90,7 @@ TreeItemModel::TreeItemModel(QObject *parent)
 {
     this->root = TreeNode::create(std::make_unique<UniqueDataItem>());
     this->uuid_node_map.insert(
-        this->root->get_data(uuid_role).value<QtdId>(),
+        this->root->get_data(UuidRole).value<QtdId>(),
         this->root.get()
     );
 }
@@ -126,8 +126,8 @@ void TreeItemModel::operate_on_clones(
     const std::function<void(TreeNode*)>& operation
 ) {
     auto node_uuid = node_index.isValid()
-                    ? node_index.data(uuid_role).value<QtdId>()
-                    : this->root->get_data(uuid_role).value<QtdId>();
+                    ? node_index.data(UuidRole).value<QtdId>()
+                    : this->root->get_data(UuidRole).value<QtdId>();
     this->operate_on_clones(node_uuid, operation);
 }
 
@@ -148,7 +148,7 @@ bool TreeItemModel::add_tree_node(
 ) {
     auto parent_or_root_uuid = parent_uuid.is_valid()
                              ? parent_uuid
-                             : this->root->get_data(uuid_role).value<QtdId>();
+                             : this->root->get_data(UuidRole).value<QtdId>();
 
     if (!this->uuid_node_map.contains(parent_or_root_uuid)) {
         return false;
@@ -181,7 +181,7 @@ bool TreeItemModel::add_tree_node(
 
 void TreeItemModel::add_recursively_to_uuid_node_map(TreeNode* node) {
     tree_nodes_foreach(node, [this](TreeNode* node) {
-        this->uuid_node_map.insert(node->get_data(uuid_role).value<QtdId>(), node);
+        this->uuid_node_map.insert(node->get_data(UuidRole).value<QtdId>(), node);
         return false;
     });
 }
@@ -194,7 +194,7 @@ TreeNode* TreeItemModel::get_raw_node_pointer(const QModelIndex& index) const {
 
 void TreeItemModel::remove_recursively_from_node_map(TreeNode* item) {
     tree_nodes_foreach(item, [this](TreeNode* node) {
-        this->uuid_node_map.remove(node->get_data(uuid_role).value<QtdId>(), node);
+        this->uuid_node_map.remove(node->get_data(UuidRole).value<QtdId>(), node);
         return false;
     });
 }

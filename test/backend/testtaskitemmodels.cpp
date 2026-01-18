@@ -1,5 +1,5 @@
 /**
- * Copyright 2025 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
+ * Copyright 2025, 2026 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
  *
  * This file is part of qtd.
  *
@@ -60,7 +60,7 @@ void TestTaskItemModel::test_initial_dataset_represented_correctly() const {
 
 void TestTaskItemModel::test_model_stores_text_documents() const {
     QEXPECT_FAIL("", "Document storage is not yet implemented!", Continue);
-    QVERIFY(this->model->data(this->model->index(0, 0), document_role).isValid());
+    QVERIFY(this->model->data(this->model->index(0, 0), DocumentRole).isValid());
 }
 
 void TestTaskItemModel::test_data_change_of_unique_task() const {
@@ -68,20 +68,20 @@ void TestTaskItemModel::test_data_change_of_unique_task() const {
     const auto test_index = TestHelpers::find_model_index_by_display_role(*this->model, title);
     QVERIFY(test_index.isValid());
 
-    const auto due_time = test_index.data(due_role).toDateTime();
-    const auto uuid = test_index.data(uuid_role).value<TaskId>();
-    QCOMPARE(test_index.data(active_role), Task::open);
+    const auto due_time = test_index.data(DueRole).toDateTime();
+    const auto uuid = test_index.data(UuidRole).value<TaskId>();
+    QCOMPARE(test_index.data(ActiveRole), Task::open);
 
     const auto new_start_time = QDateTime::currentDateTime();
-    QVERIFY(this->model->setData(test_index, new_start_time, start_role));
-    QVERIFY(this->model->setData(test_index, Task::closed, active_role));
+    QVERIFY(this->model->setData(test_index, new_start_time, StartRole));
+    QVERIFY(this->model->setData(test_index, Task::closed, ActiveRole));
 
-    QCOMPARE(test_index.data(active_role), Task::closed);
-    QCOMPARE(test_index.data(start_role).toDateTime(), new_start_time);
+    QCOMPARE(test_index.data(ActiveRole), Task::closed);
+    QCOMPARE(test_index.data(StartRole).toDateTime(), new_start_time);
 
     QCOMPARE(test_index.data().toString(), title);
-    QCOMPARE(test_index.data(due_role).toDateTime(), due_time);
-    QCOMPARE(test_index.data(uuid_role).value<TaskId>(), uuid);
+    QCOMPARE(test_index.data(DueRole).toDateTime(), due_time);
+    QCOMPARE(test_index.data(UuidRole).value<TaskId>(), uuid);
 }
 
 void TestTaskItemModel::test_data_change_of_cloned_task() const {
@@ -112,9 +112,9 @@ void TestTaskItemModel::test_data_change_of_cloned_task() const {
     QCOMPARE(test_index_clone.data().toString(), new_title);
     TestTaskItemModel::assert_index_equality(test_index, test_index_clone);
 
-    const auto new_status = (test_index_clone.data(active_role) == Task::open) ? Task::closed : Task::open;
-    QVERIFY(this->model->setData(test_index_clone, new_status, active_role));
-    QCOMPARE(test_index.data(active_role), new_status);
+    const auto new_status = (test_index_clone.data(ActiveRole) == Task::open) ? Task::closed : Task::open;
+    QVERIFY(this->model->setData(test_index_clone, new_status, ActiveRole));
+    QCOMPARE(test_index.data(ActiveRole), new_status);
     TestTaskItemModel::assert_index_equality(test_index, test_index_clone);
 }
 
@@ -153,9 +153,9 @@ void TestTaskItemModel::test_create_task() const {
     QVERIFY(new_index2.isValid());
 
     QCOMPARE(new_index1.data(           ),   new_task_title);
-    QCOMPARE(new_index1.data(active_role),              Task::open);
-    QCOMPARE(new_index1.data(start_role ).toDateTime(), QDateTime());
-    QCOMPARE(new_index1.data(due_role   ).toDateTime(), QDateTime());
+    QCOMPARE(new_index1.data(ActiveRole),              Task::open);
+    QCOMPARE(new_index1.data(StartRole ).toDateTime(), QDateTime());
+    QCOMPARE(new_index1.data(DueRole   ).toDateTime(), QDateTime());
     TestTaskItemModel::assert_index_equality(new_index1, new_index2);
 }
 
@@ -240,7 +240,7 @@ void TestTaskItemModel::assert_model_persistence() const {
     TestHelpers::assert_model_equality(
         *model_reloaded_from_db,
         *this->model,
-        {Qt::DisplayRole, uuid_role, active_role, start_role, due_role, details_role, document_role, tags_role},
+        {Qt::DisplayRole, UuidRole, ActiveRole, StartRole, DueRole, DetailsRole, DocumentRole, TagsRole},
         TestHelpers::compare_indices_by_uuid
     );
 }
@@ -250,7 +250,7 @@ void TestTaskItemModel::assert_index_equality(
     const QModelIndex& index2
 ) {
     const QSet<int> roles = {
-        Qt::DisplayRole, uuid_role, active_role, start_role, due_role, details_role
+        Qt::DisplayRole, UuidRole, ActiveRole, StartRole, DueRole, DetailsRole
     };
     for (const int role : roles) {
         QCOMPARE(index1.data(role), index2.data(role));
@@ -267,57 +267,57 @@ void TestTaskItemModel::find_task_by_title_and_assert_correctness_of_data(
 ) const {
     const auto index = TestHelpers::find_model_index_by_display_role(*this->model, title);
     QVERIFY(index.isValid());
-    QCOMPARE(index.data(active_role), status);
-    QCOMPARE(index.data(start_role).toDateTime(), start_datetime);
-    QCOMPARE(index.data(due_role).toDateTime(), due_datetime);
+    QCOMPARE(index.data(ActiveRole), status);
+    QCOMPARE(index.data(StartRole).toDateTime(), start_datetime);
+    QCOMPARE(index.data(DueRole).toDateTime(), due_datetime);
     QCOMPARE(model->rowCount(index), number_of_children);
-    QCOMPARE(index.data(tags_role).value<QSet<TagId>>(), assigned_tags);
+    QCOMPARE(index.data(TagsRole).value<QSet<TagId>>(), assigned_tags);
 }
 
 void TestTaskItemModel::test_adding_and_removing_tags() const {
     const auto index = TestHelpers::find_model_index_by_display_role(*this->model, "Cook meal");
     const auto initial_tag = TagId("10173aba-edd8-4049-a41c-74f28581c31f");
-    QCOMPARE(index.data(tags_role).value<QSet<TagId>>(), {initial_tag});
+    QCOMPARE(index.data(TagsRole).value<QSet<TagId>>(), {initial_tag});
 
     const auto unknown_tag = TagId::create();
     QVERIFY(!this->model->add_tag(index, unknown_tag));
-    QCOMPARE(index.data(tags_role).value<QSet<TagId>>(), {initial_tag});
+    QCOMPARE(index.data(TagsRole).value<QSet<TagId>>(), {initial_tag});
 
     const auto test_tag1 = TagId("0baf3308-5899-44ad-9e55-a8e83f2b82ee");
     const auto test_tag2 = TagId("fcff6021-2d4c-46df-92bd-6cabe0ae75b1");
     QVERIFY(this->model->add_tag(index, test_tag1));
     QCOMPARE(
-        index.data(tags_role).value<QSet<TagId>>(),
+        index.data(TagsRole).value<QSet<TagId>>(),
         QSet({initial_tag, test_tag1})
     );
 
     QVERIFY(!this->model->add_tag(index, test_tag1));
     QCOMPARE(
-        index.data(tags_role).value<QSet<TagId>>(),
+        index.data(TagsRole).value<QSet<TagId>>(),
         QSet({initial_tag, test_tag1})
     );
 
     QVERIFY(this->model->add_tag(index, test_tag2));
     QCOMPARE(
-        index.data(tags_role).value<QSet<TagId>>(),
+        index.data(TagsRole).value<QSet<TagId>>(),
         QSet({initial_tag, test_tag1, test_tag2})
     );
     this->assert_model_persistence();
 
     QVERIFY(!this->model->remove_tag(index, unknown_tag));
     QCOMPARE(
-        index.data(tags_role).value<QSet<TagId>>(),
+        index.data(TagsRole).value<QSet<TagId>>(),
         QSet({initial_tag, test_tag1, test_tag2})
     );
 
     QVERIFY(this->model->remove_tag(index, test_tag1));
     QCOMPARE(
-        index.data(tags_role).value<QSet<TagId>>(),
+        index.data(TagsRole).value<QSet<TagId>>(),
         QSet({initial_tag, test_tag2})
     );
 
     QVERIFY(this->model->remove_tag(index, test_tag2));
-    QCOMPARE(index.data(tags_role).value<QSet<TagId>>(), {initial_tag});
+    QCOMPARE(index.data(TagsRole).value<QSet<TagId>>(), {initial_tag});
 }
 
 void TestTaskItemModel::test_task_creation_with_unknown_parents() const {

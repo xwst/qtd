@@ -1,5 +1,5 @@
 /**
- * Copyright 2025 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
+ * Copyright 2025, 2026 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
  *
  * This file is part of qtd.
  *
@@ -120,19 +120,19 @@ void TestTreeNodes::test_cloning() {
 void TestTreeNodes::test_set_data() {
     auto *node_A = this->root->get_child(0);
     const auto initial_name = node_A->get_data(Qt::DisplayRole);
-    const auto uuid = node_A->get_data(uuid_role);
+    const auto uuid = node_A->get_data(UuidRole);
 
     node_A->set_data("new name", Qt::ToolTipRole); // Unused role
     QCOMPARE(node_A->get_data(Qt::DisplayRole), initial_name);
-    QCOMPARE(node_A->get_data(uuid_role), uuid);
+    QCOMPARE(node_A->get_data(UuidRole), uuid);
 
     node_A->set_data("new name", Qt::DisplayRole);
     QCOMPARE(node_A->get_data(Qt::DisplayRole), "new name");
-    QCOMPARE(node_A->get_data(uuid_role), uuid);
+    QCOMPARE(node_A->get_data(UuidRole), uuid);
 
-    node_A->set_data(QtdId::create(), uuid_role);
+    node_A->set_data(QtdId::create(), UuidRole);
     QCOMPARE(node_A->get_data(Qt::DisplayRole), "new name");
-    QCOMPARE(node_A->get_data(uuid_role), uuid);
+    QCOMPARE(node_A->get_data(UuidRole), uuid);
 }
 
 void TestTreeNodes::setup_dummies() {

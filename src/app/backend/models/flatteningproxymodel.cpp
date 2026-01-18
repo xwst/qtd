@@ -1,5 +1,5 @@
 /**
- * Copyright 2025 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
+ * Copyright 2025, 2026 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
  *
  * This file is part of qtd.
  *
@@ -24,6 +24,7 @@
 #include <QList>
 #include <QObject>
 
+#include "dataitems/qtditemdatarole.h"
 #include "utils/modeliteration.h"
 
 QModelIndex FlatteningProxyModel::find_source_model_index(int proxy_row) const {
@@ -97,38 +98,35 @@ void FlatteningProxyModel::on_data_changed(
     );
 }
 
+/**
+ * @brief Emits a signal for rows about to be inserted.
+ *
+ * Since the signature of QAbstractItemModel::rowsAboutToBeInserted does not
+ * allow reacting to nested inserts (i.e. inserting rows that already have
+ * children themselves), the current implementation resets the entire model.
+ *
+ * For a more sophisticated solution it would be required to know the number
+ * of nested children of the about to be inserted rows.
+ */
 void FlatteningProxyModel::on_rows_about_to_be_inserted(
-    const QModelIndex& parent,
-    int first,
-    int last
+    const QModelIndex& /*parent*/,
+    int /*first*/,
+    int /*last*/
 ) {
-    QModelIndex src_index_before_insert;
-    if (first >= this->sourceModel()->rowCount(parent)) {
-        src_index_before_insert = this->sourceModel()->index(first-1, 0, parent);
-    } else if(first > 0) {
-        src_index_before_insert = this->sourceModel()->index(first, 0, parent);
-    } else {
-        src_index_before_insert = parent;
-    }
-
-    const auto mapped_index_before_insert = this->mapFromSource(
-        src_index_before_insert
-    );
-    const int child_count = -1 + ModelIteration::count_model_rows(
-        this->sourceModel(), src_index_before_insert
-    );
-    const int proxy_first = mapped_index_before_insert.row() + child_count + 1;
-    this->beginInsertRows(
-        QModelIndex(), proxy_first, proxy_first + (last - first)
-    );
+    this->beginResetModel();
 }
 
+/**
+ * @brief Emits a signal after row insertion was completed
+ *
+ * \sa FlatteningProxyModel::on_rows_about_to_be_inserted
+ */
 void FlatteningProxyModel::on_rows_inserted(
     const QModelIndex& /* parent */,
     int /* first */,
     int /* last */
 ) {
-    this->endInsertRows();
+    this->endResetModel();
 }
 
 QModelIndex FlatteningProxyModel::mapFromSource(const QModelIndex& sourceIndex) const {
@@ -185,4 +183,10 @@ int FlatteningProxyModel::columnCount(const QModelIndex& parent) const {
 
 bool FlatteningProxyModel::hasChildren(const QModelIndex& parent) const {
     return !parent.isValid();
+}
+
+QHash<int, QByteArray> FlatteningProxyModel::roleNames() const {
+    auto result = QAbstractProxyModel::roleNames();
+    result.insert(custom_role_names());
+    return result;
 }

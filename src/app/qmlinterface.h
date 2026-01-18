@@ -1,5 +1,5 @@
 /**
- * Copyright 2025 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
+ * Copyright 2025, 2026 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
  *
  * This file is part of qtd.
  *
@@ -24,6 +24,7 @@
 #include <QObject>
 #include <QQmlEngine>
 
+#include "backend/dataitems/qtditemdatarole.h"
 #include "backend/models/filteredtagitemmodel.h"
 #include "backend/models/filteredtaskitemmodel.h"
 #include "backend/models/flatteningproxymodel.h"
@@ -67,6 +68,9 @@ private:
     void set_up_event_filter();
 
 public:
+    QTD_ITEM_DATA_ROLE
+    Q_ENUM(QtdItemDataRole)
+
     Q_PROPERTY(QString application_dir MEMBER m_application_dir CONSTANT)
     Q_PROPERTY(TagItemModel*  tags  MEMBER m_tags  CONSTANT)
     Q_PROPERTY(TaskItemModel* tasks MEMBER m_tasks CONSTANT)

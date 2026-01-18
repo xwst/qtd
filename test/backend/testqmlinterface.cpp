@@ -18,6 +18,7 @@
 
 #include "testqmlinterface.h"
 
+#include <initializer_list>
 #include <memory>
 
 #include <QAbstractItemModel>
@@ -29,7 +30,6 @@
 #include "../qmlinterface.h"
 #include "../testhelpers.h"
 #include "utils/initialize.h"
-#include "dataitems/task.h"
 
 TestQmlInterface::TestQmlInterface(QObject *parent)
     : QObject{parent}
@@ -76,7 +76,7 @@ void TestQmlInterface::cleanupTestCase() {
 
 void TestQmlInterface::test_model_size() const {
     QCOMPARE(this->get_model("open_tasks")->rowCount(), 2);
-    QCOMPARE(this->get_model("actionable_tasks")->rowCount(), 3);
+    QCOMPARE(this->get_model("actionable_tasks")->rowCount(), 1);
     QCOMPARE(this->get_model("project_tasks")->rowCount(), 2);
     QCOMPARE(this->get_model("archived_tasks")->rowCount(), 2);
 }

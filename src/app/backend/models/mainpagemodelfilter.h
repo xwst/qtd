@@ -18,28 +18,9 @@
 
 #pragma once
 
-bool is_task_open(const QModelIndex& index) {
-    auto status = index.data(QtdItemDataRole::active_role).value<Task::Status>();
-    auto title = index.data().toString();
-    return status == Task::Status::open;
-}
+#include <QModelIndex>
 
-bool is_task_actionable(const QModelIndex& index) {
-    auto status = index.data(QtdItemDataRole::active_role).value<Task::Status>();
-    return (status == Task::Status::open) && (index.model()->rowCount(index) == 0);
-}
-
-bool is_task_in_open_project(const QModelIndex& index) {
-    auto top_ancestor = index;
-    while (top_ancestor.parent().isValid()) {
-        top_ancestor = top_ancestor.parent();
-    }
-
-    auto status = top_ancestor.data(QtdItemDataRole::active_role);
-    return status.value<Task::Status>() == Task::Status::open;
-}
-
-bool is_task_closed(const QModelIndex& index) {
-    auto status = index.data(QtdItemDataRole::active_role).value<Task::Status>();
-    return status == Task::Status::closed;
-}
+bool is_task_open(const QModelIndex& index);
+bool is_task_actionable(const QModelIndex& index);
+bool is_task_in_open_project(const QModelIndex& index);
+bool is_task_closed(const QModelIndex& index);

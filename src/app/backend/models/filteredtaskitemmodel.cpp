@@ -1,5 +1,5 @@
 /**
- * Copyright 2025 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
+ * Copyright 2025, 2026 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
  *
  * This file is part of qtd.
  *
@@ -42,11 +42,11 @@
 namespace {
     bool task_index_contains_word(const QModelIndex &index, const QString &word) {
         return index.data(Qt::DisplayRole).toString().contains(word, Qt::CaseInsensitive)
-               || index.data(details_role).toString().contains(word, Qt::CaseInsensitive);
+               || index.data(DetailsRole).toString().contains(word, Qt::CaseInsensitive);
     }
 
     TaskId get_uuid(const QModelIndex &index) {
-        return index.isValid() ? index.data(uuid_role).value<TaskId>() : TaskId();
+        return index.isValid() ? index.data(UuidRole).value<TaskId>() : TaskId();
     }
 } // anonymous namespace
 
@@ -56,7 +56,7 @@ FilteredTaskItemModel::FilteredTaskItemModel(
     TaskFilterFunction is_task_accepted,
     QObject *parent
 ) : QAbstractProxyModel{parent},
-    is_task_accepted(is_task_accepted)
+    is_task_accepted(std::move(is_task_accepted))
 {
     this->split_regex = QRegularExpression(FilteredTaskItemModel::split_pattern);
 }
@@ -110,7 +110,9 @@ void FilteredTaskItemModel::setup_signal_slot_connections() {
 
 void FilteredTaskItemModel::setSourceModel(QAbstractItemModel *sourceModel) {
     this->beginResetModel();
-    this->sourceModel()->disconnect(this);
+    if (this->sourceModel() != nullptr) {
+        this->sourceModel()->disconnect(this);
+    }
     QAbstractProxyModel::setSourceModel(sourceModel);
     this->setup_signal_slot_connections();
     this->rebuild_index_mapping();
@@ -157,7 +159,7 @@ bool FilteredTaskItemModel::index_matches_tag_selection(const QModelIndex &index
     if (this->selected_tags.isEmpty()) {
         return true;
     }
-    auto index_tags = index.data(tags_role).value<QSet<TagId> >();
+    auto index_tags = index.data(TagsRole).value<QSet<TagId> >();
     return index_tags.intersects((this->selected_tags));
 }
 
@@ -171,6 +173,17 @@ QModelIndex FilteredTaskItemModel::find_proxy_parent(const QModelIndex &source_i
         source_parent_index = source_parent_index.parent();
     }
     return {};
+}
+
+bool FilteredTaskItemModel::is_child(const TaskId& child, const QModelIndex& parent) const {
+    auto [begin , end] = this->proxy_children.equal_range(parent);
+    while (begin != end) {
+        if (begin->data(UuidRole).value<TaskId>() == child) {
+            return true;
+        }
+        ++begin;
+    }
+    return false;
 }
 
 void FilteredTaskItemModel::reset_mapping() {
@@ -188,13 +201,17 @@ void FilteredTaskItemModel::map_index(const QModelIndex& source_index) {
     }
 
     this->remaining_tags.unite(
-        source_index.data(tags_role).value<QSet<TagId> >()
+        source_index.data(TagsRole).value<QSet<TagId> >()
     );
     if (!index_matches_tag_selection(source_index)) {
         return;
     }
 
     const auto proxy_parent = this->find_proxy_parent(source_index);
+    if (this->is_child(source_index.data(UuidRole).value<TaskId>(), proxy_parent)) {
+        return;
+    }
+
     const auto proxy_index = this->createIndex(
         this->rowCount(proxy_parent), 0, source_index.internalPointer()
     );

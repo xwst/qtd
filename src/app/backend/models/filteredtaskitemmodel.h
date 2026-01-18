@@ -1,5 +1,5 @@
 /**
- * Copyright 2025 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
+ * Copyright 2025, 2026 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
  *
  * This file is part of qtd.
  *
@@ -54,6 +54,7 @@ private:
     [[nodiscard]] bool index_matches_search_string(const QModelIndex& index) const;
     [[nodiscard]] bool index_matches_tag_selection(const QModelIndex& index) const;
     [[nodiscard]] QModelIndex find_proxy_parent(const QModelIndex& source_index) const;
+    [[nodiscard]] bool is_child(const TaskId& child, const QModelIndex& parent) const;
     void setup_signal_slot_connections();
 
 public:

@@ -1,5 +1,5 @@
 /**
- * Copyright 2025 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
+ * Copyright 2025, 2026 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
  *
  * This file is part of qtd.
  *
@@ -17,6 +17,8 @@
  */
 
 pragma ComponentBehavior: Bound
+
+import QtQuick.Controls.Fusion
 
 import QtQuick
 import QtQuick.Controls 2.15
@@ -48,7 +50,7 @@ ApplicationWindow {
     FontLoader {
         id: symbol_font
         source: Qt.resolvedUrl(
-            "file://" + QmlInterface.application_dir + "/Font Awesome 6 Free-Solid-900.otf"
+            "file:///" + QmlInterface.application_dir + "/Font Awesome 6 Free-Solid-900.otf"
         )
     }
 
@@ -119,7 +121,8 @@ ApplicationWindow {
             Button {
                 id: delay_task_button
                 text: '\uf252'
-                font: main_window.control_font
+                font.family: symbol_font.name
+                font.pointSize: main_window.control_font.pointSize
                 implicitWidth: height
                 implicitHeight: add_task_button.height
             }

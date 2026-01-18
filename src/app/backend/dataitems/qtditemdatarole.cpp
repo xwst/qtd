@@ -1,5 +1,5 @@
 /**
- * Copyright 2025, 2026 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
+ * Copyright 2026 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
  *
  * This file is part of qtd.
  *
@@ -16,26 +16,11 @@
  * qtd. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#include "qtditemdatarole.h"
 
-#include <QByteArray>
-#include <QHash>
-#include <QtTypes>
-
-#define QTD_ITEM_DATA_ROLE       \
-enum QtdItemDataRole : quint16 { \
-      UuidRole = Qt::UserRole    \
-    , ActiveRole                 \
-    , StartRole                  \
-    , DueRole                    \
-    , ResolveRole                \
-    , DetailsRole                \
-    , DocumentRole               \
-    , TagsRole                   \
-    , AddTagRole                 \
-    , RemoveTagRole              \
-};
-
-QTD_ITEM_DATA_ROLE
-
-QHash<int, QByteArray> custom_role_names();
+QHash<int, QByteArray> custom_role_names() {
+    static auto names = QHash<int, QByteArray>({
+        {QtdItemDataRole::UuidRole, "uuid"}
+    });
+    return names;
+}

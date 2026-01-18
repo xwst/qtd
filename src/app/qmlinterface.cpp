@@ -1,5 +1,5 @@
 /**
- * Copyright 2025 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
+ * Copyright 2025, 2026 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
  *
  * This file is part of qtd.
  *
@@ -19,6 +19,7 @@
 #include "qmlinterface.h"
 
 #include <functional>
+#include <utility>
 
 #include <QCoreApplication>
 #include <QDir>
@@ -26,8 +27,6 @@
 #include <QStandardPaths>
 #include <QString>
 
-#include "backend/dataitems/qtditemdatarole.h"
-#include "backend/dataitems/task.h"
 #include "backend/models/filteredtagitemmodel.h"
 #include "backend/models/filteredtaskitemmodel.h"
 #include "backend/models/flatteningproxymodel.h"
@@ -58,13 +57,13 @@ void QmlInterface::set_up_filtered_model(
     FilteredTaskItemModel*& task_model,
     std::function<bool (const QModelIndex &)> filter
 ) {
-    // NOLINTBEGIN(cppcoreguidelines-owning-memory)
+    // NOLINTBEGIN(cppcoreguidelines-owning-memory,misc-include-cleaner)
     tag_model = new FilteredTagItemModel(this);
-    task_model = new FilteredTaskItemModel(filter, this);
-    // NOLINTEND (cppcoreguidelines-owning-memory)
+    task_model = new FilteredTaskItemModel(std::move(filter), this);
+    // NOLINTEND(cppcoreguidelines-owning-memory,misc-include-cleaner)
 
     QObject::connect(
-        tag_model,  &FilteredTagItemModel::tag_selection_changed,
+        tag_model,  &FilteredTagItemModel::tag_filter_changed,
         task_model, &FilteredTaskItemModel::set_selected_tags
     );
     QObject::connect(
@@ -81,7 +80,7 @@ void QmlInterface::set_up_core_models(const QString& connection_name) {
     this->m_tags      = new TagItemModel(connection_name, this);
     this->m_flat_tags = new FlatteningProxyModel(this);
     this->m_tasks     = new TaskItemModel(connection_name, this);
-    // NOLINTEND (cppcoreguidelines-owning-memory)
+    // NOLINTEND(cppcoreguidelines-owning-memory)
 
     this->m_flat_tags->setSourceModel(this->m_tags);
 }
@@ -125,7 +124,7 @@ void QmlInterface::set_up_event_filter() {
 void QmlInterface::set_up(const QString& database_file_path) {
     this->m_application_dir = QCoreApplication::applicationDirPath();
 
-    QString connection_name = "local";
+    const QString connection_name = "local";
     this->open_database(database_file_path, connection_name);
     this->set_up_models(connection_name);
     this->set_up_event_filter();

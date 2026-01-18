@@ -1,5 +1,5 @@
 /**
- * Copyright 2025 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
+ * Copyright 2025, 2026 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
  *
  * This file is part of qtd.
  *
@@ -34,6 +34,8 @@ class TagRepository : public TransactionalRepository
 private:
     using TransactionalRepository::TransactionalRepository;
 
+    [[nodiscard]] static QVariant convert_id(const TagId& tag_id);
+
 public:
     static TagRepository create(const QString &database_connection_name);
 
@@ -46,9 +48,10 @@ public:
 
     [[nodiscard]] SqlResultView<Tag> get_all_tags() const;
     // NOLINTBEGIN (modernize-use-nodiscard)
-    bool update_name(const QString& new_name, const TagId& tag) const;
-    bool update_color(const QColor& new_color, const TagId& tag) const;
-    bool save(const Tag& tag, const TagId& parent) const;
+    bool update_name(const QString& new_name, const TagId& tag_id) const;
+    bool update_color(const QColor& new_color, const TagId& tag_id) const;
+    bool update_parent(const TagId& new_parent_id, const TagId& tag_id) const;
+    bool save(const Tag& tag, const TagId& parent_id) const;
     bool remove(const QVariantList& tag_ids) const;
     // NOLINTEND (modernize-use-nodiscard)
 };
