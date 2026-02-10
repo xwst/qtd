@@ -67,15 +67,20 @@ jobs:
       run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }} -j8
 
     - name: Run backend tests
-      run: ctest --test-dir ${{ steps.strings.outputs.build-output-dir }} -C ${{ matrix.build_type }} -LE frontend-test -j8
+      if: matrix.os != 'windows-latest'
+      run: QT_QPA_PLATFORM=offscreen ctest --test-dir ${{ steps.strings.outputs.build-output-dir }} -C ${{ matrix.build_type }} -LE frontend-test -j8 --output-on-failure
+
+    - name: Run backend tests
+      if: matrix.os == 'windows-latest'
+      run: ctest --test-dir ${{ steps.strings.outputs.build-output-dir }} -C ${{ matrix.build_type }} -LE frontend-test -j8 --output-on-failure
 
     - name: Run frontend tests
       if: matrix.os != 'windows-latest'
-      run: QT_QPA_PLATFORM=offscreen ctest --test-dir ${{ steps.strings.outputs.build-output-dir }} -C ${{ matrix.build_type }} -L frontend-test -j8
+      run: QT_QPA_PLATFORM=offscreen ctest --test-dir ${{ steps.strings.outputs.build-output-dir }} -C ${{ matrix.build_type }} -L frontend-test -j8 --output-on-failure
 
     - name: Run frontend tests
       if: matrix.os == 'windows-latest'
-      run: ctest --test-dir ${{ steps.strings.outputs.build-output-dir }} -C ${{ matrix.build_type }} -L frontend-test -j8
+      run: ctest --test-dir ${{ steps.strings.outputs.build-output-dir }} -C ${{ matrix.build_type }} -L frontend-test -j8 --output-on-failure
 
     - name: Cache build artifacts
       if: matrix.cpp_compiler == 'g++'
@@ -117,7 +122,7 @@ jobs:
     - name: Generage test coverage report
       run: |
         mkdir -p ${{ steps.strings.outputs.build-output-dir }}/gcovr
-        cmake --build ${{ steps.strings.outputs.build-output-dir }} --target coverage
+        QT_QPA_PLATFORM=offscreen cmake --build ${{ steps.strings.outputs.build-output-dir }} --target coverage
 
     - name: Cache coverage artifacts
       uses: actions/upload-artifact@v4
@@ -126,7 +131,7 @@ jobs:
         path: ${{ steps.strings.outputs.build-output-dir }}/gcovr
 
     - name: Test coverage
-      run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --target verify-test-coverage -j8
+      run: QT_QPA_PLATFORM=offscreen cmake --build ${{ steps.strings.outputs.build-output-dir }} --target verify-test-coverage -j8
 
   code-checks:
     runs-on: ubuntu-latest

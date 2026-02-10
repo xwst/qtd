@@ -1,5 +1,5 @@
 /**
- * Copyright 2025 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
+ * Copyright 2025, 2026 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
  *
  * This file is part of qtd.
  *
@@ -18,6 +18,9 @@
 
 #include "filteredtagitemmodel.h"
 
+#include <QList>
+#include <QModelIndex>
+#include <QSet>
 #include <QSortFilterProxyModel>
 
 #include "dataitems/qtdid.h"
@@ -39,10 +42,24 @@ bool FilteredTagItemModel::filterAcceptsRow(
     const QModelIndex &source_parent
 ) const {
     auto source_row_index = this->sourceModel()->index(source_row, 0, source_parent);
-    return this->tag_whitelist.contains(source_row_index.data(uuid_role).value<TagId>());
+    return this->tag_whitelist.contains(source_row_index.data(UuidRole).value<TagId>());
 }
 
 void FilteredTagItemModel::set_tag_whitelist(const QSet<TagId>& new_tag_whitelist) {
     this->tag_whitelist = new_tag_whitelist;
     this->invalidateRowsFilter();
+}
+
+void FilteredTagItemModel::tag_selection_changed(QList<QModelIndex> selection) const {
+    QSet<TagId> id_selection;
+
+    while (!selection.isEmpty()) {
+        auto index = selection.takeLast();
+        id_selection.insert(index.data(UuidRole).value<TagId>());
+        for (auto child_row=0; child_row<this->rowCount(index); ++child_row) {
+            selection.append(this->index(child_row, 0, index));
+        }
+    }
+
+    emit this->tag_filter_changed(id_selection);
 }

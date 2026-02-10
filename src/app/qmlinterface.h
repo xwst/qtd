@@ -1,5 +1,5 @@
 /**
- * Copyright 2025 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
+ * Copyright 2025, 2026 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
  *
  * This file is part of qtd.
  *
@@ -18,10 +18,15 @@
 
 #pragma once
 
-#include <QGuiApplication>
+#include <functional>
+
+#include <QModelIndex>
 #include <QObject>
 #include <QQmlEngine>
 
+#include "backend/dataitems/qtditemdatarole.h"
+#include "backend/models/filteredtagitemmodel.h"
+#include "backend/models/filteredtaskitemmodel.h"
 #include "backend/models/flatteningproxymodel.h"
 #include "backend/models/tagitemmodel.h"
 #include "backend/models/taskitemmodel.h"
@@ -34,21 +39,55 @@ class QmlInterface : public QObject
     QML_SINGLETON
 
 private:
-    const QString local_database_name = "qtd.sqlite";
-    QString m_application_dir;
-    TagItemModel* m_tags_model;
-    FlatteningProxyModel* m_flat_tags_model;
-    TaskItemModel* m_task_model;
-    GlobalEventFilter* m_global_event_filter;
+    const QString          local_database_name = "qtd.sqlite";
+    QString                m_application_dir;
+    TagItemModel*          m_tags;
+    FilteredTagItemModel*  m_tags_open;
+    FilteredTagItemModel*  m_tags_actionable;
+    FilteredTagItemModel*  m_tags_project;
+    FilteredTagItemModel*  m_tags_archived;
+    FlatteningProxyModel*  m_flat_tags;
+    TaskItemModel*         m_tasks;
+    FilteredTaskItemModel* m_open_tasks;
+    FilteredTaskItemModel* m_actionable_tasks;
+    FilteredTaskItemModel* m_project_tasks;
+    FilteredTaskItemModel* m_archived_tasks;
+    GlobalEventFilter*     m_global_event_filter;
 
-    void open_database(QString& connection_name);
+    void open_database(
+        const QString& database_file_path,
+        const QString& connection_name
+    ) const;
+    void set_up_filtered_model(
+        FilteredTagItemModel*& tag_model,
+        FilteredTaskItemModel*& task_model,
+        std::function<bool(const QModelIndex&)> filter
+    );
+    void set_up_core_models(const QString& connection_name);
+    void set_up_models(const QString& connection_name);
+    void set_up_event_filter();
 
 public:
-    Q_PROPERTY(QString application_dir MEMBER m_application_dir CONSTANT)
-    Q_PROPERTY(TagItemModel* tags_model MEMBER m_tags_model CONSTANT)
-    Q_PROPERTY(FlatteningProxyModel* flat_tags_model MEMBER m_flat_tags_model CONSTANT)
-    Q_PROPERTY(TaskItemModel* task_model MEMBER m_task_model CONSTANT)
-    Q_PROPERTY(GlobalEventFilter* global_event_filter MEMBER m_global_event_filter CONSTANT)
+    QTD_ITEM_DATA_ROLE
+    Q_ENUM(QtdItemDataRole)
 
-    void set_up(QGuiApplication* app);
+    Q_PROPERTY(QString application_dir MEMBER m_application_dir CONSTANT)
+    Q_PROPERTY(TagItemModel*  tags  MEMBER m_tags  CONSTANT)
+    Q_PROPERTY(TaskItemModel* tasks MEMBER m_tasks CONSTANT)
+
+    Q_PROPERTY(FilteredTagItemModel* tags_open       MEMBER m_tags_open       CONSTANT)
+    Q_PROPERTY(FilteredTagItemModel* tags_actionable MEMBER m_tags_actionable CONSTANT)
+    Q_PROPERTY(FilteredTagItemModel* tags_project    MEMBER m_tags_project    CONSTANT)
+    Q_PROPERTY(FilteredTagItemModel* tags_archived   MEMBER m_tags_archived   CONSTANT)
+
+    Q_PROPERTY(FlatteningProxyModel* flat_tags       MEMBER m_flat_tags       CONSTANT)
+
+    Q_PROPERTY(FilteredTaskItemModel* open_tasks       MEMBER m_open_tasks       CONSTANT)
+    Q_PROPERTY(FilteredTaskItemModel* actionable_tasks MEMBER m_actionable_tasks CONSTANT)
+    Q_PROPERTY(FilteredTaskItemModel* project_tasks    MEMBER m_project_tasks    CONSTANT)
+    Q_PROPERTY(FilteredTaskItemModel* archived_tasks   MEMBER m_archived_tasks   CONSTANT)
+
+    Q_PROPERTY(GlobalEventFilter*    global_event_filter   MEMBER m_global_event_filter   CONSTANT)
+
+    void set_up(const QString& database_file_path = "");
 };

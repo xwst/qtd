@@ -232,5 +232,5 @@ bool TestHelpers::compare_indices_by_uuid(
     const QModelIndex& index_1,
     const QModelIndex& index_2
 ) {
-    return index_1.data(uuid_role).value<QtdId>() < index_2.data(uuid_role).value<QtdId>();
+    return index_1.data(UuidRole).value<QtdId>() < index_2.data(UuidRole).value<QtdId>();
 }

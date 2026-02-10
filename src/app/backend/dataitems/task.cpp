@@ -1,5 +1,5 @@
 /**
- * Copyright 2025 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
+ * Copyright 2025, 2026 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
  *
  * This file is part of qtd.
  *
@@ -132,12 +132,12 @@ void Task::set_tags(const QSet<TagId> &new_tags) {
 QVariant Task::get_data(int role) const {
     switch (role) {
     case Qt::DisplayRole: return this->get_title();
-    case active_role:     return this->get_status();
-    case start_role:      return this->get_start_datetime();
-    case due_role:        return this->get_due_datetime();
-    case resolve_role:    return this->get_resolve_datetime();
-    case details_role:    return this->get_text_document()->toPlainText();
-    case tags_role:       return QVariant::fromValue(this->get_tags());
+    case ActiveRole:     return this->get_status();
+    case StartRole:      return this->get_start_datetime();
+    case DueRole:        return this->get_due_datetime();
+    case ResolveRole:    return this->get_resolve_datetime();
+    case DetailsRole:    return this->get_text_document()->toPlainText();
+    case TagsRole:       return QVariant::fromValue(this->get_tags());
     default:              return UniqueDataItem::get_data(role);
     }
 }
@@ -147,22 +147,22 @@ void Task::set_data(const QVariant& value, int role) {
     case Qt::DisplayRole:
         this->set_title(value.toString());
         break;
-    case active_role:
+    case ActiveRole:
         this->set_status(value.value<Task::Status>());
         break;
-    case start_role:
+    case StartRole:
         this->set_start_datetime(value.toDateTime());
         break;
-    case due_role:
+    case DueRole:
         this->set_due_datetime(value.toDateTime());
         break;
-    case resolve_role:
+    case ResolveRole:
         this->set_resolve_datetime(value.toDateTime());
         break;
-    case add_tag_role:
+    case AddTagRole:
         this->tags.insert(value.value<QtdId>());
         break;
-    case remove_tag_role:
+    case RemoveTagRole:
         this->tags.remove(value.value<TagId>());
         break;
     default:

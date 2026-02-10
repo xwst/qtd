@@ -1,5 +1,5 @@
 /**
- * Copyright 2025 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
+ * Copyright 2025, 2026 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
  *
  * This file is part of qtd.
  *
@@ -18,6 +18,7 @@
 
 import QtQuick
 import QtQuick.Controls
+import src.app
 
 Window {
     id: tag_editor
@@ -43,6 +44,44 @@ Window {
         tag_index.model.removeRows(tag_index.row, 1, tag_index.parent)
     }
 
+    function get_source_parent(tag_index) {
+        return tag_index.model.mapToSource(tag_index).parent;
+    }
+
+    function save(new_name, new_parent_id, new_color) {
+        var source_index = tag_editor.tag_index.model.mapToSource(tag_index);
+        var source_model = source_index.model;
+        if (new_name !== source_model.data(source_index, Qt.DisplayRole)
+            && !source_model.setData(source_index, new_name, Qt.DisplayRole))
+        {
+            console.log("Failed to change name");
+            return;
+        }
+        if (new_color != source_model.data(source_index, Qt.DecorationRole)
+            && !source_model.setData(source_index, new_color, Qt.DecorationRole))
+        {
+            console.log("Failed to change color");
+            return;
+        }
+        if (new_parent_id !== source_index.parent.data(QmlInterface.UuidRole)) {
+            if (!source_model.change_parent(source_index, new_parent_id)) {
+                invalid_parent_dialog.open();
+                return;
+            }
+        }
+        closeRequested();
+    }
+
+    function closeRequested() {
+        if (invalid_parent_dialog.visible) {
+            invalid_parent_dialog.close();
+        } else if (confirm_dialog.visible) {
+            confirm_dialog.close();
+        } else {
+            tag_editor.close();
+        }
+    }
+
     Dialog {
         id: confirm_dialog
         modal: true
@@ -58,10 +97,22 @@ Window {
         onAccepted: tag_editor.delete_tag_and_children()
     }
 
+    Dialog {
+        id: invalid_parent_dialog
+        modal: true
+        popupType: Popup.Window
+
+        standardButtons: Dialog.Ok
+        Text {
+            text: "Failed to change the parent tag!"
+        }
+    }
+
     TagForm {
+        id: tag_form
         name: tag_editor.tag_index.model.data(tag_index, Qt.DisplayRole)
         control_font: tag_editor.control_font
-        parent_name: tag_editor.tag_index.model.hasChildren(tag_index)
+        parent_index: tag_editor.get_source_parent(tag_editor.tag_index)
         tag_color: tag_editor.tag_index.model.data(tag_index, Qt.DecorationRole)
         is_new: false
         has_children: tag_editor.tag_index.model.hasChildren(tag_index)
@@ -72,6 +123,7 @@ Window {
             else
                 tag_editor.delete_tag_and_children()
         }
-        onCloseClicked: tag_editor.close()
+        onCloseClicked: tag_editor.closeRequested()
+        onSaveClicked: (name, parent_id, color) => tag_editor.save(name, parent_id, color)
     }
 }

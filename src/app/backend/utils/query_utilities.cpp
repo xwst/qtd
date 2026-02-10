@@ -34,7 +34,7 @@
 namespace QueryUtilities {
 
 /**
- * @brief Splits a string of queries at semicolons at the end of a line.
+ * @brief Splits a string of queries at empty lines or lines that contain only a comment.
  * @param sql_queries String containing multiple queries
  * @return a list of individual queries
  */

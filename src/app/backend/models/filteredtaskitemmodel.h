@@ -1,5 +1,5 @@
 /**
- * Copyright 2025 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
+ * Copyright 2025, 2026 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
  *
  * This file is part of qtd.
  *
@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include <functional>
 #include <utility>
 
 #include <QAbstractProxyModel>
@@ -33,9 +34,13 @@ class FilteredTaskItemModel : public QAbstractProxyModel
 {
     Q_OBJECT
 
+public:
+    using TaskFilterFunction = std::function<bool(const QModelIndex&)>;
+
 private:
     const static char* split_pattern;
 
+    const TaskFilterFunction is_task_accepted;
     QStringList filter_words;
     QMultiHash<TaskId, std::pair<QModelIndex, QModelIndex>> index_mapping;
     QMultiHash<QModelIndex, QModelIndex> proxy_children;
@@ -49,16 +54,18 @@ private:
     [[nodiscard]] bool index_matches_search_string(const QModelIndex& index) const;
     [[nodiscard]] bool index_matches_tag_selection(const QModelIndex& index) const;
     [[nodiscard]] QModelIndex find_proxy_parent(const QModelIndex& source_index) const;
+    [[nodiscard]] bool is_child(const TaskId& child, const QModelIndex& parent) const;
     void setup_signal_slot_connections();
 
 public:
-    explicit FilteredTaskItemModel(QObject* parent = nullptr);
+    explicit FilteredTaskItemModel(
+        TaskFilterFunction is_task_accepted = [](const QModelIndex&) { return true; },
+        QObject* parent = nullptr
+    );
 
     void setSourceModel(QAbstractItemModel* sourceModel) override;
     void set_search_string(const QString& search_string);
     void clear_search_string();
-
-    void set_selected_tags(const QSet<TagId>& tags);
 
     [[nodiscard]] QModelIndex mapFromSource(const QModelIndex& sourceIndex) const override;
     [[nodiscard]] QModelIndex mapToSource(const QModelIndex& proxyIndex) const override;
@@ -83,6 +90,7 @@ public slots:
         const QList<int>& roles = QList<int>()
     );
     void source_model_changed();
+    void set_selected_tags(const QSet<TagId>& tags);
 
 signals:
     void filtered_tags_changed(QSet<TagId>);

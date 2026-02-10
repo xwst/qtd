@@ -1,5 +1,5 @@
 /**
- * Copyright 2025 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
+ * Copyright 2025, 2026 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
  *
  * This file is part of qtd.
  *
@@ -19,6 +19,8 @@
 #pragma once
 
 #include <QAbstractProxyModel>
+#include <QByteArray>
+#include <QHash>
 #include <QObject>
 
 class FlatteningProxyModel : public QAbstractProxyModel
@@ -59,4 +61,6 @@ public:
     [[nodiscard]] int rowCount(const QModelIndex& parent = QModelIndex()) const override;
     [[nodiscard]] int columnCount(const QModelIndex& parent = QModelIndex()) const override;
     [[nodiscard]] bool hasChildren(const QModelIndex& parent) const override;
+
+    [[nodiscard]] QHash<int, QByteArray> roleNames() const override;
 };

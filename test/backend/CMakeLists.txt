@@ -16,34 +16,43 @@
 
 
 FUNCTION(create_model_test test_name source_file)
+    SET(options QML)
+    SET(oneValueArgs TEST_NAME)
+    SET(multiValueArgs SOURCES)
+    CMAKE_PARSE_ARGUMENTS(
+        PARSE_ARGV 0 arg "${options}" "${oneValueArgs}" "${multiValueArgs}"
+    )
     QT_ADD_EXECUTABLE(
-        ${test_name}
-        ${source_file}
+        ${arg_TEST_NAME}
+        ${arg_SOURCES}
         ../testhelpers.cpp
         persistedtreeitemmodelstestbase.cpp
     )
     IF(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
-        TARGET_COMPILE_OPTIONS(${test_name} PRIVATE -O0 --coverage)
-        TARGET_LINK_LIBRARIES(${test_name} PRIVATE gcov)
-        TARGET_LINK_OPTIONS(${test_name} PRIVATE --coverage)
+        TARGET_COMPILE_OPTIONS(${arg_TEST_NAME} PRIVATE -O0 --coverage)
+        TARGET_LINK_LIBRARIES(${arg_TEST_NAME} PRIVATE gcov)
+        TARGET_LINK_OPTIONS(${arg_TEST_NAME} PRIVATE --coverage)
     ENDIF()
-    TARGET_LINK_LIBRARIES(${test_name}
+    TARGET_LINK_LIBRARIES(${arg_TEST_NAME}
         PRIVATE
-        Qt6::Gui
         Qt6::Test
         Qt6::Sql
+        Qt6::Gui
         backend_internal
     )
-    ADD_TEST(NAME ${test_name} COMMAND ${test_name})
-    ADD_DEPENDENCIES(all_tests ${test_name})
+    IF (${arg_QML})
+        TARGET_LINK_LIBRARIES(${arg_TEST_NAME} PRIVATE Qt6::Quick)
+    ENDIF()
+    ADD_TEST(NAME ${arg_TEST_NAME} COMMAND ${arg_TEST_NAME})
+    ADD_DEPENDENCIES(all_tests ${arg_TEST_NAME})
     QT_ADD_RESOURCES(
-        ${test_name} "test-resources"
+        ${arg_TEST_NAME} "test-resources"
         PREFIX "/"
 	BASE "${PROJECT_SOURCE_DIR}/test"
         FILES "${PROJECT_SOURCE_DIR}/test/resources/sql/generic/populate_database.sql"
     )
     QT_ADD_RESOURCES(
-        ${test_name} "resources"
+        ${arg_TEST_NAME} "resources"
         PREFIX "/"
 	BASE "${PROJECT_SOURCE_DIR}"
         FILES ${RESOURCE_FILES}
@@ -80,10 +89,17 @@ IF(GCOVR AND (${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU"))
     )
 ENDIF()
 
-CREATE_MODEL_TEST(test_ids testqtdid.cpp)
-CREATE_MODEL_TEST(test_treenodes testtreenodes.cpp)
-CREATE_MODEL_TEST(test_treeitemmodel testtreeitemmodel.cpp)
-CREATE_MODEL_TEST(test_tagitemmodels testtagitemmodels.cpp)
-CREATE_MODEL_TEST(test_taskitemmodels testtaskitemmodels.cpp)
-CREATE_MODEL_TEST(test_filteredtaskitemmodel testfilteredtaskitemmodel.cpp)
-CREATE_MODEL_TEST(test_filteredtagitemmodel testfilteredtagitemmodel.cpp)
+CREATE_MODEL_TEST(TEST_NAME test_ids                   SOURCES testqtdid.cpp)
+CREATE_MODEL_TEST(TEST_NAME test_treenodes             SOURCES testtreenodes.cpp)
+CREATE_MODEL_TEST(TEST_NAME test_treeitemmodel         SOURCES testtreeitemmodel.cpp)
+CREATE_MODEL_TEST(TEST_NAME test_tagitemmodels         SOURCES testtagitemmodels.cpp)
+CREATE_MODEL_TEST(TEST_NAME test_taskitemmodels        SOURCES testtaskitemmodels.cpp)
+CREATE_MODEL_TEST(TEST_NAME test_filteredtaskitemmodel SOURCES testfilteredtaskitemmodel.cpp)
+CREATE_MODEL_TEST(TEST_NAME test_filteredtagitemmodel  SOURCES testfilteredtagitemmodel.cpp)
+CREATE_MODEL_TEST(
+    TEST_NAME test_qmlinterface
+    QML
+    SOURCES testqmlinterface.cpp
+            ../../src/app/qmlinterface.cpp
+            ../../src/app/globaleventfilter.cpp
+)

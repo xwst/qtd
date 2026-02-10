@@ -1,5 +1,5 @@
 /**
- * Copyright 2025 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
+ * Copyright 2025, 2026 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
  *
  * This file is part of qtd.
  *
@@ -38,15 +38,15 @@ private:
     std::unique_ptr<FlatteningProxyModel> flat_model;
 
     // Helper functions:
-    void assert_initial_dataset_representation_base_model();
-    void assert_initial_dataset_representation_flat_model();
+    void assert_initial_dataset_representation_base_model() const;
+    void assert_initial_dataset_representation_flat_model() const;
     void assert_correct_from_source_mapping_recursively(
         const QModelIndex& source_index = QModelIndex(),
         int expected_proxy_row = 0
-    );
-    void assert_correct_proxy_mapping();
-    void assert_correctness_of_proxy_models();
-    void assert_model_persistence();
+    ) const;
+    void assert_correct_proxy_mapping() const;
+    void assert_correctness_of_proxy_models() const;
+    void assert_model_persistence() const;
     static void remove_single_row_without_children(QAbstractItemModel& model);
     static void remove_children_of_first_top_level_index(QAbstractItemModel& model);
 
@@ -58,12 +58,17 @@ private slots:
     void cleanup();
 
     // Test functions:
-    void test_initial_dataset_represented_correctly();
-    void test_remove_single_row();
-    void test_remove_rows_with_children();
-    void test_remove_single_row_with_nested_children();
-    void test_create_toplevel_tag();
-    void test_create_tag_with_parent();
-    void test_data_change_of_toplevel_item();
-    void test_data_change_of_child_item();
+    void test_initial_dataset_represented_correctly() const;
+    void test_remove_single_row() const;
+    void test_remove_rows_with_children() const;
+    void test_remove_single_row_with_nested_children() const;
+    void test_create_toplevel_tag() const;
+    void test_create_tag_with_parent() const;
+    void test_data_change_of_toplevel_item() const;
+    void test_data_change_of_child_item() const;
+    void test_changing_parent_new_parent_can_not_be_descendant() const;
+    void test_changing_parent_new_parent_can_not_be_oneself() const;
+    void test_removing_parent() const;
+    void test_changing_parent_to_grand_parent() const;
+    void test_changing_parent_to_different_subtree() const;
 };

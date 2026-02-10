@@ -18,11 +18,13 @@ LIST(
     APPEND backend_files
     dataitems/qtdid.cpp
     dataitems/tag.cpp
+    dataitems/qtditemdatarole.cpp
     dataitems/task.cpp
     dataitems/treenode.cpp
     models/filteredtagitemmodel.cpp
     models/filteredtaskitemmodel.cpp
     models/flatteningproxymodel.cpp
+    models/mainpagemodelfilter.cpp
     models/tagitemmodel.cpp
     models/taskitemmodel.cpp
     models/treeitemmodel.cpp

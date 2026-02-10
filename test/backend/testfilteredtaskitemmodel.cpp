@@ -1,5 +1,5 @@
 /**
- * Copyright 2025 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
+ * Copyright 2025, 2026 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
  *
  * This file is part of qtd.
  *
@@ -72,7 +72,7 @@ void TestFilteredTaskItemModel::init() {
     );
     QCOMPARE(this->base_model->rowCount(), 3);
 
-    TestHelpers::setup_proxy_item_model(this->model, this->base_model.get(), nullptr);
+    TestHelpers::setup_proxy_item_model(this->model, this->base_model.get());
     this->model->clear_search_string();
     this->spy = std::make_unique<QSignalSpy>(
         this->model.get(),
@@ -127,7 +127,7 @@ void TestFilteredTaskItemModel::test_filter_for_task_details() const {
 
     const auto remaining_index = this->model->index(0, 0);
     QCOMPARE(
-        remaining_index.data(uuid_role).toString(),
+        remaining_index.data(UuidRole).toString(),
         "dc1f5ff8-db45-6630-9340-13a7d860d910"
     );
     QCOMPARE(this->model->rowCount(remaining_index), 0);
@@ -143,7 +143,7 @@ void TestFilteredTaskItemModel::test_no_filter() const {
     TestHelpers::assert_model_equality(
         *this->model,
         *this->base_model,
-        {Qt::DisplayRole, uuid_role},
+        {Qt::DisplayRole, UuidRole},
         TestHelpers::compare_indices_by_uuid
     );
 }

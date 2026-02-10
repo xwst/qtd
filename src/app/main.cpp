@@ -35,7 +35,7 @@ int main(int argc, char *argv[]) {
 
     initialize_qt_meta_types();
     auto* models = engine.singletonInstance<QmlInterface*>("src.app", "QmlInterface");
-    models->set_up(&app);
+    models->set_up();
 
     QObject::connect(
         &engine,

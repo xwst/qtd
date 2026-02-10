@@ -1,5 +1,5 @@
 /**
- * Copyright 2025 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
+ * Copyright 2025, 2026 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
  *
  * This file is part of qtd.
  *
@@ -37,6 +37,12 @@
  * of the used SqlResultIterator.
  */
 
+QVariant TagRepository::convert_id(const TagId &tag_id) {
+    return tag_id.is_valid()
+               ? QVariant(tag_id.toString())
+               : QVariant(QMetaType::fromType<TagId>());
+}
+
 TagRepository TagRepository::create(const QString &database_connection_name) {
     return TagRepository(database_connection_name); // NOLINT (modernize-return-braced-init-list)
 }
@@ -49,22 +55,22 @@ SqlResultView<Tag> TagRepository::get_all_tags() const {
     return SqlResultView<Tag>(std::move(query));
 }
 
-bool TagRepository::update_name(const QString& new_name, const TagId& tag) const {
+bool TagRepository::update_name(const QString& new_name, const TagId& tag_id) const {
     return this->alter_database(
         "update_tag.sql",
-        {new_name, tag.toString()},
+        {new_name, tag_id.toString()},
         false,
         "#column_name#",
         "name"
     );
 }
 
-bool TagRepository::update_color(const QColor& new_color, const TagId& tag) const {
+bool TagRepository::update_color(const QColor& new_color, const TagId& tag_id) const {
     return this->alter_database(
         "update_tag.sql",
         {
             new_color.isValid() ? new_color.name(QColor::HexArgb) : "",
-            tag.toString()
+            tag_id.toString()
         },
         false,
         "#column_name#",
@@ -72,7 +78,20 @@ bool TagRepository::update_color(const QColor& new_color, const TagId& tag) cons
     );
 }
 
-bool TagRepository::save(const Tag& tag, const TagId& parent) const {
+bool TagRepository::update_parent(const TagId &new_parent_id, const TagId &tag_id) const {
+    return this->alter_database(
+        "update_tag.sql",
+        {
+            TagRepository::convert_id(new_parent_id),
+            tag_id.toString()
+        },
+        false,
+        "#column_name#",
+        "parent_uuid"
+    );
+}
+
+bool TagRepository::save(const Tag& tag, const TagId& parent_id) const {
     return this->alter_database(
         "create_tag.sql",
         {
@@ -81,9 +100,7 @@ bool TagRepository::save(const Tag& tag, const TagId& parent) const {
             tag.get_color().isValid()
                 ? tag.get_color().name(QColor::HexArgb)
                 : "",
-            parent.is_valid()
-                ? QVariant(parent.toString())
-                : QVariant(QMetaType::fromType<TagId>())
+            TagRepository::convert_id(parent_id)
         }
     );
 }

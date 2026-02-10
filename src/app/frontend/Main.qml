@@ -1,5 +1,5 @@
 /**
- * Copyright 2025 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
+ * Copyright 2025, 2026 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
  *
  * This file is part of qtd.
  *
@@ -18,10 +18,13 @@
 
 pragma ComponentBehavior: Bound
 
+import QtQuick.Controls.Fusion
+
 import QtQuick
 import QtQuick.Controls 2.15
 import QtQuick.Layouts
 import Qt.labs.qmlmodels
+import src.app
 
 ApplicationWindow {
     id: main_window
@@ -38,16 +41,16 @@ ApplicationWindow {
     property int max_control_font_size: 40;
 
     property var pages_model: [
-          { name: "Open",       tag_model: QmlInterface.tags_model, task_model: QmlInterface.task_model }
-        , { name: "Actionable", tag_model: QmlInterface.tags_model, task_model: QmlInterface.task_model }
-        , { name: "Projetcs",   tag_model: QmlInterface.tags_model, task_model: QmlInterface.task_model }
-        , { name: "Archive",    tag_model: QmlInterface.tags_model, task_model: QmlInterface.task_model }
+          { name: "Open",       tag_model: QmlInterface.tags_open,       task_model: QmlInterface.open_tasks       }
+        , { name: "Actionable", tag_model: QmlInterface.tags_actionable, task_model: QmlInterface.actionable_tasks }
+        , { name: "Projects",   tag_model: QmlInterface.tags_project,    task_model: QmlInterface.project_tasks    }
+        , { name: "Archive",    tag_model: QmlInterface.tags_archived,    task_model: QmlInterface.archived_tasks  }
     ]
 
     FontLoader {
         id: symbol_font
         source: Qt.resolvedUrl(
-            "file://" + QmlInterface.application_dir + "/Font Awesome 6 Free-Solid-900.otf"
+            "file:///" + QmlInterface.application_dir + "/Font Awesome 6 Free-Solid-900.otf"
         )
     }
 
@@ -118,7 +121,8 @@ ApplicationWindow {
             Button {
                 id: delay_task_button
                 text: '\uf252'
-                font: main_window.control_font
+                font.family: symbol_font.name
+                font.pointSize: main_window.control_font.pointSize
                 implicitWidth: height
                 implicitHeight: add_task_button.height
             }

@@ -1,5 +1,5 @@
 /**
- * Copyright 2025 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
+ * Copyright 2025, 2026 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
  *
  * This file is part of qtd.
  *
@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include <QList>
+#include <QModelIndex>
 #include <QSet>
 #include <QSortFilterProxyModel>
 
@@ -39,4 +41,8 @@ public:
 
 public slots:
     void set_tag_whitelist(const QSet<TagId>& new_tag_whitelist);
+    void tag_selection_changed(QList<QModelIndex> selection) const;
+
+signals:
+    void tag_filter_changed(QSet<TagId>) const;
 };

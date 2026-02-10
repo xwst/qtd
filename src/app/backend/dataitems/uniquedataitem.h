@@ -1,5 +1,5 @@
 /**
- * Copyright 2025 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
+ * Copyright 2025, 2026 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
  *
  * This file is part of qtd.
  *
@@ -40,7 +40,7 @@ public:
     [[nodiscard]] QString get_uuid_string() const { return this->item_id.toString(); }
 
     [[nodiscard]] virtual QVariant get_data(int role) const {
-        if (role == uuid_role) {
+        if (role == UuidRole) {
             return this->get_uuid();
         }
         return {};
