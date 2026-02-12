@@ -21,6 +21,12 @@ QT_ADD_EXECUTABLE(qtd
 
 ADD_SUBDIRECTORY(backend)
 
+SET_SOURCE_FILES_PROPERTIES(
+    frontend/globalstyle/GlobalStyle.qml
+    PROPERTIES
+    QT_QML_SINGLETON_TYPE TRUE
+)
+
 QT_ADD_QML_MODULE(qtd
     URI src.app
     QML_FILES
@@ -34,6 +40,7 @@ QT_ADD_QML_MODULE(qtd
             frontend/components/TaskPage.qml
             frontend/components/SelectableTreeViewDelegate.qml
             frontend/components/SelectableTreeView.qml
+            frontend/globalstyle/GlobalStyle.qml
 )
 
 TARGET_LINK_LIBRARIES(qtd

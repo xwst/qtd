@@ -18,13 +18,13 @@
 
 import QtQuick
 import QtQuick.Controls 2.15
+import src.app
 
 Rectangle {
     id: tag_view_container
     color: "white"
     implicitWidth: tag_view.contentWidth
 
-    required property font control_font
     required property var model
     property var tag_editor_component: Qt.createComponent("qrc:/qt/qml/src/app/frontend/components/TagEditor.qml")
 
@@ -35,7 +35,6 @@ Rectangle {
         alternatingRows: false
         Component.onCompleted: expandRecursively()
 
-        control_font: tag_view_container.control_font
         model: tag_view_container.model
         selectionModel: ItemSelectionModel {
             onSelectionChanged: (selected, deselected) => model.tag_selection_changed(selectedIndexes)
@@ -62,20 +61,15 @@ Rectangle {
                     var tag_editor = tag_view_container.tag_editor_component.createObject(
                                 tag_view_container,
                                 {
-                                    tag_index: tag_view.index(parent.row, 0),
-                                    control_font: Qt.binding(
-                                        function() {
-                                            return tag_view_container.control_font
-                                        }
-                                    )
+                                    tag_index: tag_view.index(parent.row, 0)
                                 }
                     )
                     tag_editor.show()
                 }
             }
-            rightPadding: tag_view_container.control_font.pointSize
-            implicitHeight: tag_view_container.control_font.pointSize * 2
-            font: tag_view_container.control_font
+            rightPadding: GlobalStyle.font.pointSize
+            implicitHeight: 2 * GlobalStyle.font.pointSize
+            font: GlobalStyle.font
         }
     }
 }
