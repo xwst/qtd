@@ -26,7 +26,6 @@ GridLayout {
     id: tag_form_container
 
     required property string name
-    required property font control_font
     required property var parent_index
     required property color tag_color
     required property bool is_new
@@ -36,11 +35,11 @@ GridLayout {
     signal closeClicked
     signal saveClicked(name: string, parent_id: var, color: var)
 
-    width: parent.width * 0.9
-    height: parent.height * 0.9
     anchors.centerIn: parent
-    columnSpacing: control_font.pointSize
-    rowSpacing: control_font.pointSize / 2
+    anchors.fill: parent
+    anchors.margins: GlobalStyle.font.pointSize
+    columnSpacing: GlobalStyle.font.pointSize
+    rowSpacing: GlobalStyle.font.pointSize / 2
 
     columns: 2
 
@@ -67,81 +66,6 @@ GridLayout {
         onActivated: tag_form_container.save()
     }
 
-    Label {
-        id: name_label
-        text: "Name:"
-        font: tag_form_container.control_font
-    }
-    LineEdit {
-        Layout.fillWidth: true
-        Layout.fillHeight: true
-        Layout.minimumWidth: name_label.width * 2
-        id: name_input
-        text: tag_form_container.name
-        font: tag_form_container.control_font
-    }
-
-    Label {
-        text: "Parent:"
-        font: tag_form_container.control_font
-    }
-    ComboBox {
-        Layout.fillWidth: true
-        Layout.fillHeight: true
-        id: parent_input
-        model: QmlInterface.flat_tags
-        Component.onCompleted: {
-            currentIndex = tag_form_container.parent_index.valid
-                         ? indexOfValue(parent_index.data(QmlInterface.UuidRole))
-                         : -1
-        }
-        editable: true
-        selectTextByMouse: true
-        textRole: "display"
-        valueRole: "uuid"
-        font: tag_form_container.control_font
-    }
-
-    Label {
-        text: "Color:"
-        font: tag_form_container.control_font
-    }
-    RowLayout {
-        Layout.fillWidth: true
-        spacing: -1
-        LineEdit {
-            Layout.fillHeight: true
-            Layout.fillWidth: true
-            id: color_input
-            text: tag_form_container.tag_color
-            font: tag_form_container.control_font
-        }
-        Button {
-            id: open_color_dialog
-            Layout.fillHeight: true
-            implicitWidth: height
-            onClicked: {
-                tag_form_container.enabled = false
-                colorDialog.open()
-            }
-            contentItem: Text {
-                text: "\uf53f"
-                font.family: symbol_font.name
-                anchors.fill: parent
-                horizontalAlignment: Text.AlignHCenter
-                verticalAlignment: Text.AlignVCenter
-                font.pointSize: tag_form_container.control_font.pointSize
-                color: Qt.color(color_input.text).hslLightness > 0.6 ? "black" : "white"
-            }
-            background: Rectangle {
-                color: color_input.text
-                border.color: palette.active.dark
-                border.width: 1
-                radius: 2
-            }
-        }
-    }
-
     Shortcut {
         sequences: [Qt.Key_Close, Qt.Key_Cancel, StandardKey.Close, StandardKey.Cancel]
         onActivated: {
@@ -165,6 +89,83 @@ GridLayout {
         onRejected: tag_form_container.enabled = true
     }
 
+    Label {
+        id: name_label
+        text: "Name:"
+        font: GlobalStyle.font
+    }
+    LineEdit {
+        id: name_input
+        Layout.fillWidth: true
+        Layout.minimumWidth: name_label.width * 2
+        implicitHeight: 2.5 * font.pointSize
+        text: tag_form_container.name
+        font: GlobalStyle.font
+    }
+
+    Label {
+        text: "Parent:"
+        font: GlobalStyle.font
+    }
+    ComboBox {
+        id: parent_input
+        Layout.fillWidth: true
+        implicitHeight: name_input.height
+        model: QmlInterface.flat_tags
+        Component.onCompleted: {
+            currentIndex = tag_form_container.parent_index.valid
+                         ? indexOfValue(parent_index.data(QmlInterface.UuidRole))
+                         : -1
+        }
+        editable: true
+        selectTextByMouse: true
+        textRole: "display"
+        valueRole: "uuid"
+        font: GlobalStyle.font
+    }
+
+    Label {
+        text: "Color:"
+        font: GlobalStyle.font
+    }
+    RowLayout {
+        Layout.fillWidth: true
+        spacing: -1
+        LineEdit {
+            id: color_input
+            Layout.fillWidth: true
+            implicitHeight: name_input.height
+            text: tag_form_container.tag_color
+            font: GlobalStyle.font
+        }
+        Button {
+            id: open_color_dialog
+            implicitHeight: color_input.height
+            implicitWidth: height
+            onClicked: {
+                tag_form_container.enabled = false
+                colorDialog.open()
+            }
+            contentItem: Text {
+                text: "\uf53f"
+                font.family: GlobalStyle.symbol_font.name
+                anchors.fill: parent
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+                font.pointSize: GlobalStyle.font.pointSize
+                color: Qt.color(color_input.text).hslLightness > 0.6 ? "black" : "white"
+            }
+            background: Rectangle {
+                color: color_input.text
+                border.color: palette.active.dark
+                border.width: 1
+                radius: 2
+            }
+        }
+    }
+
+    Item { Layout.fillHeight: true }
+
     RowLayout {
         Layout.columnSpan: 2
         Layout.fillWidth: true
@@ -172,22 +173,23 @@ GridLayout {
         DialogButtonBox {
             Layout.fillWidth: true
             alignment: Qt.AlignRight
-            spacing: tag_form_container.control_font.pointSize / 2
+            spacing: GlobalStyle.font.pointSize / 2
+            padding: 0
 
             Button {
                 text: "Cancel"
-                leftPadding: tag_form_container.control_font.pointSize
-                rightPadding: tag_form_container.control_font.pointSize
-                font.pointSize: tag_form_container.control_font.pointSize
+                leftPadding: GlobalStyle.font.pointSize
+                rightPadding: GlobalStyle.font.pointSize
+                font.pointSize: GlobalStyle.font.pointSize
                 DialogButtonBox.buttonRole: DialogButtonBox.RejectRole
                 onClicked: tag_form_container.closeClicked()
             }
 
             Button {
                 text: "Save"
-                leftPadding: tag_form_container.control_font.pointSize
-                rightPadding: tag_form_container.control_font.pointSize
-                font.pointSize: tag_form_container.control_font.pointSize
+                leftPadding: GlobalStyle.font.pointSize
+                rightPadding: GlobalStyle.font.pointSize
+                font.pointSize: GlobalStyle.font.pointSize
                 DialogButtonBox.buttonRole: DialogButtonBox.ApplyRole
 
                 onClicked: tag_form_container.save()
@@ -196,11 +198,11 @@ GridLayout {
             DelayButton {
                     id: delete_button
 
-                    delay: tag_form_container.has_children ? 0 : 1000
-                    leftPadding: tag_form_container.control_font.pointSize
-                    rightPadding: tag_form_container.control_font.pointSize
                     text: "Delete"
-                    font.pointSize: tag_form_container.control_font.pointSize
+                    delay: tag_form_container.has_children ? 0 : 1000
+                    leftPadding: GlobalStyle.font.pointSize
+                    rightPadding: GlobalStyle.font.pointSize
+                    font.pointSize: GlobalStyle.font.pointSize
                     palette.buttonText: "red"
                     DialogButtonBox.buttonRole: DialogButtonBox.ResetRole
                     onActivated: tag_form_container.deleteActivated()

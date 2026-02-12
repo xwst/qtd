@@ -30,7 +30,6 @@ TestCase {
         id: component_to_test
         visible: true
         tag_index: dummyIndex
-        control_font: Qt.font()
     }
 
     SignalSpy {

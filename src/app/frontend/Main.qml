@@ -23,36 +23,22 @@ import QtQuick.Controls.Fusion
 import QtQuick
 import QtQuick.Controls 2.15
 import QtQuick.Layouts
-import Qt.labs.qmlmodels
 import src.app
 
 ApplicationWindow {
     id: main_window
-    width: 640
-    height: 480
     visible: true
     title: qsTr("Qetting things done")
 
-    property font control_font: Qt.font({
-        pointSize: font_size_slider.value
-    });
-    property int default_control_font_size: 12;
-    property int min_control_font_size: 6;
-    property int max_control_font_size: 40;
+    minimumWidth: main_layout.implicitWidth
+    minimumHeight: 400
 
     property var pages_model: [
           { name: "Open",       tag_model: QmlInterface.tags_open,       task_model: QmlInterface.open_tasks       }
         , { name: "Actionable", tag_model: QmlInterface.tags_actionable, task_model: QmlInterface.actionable_tasks }
         , { name: "Projects",   tag_model: QmlInterface.tags_project,    task_model: QmlInterface.project_tasks    }
-        , { name: "Archive",    tag_model: QmlInterface.tags_archived,    task_model: QmlInterface.archived_tasks  }
+        , { name: "Archive",    tag_model: QmlInterface.tags_archived,   task_model: QmlInterface.archived_tasks   }
     ]
-
-    FontLoader {
-        id: symbol_font
-        source: Qt.resolvedUrl(
-            "file:///" + QmlInterface.application_dir + "/Font Awesome 6 Free-Solid-900.otf"
-        )
-    }
 
     Connections {
         target: QmlInterface.global_event_filter
@@ -64,38 +50,50 @@ ApplicationWindow {
     Connections {
         target: QmlInterface.global_event_filter
         function onZoomReset() {
-            font_size_slider.value = main_window.default_control_font_size
+            font_size_slider.value = GlobalStyle.default_font_size
         }
     }
 
     Menu {
         id: properties_menu
-        implicitWidth: 300 * main_window.control_font.pointSize / main_window.default_control_font_size
+        x: properties_button.x + properties_button.width - width
+        y: properties_button.y + properties_button.height
+        contentWidth: menu_font_slider_row.implicitWidth
 
         MenuItem {
             id: menu_settings_button
             text: 'Settings'
-            font: main_window.control_font
+            font: GlobalStyle.font
         }
-        MenuSeparator {}
-        Row {
-            id: menu_font_slider_row
-            height: Math.max(menu_zoom_label.height, font_size_slider.height) + 2*padding
-            padding: menu_settings_button.padding
-            Label {
-                id: menu_zoom_label
-                text: "Zoom    "
-                font: main_window.control_font
-            }
-            Slider {
-                id: font_size_slider
-                from: main_window.min_control_font_size
-                to: main_window.max_control_font_size
-                value: main_window.default_control_font_size
-                live: false
-                implicitHeight: menu_zoom_label.height
-                implicitWidth: properties_menu.width - menu_zoom_label.width - 3*parent.padding
+        MenuSeparator {
+        }
+        MenuItem {
+            contentItem: RowLayout {
+                id: menu_font_slider_row
+                spacing: GlobalStyle.font.pointSize
+                Label {
+                    id: menu_zoom_label
+                    text: "Zoom"
+                    font: GlobalStyle.font
+                }
+                Slider {
+                    id: font_size_slider
 
+                    from: GlobalStyle.min_font_size
+                    to: GlobalStyle.max_font_size
+                    value: GlobalStyle.font.pointSize
+                    live: false
+
+                    implicitHeight: menu_zoom_label.height
+                    Layout.minimumWidth: 2 * menu_zoom_label.width
+                    Layout.fillWidth: true
+
+                    handle.implicitWidth: Math.max(value, GlobalStyle.default_font_size)
+                    handle.implicitHeight: handle.implicitWidth
+
+                    onValueChanged: GlobalStyle.font.pointSize = value
+                }
+                Item {}
             }
         }
     }
@@ -105,14 +103,14 @@ ApplicationWindow {
         id: main_layout
 
         RowLayout {
-            spacing: 2 + main_window.control_font.pointSize / 4
+            spacing: 2 + GlobalStyle.font.pointSize / 4
             Item {}
 
             Button {
                 id: add_task_button
                 text: '\u002b'
-                font.pointSize: main_window.control_font.pointSize
-                font.family: symbol_font.name
+                font.pointSize: GlobalStyle.font.pointSize
+                font.family: GlobalStyle.symbol_font.name
                 implicitWidth: height
                 onClicked: QmlInterface.task_model.create_task(
                     "", swipe_view.currentItem.task_selection_model.selectedIndexes
@@ -121,8 +119,8 @@ ApplicationWindow {
             Button {
                 id: delay_task_button
                 text: '\uf252'
-                font.family: symbol_font.name
-                font.pointSize: main_window.control_font.pointSize
+                font.family: GlobalStyle.symbol_font.name
+                font.pointSize: GlobalStyle.font.pointSize
                 implicitWidth: height
                 implicitHeight: add_task_button.height
             }
@@ -141,7 +139,7 @@ ApplicationWindow {
                         required property var name
                         id: tab_bar_open
                         text: name
-                        font: main_window.control_font
+                        font: GlobalStyle.font
                     }
                 }
             }
@@ -149,24 +147,13 @@ ApplicationWindow {
             Item { Layout.fillWidth: true }
 
             Button {
-                id: search_button
-                text: '\uf002'
-                font.pointSize: main_window.control_font.pointSize
-                font.family: symbol_font.name
-                implicitWidth: height
-                implicitHeight: add_task_button.height
-            }
-            Button {
                 id: properties_button
                 text: '\uf0c9'
-                font: main_window.control_font
+                font.pointSize: GlobalStyle.font.pointSize
+                font.family: GlobalStyle.symbol_font.name
                 implicitWidth: height
                 implicitHeight: add_task_button.height
-                onClicked: {
-                    properties_menu.x = x + width - properties_menu.width
-                    properties_menu.y = y + height
-                    properties_menu.open()
-                }
+                onClicked: properties_menu.open()
             }
             Item {}
         }
@@ -179,10 +166,7 @@ ApplicationWindow {
 
             Repeater {
                 model: pages_model
-
-                TaskPage {
-                    control_font: main_window.control_font
-                }
+                TaskPage {}
             }
         }
     }
