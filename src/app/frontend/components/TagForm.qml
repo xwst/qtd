@@ -26,7 +26,6 @@ GridLayout {
     id: tag_form_container
 
     required property string name
-    required property font control_font
     required property var parent_index
     required property color tag_color
     required property bool is_new
@@ -39,8 +38,8 @@ GridLayout {
     width: parent.width * 0.9
     height: parent.height * 0.9
     anchors.centerIn: parent
-    columnSpacing: control_font.pointSize
-    rowSpacing: control_font.pointSize / 2
+    columnSpacing: GlobalStyle.font.pointSize
+    rowSpacing: GlobalStyle.font.pointSize / 2
 
     columns: 2
 
@@ -70,7 +69,7 @@ GridLayout {
     Label {
         id: name_label
         text: "Name:"
-        font: tag_form_container.control_font
+        font: GlobalStyle.font
     }
     LineEdit {
         Layout.fillWidth: true
@@ -78,12 +77,12 @@ GridLayout {
         Layout.minimumWidth: name_label.width * 2
         id: name_input
         text: tag_form_container.name
-        font: tag_form_container.control_font
+        font: GlobalStyle.font
     }
 
     Label {
         text: "Parent:"
-        font: tag_form_container.control_font
+        font: GlobalStyle.font
     }
     ComboBox {
         Layout.fillWidth: true
@@ -99,12 +98,12 @@ GridLayout {
         selectTextByMouse: true
         textRole: "display"
         valueRole: "uuid"
-        font: tag_form_container.control_font
+        font: GlobalStyle.font
     }
 
     Label {
         text: "Color:"
-        font: tag_form_container.control_font
+        font: GlobalStyle.font
     }
     RowLayout {
         Layout.fillWidth: true
@@ -114,7 +113,7 @@ GridLayout {
             Layout.fillWidth: true
             id: color_input
             text: tag_form_container.tag_color
-            font: tag_form_container.control_font
+            font: GlobalStyle.font
         }
         Button {
             id: open_color_dialog
@@ -126,11 +125,11 @@ GridLayout {
             }
             contentItem: Text {
                 text: "\uf53f"
-                font.family: symbol_font.name
+                font.family: GlobalStyle.symbol_font.name
                 anchors.fill: parent
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
-                font.pointSize: tag_form_container.control_font.pointSize
+                font.pointSize: GlobalStyle.font.pointSize
                 color: Qt.color(color_input.text).hslLightness > 0.6 ? "black" : "white"
             }
             background: Rectangle {
@@ -172,22 +171,22 @@ GridLayout {
         DialogButtonBox {
             Layout.fillWidth: true
             alignment: Qt.AlignRight
-            spacing: tag_form_container.control_font.pointSize / 2
+            spacing: GlobalStyle.font.pointSize / 2
 
             Button {
                 text: "Cancel"
-                leftPadding: tag_form_container.control_font.pointSize
-                rightPadding: tag_form_container.control_font.pointSize
-                font.pointSize: tag_form_container.control_font.pointSize
+                leftPadding: GlobalStyle.font.pointSize
+                rightPadding: GlobalStyle.font.pointSize
+                font.pointSize: GlobalStyle.font.pointSize
                 DialogButtonBox.buttonRole: DialogButtonBox.RejectRole
                 onClicked: tag_form_container.closeClicked()
             }
 
             Button {
                 text: "Save"
-                leftPadding: tag_form_container.control_font.pointSize
-                rightPadding: tag_form_container.control_font.pointSize
-                font.pointSize: tag_form_container.control_font.pointSize
+                leftPadding: GlobalStyle.font.pointSize
+                rightPadding: GlobalStyle.font.pointSize
+                font.pointSize: GlobalStyle.font.pointSize
                 DialogButtonBox.buttonRole: DialogButtonBox.ApplyRole
 
                 onClicked: tag_form_container.save()
@@ -196,11 +195,11 @@ GridLayout {
             DelayButton {
                     id: delete_button
 
-                    delay: tag_form_container.has_children ? 0 : 1000
-                    leftPadding: tag_form_container.control_font.pointSize
-                    rightPadding: tag_form_container.control_font.pointSize
                     text: "Delete"
-                    font.pointSize: tag_form_container.control_font.pointSize
+                    delay: tag_form_container.has_children ? 0 : 1000
+                    leftPadding: GlobalStyle.font.pointSize
+                    rightPadding: GlobalStyle.font.pointSize
+                    font.pointSize: GlobalStyle.font.pointSize
                     palette.buttonText: "red"
                     DialogButtonBox.buttonRole: DialogButtonBox.ResetRole
                     onActivated: tag_form_container.deleteActivated()

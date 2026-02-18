@@ -1,5 +1,5 @@
 /**
- * Copyright 2025, 2026 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
+ * Copyright 2026 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
  *
  * This file is part of qtd.
  *
@@ -16,27 +16,25 @@
  * qtd. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import QtQuick
+pragma Singleton
+
+import QtQuick 2.0
 import src.app
 
-TreeView {
-    signal rowDoubleClicked(row: int)
-    anchors.fill: parent
-    clip: true
-    alternatingRows: false
-    Component.onCompleted: expandRecursively()
+QtObject {
 
-    Connections {
-        target: model
-        function onModelReset() {
-            Qt.callLater(expandRecursively)
-        }
+    property int default_font_size: 12;
+    property int min_font_size: 6;
+    property int max_font_size: 40;
+
+    property font font: Qt.font({
+        pointSize: default_font_size
+    });
+
+    property var symbol_font: FontLoader {
+        source: Qt.resolvedUrl(
+            "file:///" + QmlInterface.application_dir + "/Font Awesome 6 Free-Solid-900.otf"
+        )
     }
 
-    selectionMode: TableView.ExtendedSelection
-    selectionModel: ItemSelectionModel {}
-
-    delegate: SelectableTreeViewDelegate {
-        onRowDoubleClicked: (row) => treeView.rowDoubleClicked(row)
-    }
 }

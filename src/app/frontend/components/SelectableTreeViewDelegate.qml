@@ -18,14 +18,14 @@
 
 import QtQuick
 import QtQuick.Controls 2.15
+import src.app
 
 TreeViewDelegate {
-    required property font control_font
     signal rowDoubleClicked(row: int)
 
-    rightPadding: control_font.pointSize
-    implicitHeight: control_font.pointSize * 2
-    font: control_font
+    rightPadding: GlobalStyle.font.pointSize
+    implicitHeight: 2 * GlobalStyle.font.pointSize
+    font: GlobalStyle.font
 
     MouseArea {
         anchors.fill: parent
