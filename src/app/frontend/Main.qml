@@ -108,9 +108,10 @@ ApplicationWindow {
 
             Button {
                 id: add_task_button
-                text: '\u002b'
-                font.pointSize: GlobalStyle.font.pointSize
-                font.family: GlobalStyle.symbol_font.name
+                icon.source: "qrc:///resources/icons/plus.svg"
+                icon.width: parent.width
+                icon.height: width
+                implicitHeight: tab_bar.height
                 implicitWidth: height
                 onClicked: QmlInterface.task_model.create_task(
                     "", swipe_view.currentItem.task_selection_model.selectedIndexes
@@ -118,11 +119,11 @@ ApplicationWindow {
             }
             Button {
                 id: delay_task_button
-                text: '\uf252'
-                font.family: GlobalStyle.symbol_font.name
-                font.pointSize: GlobalStyle.font.pointSize
+                icon.source: "qrc:///resources/icons/hourglass-half.svg"
+                icon.width: parent.width
+                icon.height: width
+                implicitHeight: tab_bar.height
                 implicitWidth: height
-                implicitHeight: add_task_button.height
             }
 
             Item { Layout.fillWidth: true }
@@ -148,11 +149,11 @@ ApplicationWindow {
 
             Button {
                 id: properties_button
-                text: '\uf0c9'
-                font.pointSize: GlobalStyle.font.pointSize
-                font.family: GlobalStyle.symbol_font.name
+                icon.source: "qrc:///resources/icons/bars.svg"
+                icon.width: parent.width
+                icon.height: width
+                implicitHeight: tab_bar.height
                 implicitWidth: height
-                implicitHeight: add_task_button.height
                 onClicked: properties_menu.open()
             }
             Item {}

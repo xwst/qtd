@@ -146,19 +146,15 @@ GridLayout {
                 tag_form_container.enabled = false
                 colorDialog.open()
             }
-            contentItem: Text {
-                text: "\uf53f"
-                font.family: GlobalStyle.symbol_font.name
-                anchors.fill: parent
-                horizontalAlignment: Text.AlignHCenter
-                verticalAlignment: Text.AlignVCenter
-                font.pointSize: GlobalStyle.font.pointSize
-                color: Qt.color(color_input.text).hslLightness > 0.6 ? "black" : "white"
-            }
+            icon.source: "qrc:///resources/icons/palette.svg"
+            icon.width: parent.width
+            icon.height: width
+            icon.color: Qt.color(color_input.text).hslLightness > 0.6 ? "black" : "white"
+            highlighted: hovered
             background: Rectangle {
                 color: color_input.text
-                border.color: palette.active.dark
-                border.width: 1
+                opacity: parent.hovered ? 0.7 : 1
+                border.width: 0
                 radius: 2
             }
         }

@@ -31,10 +31,4 @@ QtObject {
         pointSize: default_font_size
     });
 
-    property var symbol_font: FontLoader {
-        source: Qt.resolvedUrl(
-            "file:///" + QmlInterface.application_dir + "/Font Awesome 6 Free-Solid-900.otf"
-        )
-    }
-
 }
