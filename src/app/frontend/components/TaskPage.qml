@@ -1,5 +1,5 @@
 /**
- * Copyright 2025 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
+ * Copyright 2025, 2026 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
  *
  * This file is part of qtd.
  *
@@ -19,11 +19,11 @@
 import QtQuick
 import QtQuick.Controls 2.15
 import QtQuick.Layouts
+import src.app
 
 SplitView {
     id: task_page_container
 
-    required property font control_font
     required property var tag_model
     required property var task_model
     required property string name
@@ -31,7 +31,6 @@ SplitView {
     property alias task_selection_model: task_view.selectionModel
 
     TagOutline {
-        control_font: task_page_container.control_font
         model: tag_model
     }
 
@@ -40,7 +39,7 @@ SplitView {
             Label {
                 Layout.fillWidth: true
                 text: "Search Bar"
-                font: task_page_container.control_font
+                font: GlobalStyle.font
             }
         }
         Rectangle {
@@ -51,7 +50,6 @@ SplitView {
             SelectableTreeView {
                 id: task_view
                 model: task_page_container.task_model
-                control_font: task_page_container.control_font
             }
         }
     }

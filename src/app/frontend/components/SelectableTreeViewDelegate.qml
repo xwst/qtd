@@ -1,5 +1,5 @@
 /**
- * Copyright 2025 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
+ * Copyright 2025, 2026 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
  *
  * This file is part of qtd.
  *
@@ -18,14 +18,14 @@
 
 import QtQuick
 import QtQuick.Controls 2.15
+import src.app
 
 TreeViewDelegate {
-    required property font control_font
     signal rowDoubleClicked(row: int)
 
-    rightPadding: control_font.pointSize
-    implicitHeight: control_font.pointSize * 2
-    font: control_font
+    rightPadding: GlobalStyle.font.pointSize
+    implicitHeight: 2 * GlobalStyle.font.pointSize
+    font: GlobalStyle.font
 
     MouseArea {
         anchors.fill: parent

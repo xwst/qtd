@@ -17,6 +17,7 @@ This piece of software is currently in development stage; some things may work b
 Check out the [developer page](DEV.md) for more information.
 
 ## License
+### qtd
 qtd is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
 qtd is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
@@ -24,3 +25,7 @@ qtd is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
 You should have received a copy of the GNU General Public License along with qtd. If not, see <https://www.gnu.org/licenses/>.
 
 For any copyright year range specified as YYYY-ZZZZ in this package note that the range specifies every single year in that closed interval.
+
+### Third Party Licenses
+#### Font Awesome
+qtd uses free [Font Awesome](https://fontawesome.com/) SVG icons. These are licensed under the [CC BY 4.0 License](https://creativecommons.org/licenses/by/4.0/).

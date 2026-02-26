@@ -21,19 +21,26 @@ QT_ADD_EXECUTABLE(qtd
 
 ADD_SUBDIRECTORY(backend)
 
+SET_SOURCE_FILES_PROPERTIES(
+    frontend/globalstyle/GlobalStyle.qml
+    PROPERTIES
+    QT_QML_SINGLETON_TYPE TRUE
+)
+
 QT_ADD_QML_MODULE(qtd
     URI src.app
     QML_FILES
         frontend/Main.qml
         SOURCES qmlinterface.cpp
         QML_FILES
-            frontend/components/TagOutline.qml
-            frontend/components/TagEditor.qml
             frontend/components/LineEdit.qml
-            frontend/components/TagForm.qml
-            frontend/components/TaskPage.qml
             frontend/components/SelectableTreeViewDelegate.qml
             frontend/components/SelectableTreeView.qml
+            frontend/components/TagEditor.qml
+            frontend/components/TagForm.qml
+            frontend/components/TagOutline.qml
+            frontend/components/TaskPage.qml
+            frontend/globalstyle/GlobalStyle.qml
 )
 
 TARGET_LINK_LIBRARIES(qtd

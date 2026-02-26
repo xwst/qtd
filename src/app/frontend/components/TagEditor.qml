@@ -23,14 +23,13 @@ import src.app
 Window {
     id: tag_editor
     required property var tag_index
-    required property font control_font
 
     title: "Tag editor - " + tag_index.model.data(tag_index)
     color: active ? palette.active.window : palette.inactive.window
     flags: Qt.Dialog
 
-    width: Math.max(270, 350 * control_font.pointSize / 12)
-    height: Math.max(120, 180 * control_font.pointSize / 12)
+    minimumWidth:  tag_form.implicitWidth + 2 * tag_form.anchors.margins
+    minimumHeight: tag_form.implicitHeight + 2 * tag_form.anchors.margins
 
     function count_children(index) {
         var result = index.model.rowCount(index);
@@ -111,7 +110,6 @@ Window {
     TagForm {
         id: tag_form
         name: tag_editor.tag_index.model.data(tag_index, Qt.DisplayRole)
-        control_font: tag_editor.control_font
         parent_index: tag_editor.get_source_parent(tag_editor.tag_index)
         tag_color: tag_editor.tag_index.model.data(tag_index, Qt.DecorationRole)
         is_new: false
