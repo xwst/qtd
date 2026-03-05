@@ -63,6 +63,7 @@ MESSAGE(${RESOURCE_FILES})
 
 INCLUDE_DIRECTORIES(src/app/backend/)
 ADD_SUBDIRECTORY(src/qmltexteditor)
+ADD_SUBDIRECTORY(src/datetimepicker)
 ADD_SUBDIRECTORY(src/app)
 ADD_SUBDIRECTORY(test/backend)
 ADD_SUBDIRECTORY(test/frontend/component/)

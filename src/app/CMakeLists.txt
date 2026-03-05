@@ -33,7 +33,6 @@ QT_ADD_QML_MODULE(qtd
         frontend/Main.qml
         SOURCES qmlinterface.cpp
         QML_FILES
-            frontend/components/LineEdit.qml
             frontend/components/SelectableTreeViewDelegate.qml
             frontend/components/SelectableTreeView.qml
             frontend/components/TagEditor.qml
@@ -51,5 +50,6 @@ TARGET_LINK_LIBRARIES(qtd
     Qt6::Widgets
     Qt6::Sql
     qmltexteditorplugin
+    datetimepickerplugin
     backend
 )

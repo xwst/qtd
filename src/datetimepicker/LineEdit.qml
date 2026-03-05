@@ -21,6 +21,7 @@ import QtQuick
 Rectangle {
     property alias text: text_field.text
     property alias font: text_field.font
+    property alias text_field: text_field
     color: (enabled ? palette.active : palette.disabled).base
     border.color: (enabled ? palette.active : palette.disabled).dark
     border.width: 1

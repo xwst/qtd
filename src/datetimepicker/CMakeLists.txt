@@ -14,17 +14,23 @@
 # You should have received a copy of the GNU General Public License along with
 # qtd. If not, see <https://www.gnu.org/licenses/>.
 
-QT_ADD_LIBRARY(qmltexteditor STATIC)
+QT_ADD_LIBRARY(datetimepicker STATIC)
 
-QT_ADD_QML_MODULE(qmltexteditor
-    URI src.qmltexteditor
+QT_ADD_QML_MODULE(datetimepicker
+    URI src.datetimepicker
     VERSION 1.0
     QML_FILES
-        ChoiceButton.qml
-        TextEditor.qml
+        DateTimeEdit.qml
+        DateTimePicker.qml
+        DateTimePickerPanel.qml
+        LineEdit.qml
+        MonthNames.qml
+        MonthPicker.qml
+        YearPicker.qml
+        VerticalSpinBox.qml
     SOURCES
-        textformatter.cpp
-        textformatter.h
+        datetimevalidator.cpp
+        datetimevalidator.h
 )
 
-TARGET_LINK_LIBRARIES(qmltexteditor PRIVATE Qt6::Quick)
+TARGET_LINK_LIBRARIES(datetimepicker PRIVATE Qt6::Quick)

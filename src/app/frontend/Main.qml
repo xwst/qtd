@@ -24,6 +24,7 @@ import QtQuick
 import QtQuick.Controls 2.15
 import QtQuick.Layouts
 import src.app
+import src.datetimepicker
 
 ApplicationWindow {
     id: main_window
@@ -122,8 +123,13 @@ ApplicationWindow {
                 icon.source: "qrc:///resources/icons/hourglass-half.svg"
                 icon.width: parent.width
                 icon.height: width
-                implicitHeight: tab_bar.height
+                implicitHeight: add_task_button.height
                 implicitWidth: height
+            }
+
+            DateTimeEdit {
+                font: GlobalStyle.font
+                height: add_task_button.height
             }
 
             Item { Layout.fillWidth: true }
