@@ -1,0 +1,31 @@
+services:
+  qtd:
+    image: qtd/opencode-helper:latest
+    build:
+      context: .
+      args:
+        UID: ${UID:-1000}
+        GID: ${GID:-1000}
+    user: "${UID:-1000}:${GID:-1000}"
+    working_dir: /workspaces/qtd
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      QT_QPA_PLATFORM: offscreen
+      QT_QUICK_BACKEND: software
+    volumes:
+      - ..:/workspaces/qtd
+      - .:/workspaces/qtd/.docker:ro
+      - opencode-local-share:/home/appuser/.local/share/opencode
+      - opencode-local-state:/home/appuser/.local/state/opencode
+    tmpfs:
+      - /tmp
+    stdin_open: true
+    tty: true
+volumes:
+  opencode-local-share:
+    name: docker_opencode-local-share
+  opencode-local-state:
+    name: docker_opencode-local-state
