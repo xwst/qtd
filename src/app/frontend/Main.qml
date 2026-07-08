@@ -32,7 +32,11 @@ ApplicationWindow {
     title: qsTr("Qetting things done")
 
     minimumWidth: main_layout.implicitWidth
-    minimumHeight: 400
+    minimumHeight: 300
+    width: 800
+    height: 600
+
+    Component.onCompleted: height = Math.max(minimumHeight, width * 2 / 3)
 
     property var pages_model: [
           { name: "Open",       tag_model: QmlInterface.tags_open,       task_model: QmlInterface.open_tasks       }
@@ -127,11 +131,6 @@ ApplicationWindow {
                 implicitWidth: height
             }
 
-            DateTimeEdit {
-                font: GlobalStyle.font
-                height: add_task_button.height
-            }
-
             Item { Layout.fillWidth: true }
 
             TabBar {
@@ -173,7 +172,9 @@ ApplicationWindow {
 
             Repeater {
                 model: pages_model
-                TaskPage {}
+                TaskPage {
+                    button_size: add_task_button.height
+                }
             }
         }
     }

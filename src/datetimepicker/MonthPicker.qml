@@ -25,6 +25,7 @@ import QtQuick.Layouts
 
 Item {
     id: month_picker
+    objectName: "month_picker"
 
     required property font font
     property int displayed_year: new Date().getFullYear()
@@ -32,7 +33,7 @@ Item {
 
     implicitHeight: main_layout.implicitHeight
 
-    signal selectMonthClicked
+    signal selectYearClicked
     signal selectionChanged(month: int)
     signal displayYearChanged(year: int)
 
@@ -50,25 +51,35 @@ Item {
 
             ToolButton {
                 id: button_prev
-                text: "<"
-                font: month_picker.font
+                objectName: "button_prev"
+                implicitHeight: year_button.height
+                implicitWidth: height
+                icon.source: "qrc:///resources/icons/angle-left.svg"
+                icon.width: parent.width
+                icon.height: width
                 onClicked: month_picker.displayYearChanged(month_picker.displayed_year - 1)
             }
 
             Item { Layout.fillWidth: true }
 
             ToolButton {
+                id: year_button
+                objectName: "year_button"
                 text: month_picker.displayed_year
                 font: month_picker.font
-                onClicked: month_picker.selectMonthClicked()
+                onClicked: month_picker.selectYearClicked()
             }
 
             Item { Layout.fillWidth: true }
 
             ToolButton {
                 id: button_next
-                text: ">"
-                font: month_picker.font
+                objectName: "button_next"
+                implicitHeight: year_button.height
+                implicitWidth: height
+                icon.source: "qrc:///resources/icons/angle-right.svg"
+                icon.width: parent.width
+                icon.height: width
                 onClicked: month_picker.displayYearChanged(month_picker.displayed_year + 1)
             }
         }
@@ -88,6 +99,7 @@ Item {
                 model: [ ...Array(12).keys() ]
                 ToolButton {
                     required property int modelData
+                    objectName: "month_button_" + modelData
                     Layout.fillWidth: true
                     text: locale.monthName(modelData, Locale.ShortFormat)
                     font: month_picker.font

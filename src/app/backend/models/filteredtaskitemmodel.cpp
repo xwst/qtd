@@ -42,7 +42,7 @@
 namespace {
     bool task_index_contains_word(const QModelIndex &index, const QString &word) {
         return index.data(Qt::DisplayRole).toString().contains(word, Qt::CaseInsensitive)
-               || index.data(DetailsRole).toString().contains(word, Qt::CaseInsensitive);
+               || index.data(PlainTextRole).toString().contains(word, Qt::CaseInsensitive);
     }
 
     TaskId get_uuid(const QModelIndex &index) {

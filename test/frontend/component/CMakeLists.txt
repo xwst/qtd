@@ -1,4 +1,4 @@
-# Copyright 2025 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
+# Copyright 2025, 2026 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
 
 # This file is part of qtd.
 #
@@ -15,7 +15,7 @@
 # qtd. If not, see <https://www.gnu.org/licenses/>.
 
 ADD_DEFINITIONS(-DQUICK_TEST_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
-ADD_EXECUTABLE(test_components test_components.cpp)
+ADD_EXECUTABLE(test_components test_components.cpp ../../backend/testmodelwrappers.h)
 ADD_TEST(NAME test_components COMMAND test_components)
 SET_PROPERTY(TEST test_components PROPERTY LABELS "frontend-test")
 
@@ -23,5 +23,11 @@ TARGET_LINK_LIBRARIES(test_components
     PRIVATE
     Qt6::QuickTest
     Qt6::Qml
+    Qt6::Gui
+    app_library
+    app_libraryplugin
+    app_libraryplugin_init
     qmltexteditorplugin
 )
+
+ADD_SUBDIRECTORY(datetimepicker)

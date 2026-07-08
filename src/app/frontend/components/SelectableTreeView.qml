@@ -20,21 +20,40 @@ import QtQuick
 import src.app
 
 TreeView {
+    id: tree_view
+
+    property var single_selection: null
+
     signal rowDoubleClicked(row: int)
-    anchors.fill: parent
     clip: true
     alternatingRows: false
     Component.onCompleted: expandRecursively()
 
     Connections {
-        target: model
+        target: tree_view.model
         function onModelReset() {
             Qt.callLater(expandRecursively)
         }
     }
 
+    Timer {
+        id: update_single_selection
+        interval: 10
+        repeat: false
+        onTriggered:
+            tree_view.single_selection
+                = (selection_model.selectedIndexes.length == 1)
+                     ? selection_model.selectedIndexes[0]
+                     : null
+    }
+
     selectionMode: TableView.ExtendedSelection
-    selectionModel: ItemSelectionModel {}
+    selectionModel: ItemSelectionModel {
+        id: selection_model
+        onSelectionChanged: (selected, deselected) => {
+            update_single_selection.restart()
+        }
+    }
 
     delegate: SelectableTreeViewDelegate {
         onRowDoubleClicked: (row) => treeView.rowDoubleClicked(row)

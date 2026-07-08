@@ -24,10 +24,21 @@
 
 #pragma once
 
+#include <QObject>
+
 #include "models/treeitemmodel.h"
 
 class TreeItemModelTestWrapper : public TreeItemModel {
+    Q_OBJECT
+
 public:
     using TreeItemModel::create_tree_node;
     using TreeItemModel::clone_tree_node;
+
+    Q_INVOKABLE void emit_data_changed(int row, const QList<int>& roles = {}) {
+        auto idx = this->index(row, 0);
+        if (idx.isValid()) {
+            emit this->dataChanged(idx, idx, roles);
+        }
+    }
 };

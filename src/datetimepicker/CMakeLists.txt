@@ -23,14 +23,13 @@ QT_ADD_QML_MODULE(datetimepicker
         DateTimeEdit.qml
         DateTimePicker.qml
         DateTimePickerPanel.qml
-        LineEdit.qml
         MonthNames.qml
         MonthPicker.qml
         YearPicker.qml
         VerticalSpinBox.qml
     SOURCES
-        datetimevalidator.cpp
-        datetimevalidator.h
+        datetimeparser.cpp
+        datetimeparser.h
 )
 
 TARGET_LINK_LIBRARIES(datetimepicker PRIVATE Qt6::Quick)

@@ -4,7 +4,7 @@ import QtQuick 2.15
 Item {
     id: month_names
     required property font font
-    property var format: Locale.ShortFormat
+    property int format: Locale.ShortFormat
 
     property int max_width: Math.max(
         ...[ ...Array(12).keys() ].map( i =>

@@ -91,7 +91,7 @@ ENDIF()
 
 CREATE_MODEL_TEST(TEST_NAME test_ids                   SOURCES testqtdid.cpp)
 CREATE_MODEL_TEST(TEST_NAME test_treenodes             SOURCES testtreenodes.cpp)
-CREATE_MODEL_TEST(TEST_NAME test_treeitemmodel         SOURCES testtreeitemmodel.cpp)
+CREATE_MODEL_TEST(TEST_NAME test_treeitemmodel         SOURCES testtreeitemmodel.cpp testmodelwrappers.h)
 CREATE_MODEL_TEST(TEST_NAME test_tagitemmodels         SOURCES testtagitemmodels.cpp)
 CREATE_MODEL_TEST(TEST_NAME test_taskitemmodels        SOURCES testtaskitemmodels.cpp)
 CREATE_MODEL_TEST(TEST_NAME test_filteredtaskitemmodel SOURCES testfilteredtaskitemmodel.cpp)

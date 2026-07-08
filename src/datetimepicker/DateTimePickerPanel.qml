@@ -23,11 +23,12 @@ import QtQuick.Layouts
 
 Item {
     id: date_time_picker_panel
+    objectName: "date_time_picker_panel"
 
     required property font font
     required property date current_selection
-    property int displayed_month: current_selection.getMonth
-    property int displayed_year: current_selection.getFullYear
+    property int displayed_month: current_selection.getMonth()
+    property int displayed_year: current_selection.getFullYear()
     property date today: new Date()
     property var locale: Qt.locale()
 
@@ -68,13 +69,14 @@ Item {
     ColumnLayout {
         id: main_layout
         anchors.fill: parent
-        spacing: date_time_picker_panel.font.pointSize// / 4
+        spacing: date_time_picker_panel.font.pointSize
 
         RowLayout {
             spacing: date_time_picker_panel.font.pointSize
 
             ToolButton {
                 id: button_prev
+                objectName: "button_prev"
                 implicitHeight: year_button.height
                 implicitWidth: height
                 icon.source: "qrc:///resources/icons/angle-left.svg"
@@ -86,13 +88,18 @@ Item {
             Item { Layout.fillWidth: true }
 
             ToolButton {
-                text: locale.monthName(date_time_picker_panel.displayed_month, Locale.LongFormat)
+                objectName: "button_month"
+                text: date_time_picker_panel.locale.monthName(
+                    date_time_picker_panel.displayed_month,
+                    Locale.LongFormat
+                )
                 font: date_time_picker_panel.font
                 onClicked: selectMonthClicked()
             }
 
             ToolButton {
                 id: year_button
+                objectName: "button_year"
                 text: date_time_picker_panel.displayed_year
                 font: date_time_picker_panel.font
                 onClicked: selectYearClicked()
@@ -101,6 +108,7 @@ Item {
             Item { Layout.fillWidth: true }
             ToolButton {
                 id: button_today
+                objectName: "button_today"
                 implicitHeight: year_button.height
                 implicitWidth: height
                 icon.source: "qrc:///resources/icons/calendar-days.svg"
@@ -111,6 +119,7 @@ Item {
 
             ToolButton {
                 id: button_next
+                objectName: "button_next"
                 implicitHeight: year_button.height
                 implicitWidth: height
                 icon.source: "qrc:///resources/icons/angle-right.svg"
@@ -131,6 +140,7 @@ Item {
         }
         MonthGrid {
             id: month_grid
+            objectName: "month_grid"
 
             Layout.fillWidth: true
             Layout.fillHeight: true
@@ -138,12 +148,13 @@ Item {
             implicitHeight: 0.6 * implicitWidth
             spacing: 0
             font: date_time_picker_panel.font
-            locale: Qt.locale()
+            locale: date_time_picker_panel.locale
 
             month: date_time_picker_panel.displayed_month
             year: date_time_picker_panel.displayed_year
 
             delegate: ToolButton {
+                objectName: "day_button_" + model.date.getDate()
                 opacity: model.month === month_grid.month ? 1 : 0.3
                 font.family: month_grid.font.family
                 font.pointSize: month_grid.font.pointSize
@@ -189,21 +200,23 @@ Item {
                 Layout.fillWidth: true
             }
             VerticalSpinBox {
+                objectName: "hours_spin"
                 max: 23
                 value: date_time_picker_panel.current_selection.getHours()
                 font: date_time_picker_panel.font
-                onValueChanged: date_time_picker_panel.hoursSelectionChanged(value)
+                onValueEdited: new_value => date_time_picker_panel.hoursSelectionChanged(new_value)
             }
             Label {
                 text: ":"
                 font: date_time_picker_panel.font
             }
             VerticalSpinBox {
+                objectName: "minutes_spin"
                 max: 59
                 value: date_time_picker_panel.current_selection.getMinutes()
                 font: date_time_picker_panel.font
                 step: 5
-                onValueChanged: date_time_picker_panel.minutesSelectionChanged(value)
+                onValueEdited: new_value => date_time_picker_panel.minutesSelectionChanged(new_value)
             }
             Item {
                 Layout.fillWidth: true

@@ -33,6 +33,12 @@ SET(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 INCLUDE(CTest)
 ENABLE_TESTING()
 
+SET(QT_SKIP_AUTO_PLUGIN_INCLUSION OFF)
+# QT_SKIP_AUTO_QML_PLUGIN_INCLUSION is set to OFF by default in Qt distributions
+# but currently set to ON to work around broken QML plugin packages
+# (Qt6QmlAssetDownloader) in the Debian Qt 6.10.2 installation.
+# SET(QT_SKIP_AUTO_QML_PLUGIN_INCLUSION OFF)
+
 FIND_PACKAGE(
     Qt6
     REQUIRED COMPONENTS

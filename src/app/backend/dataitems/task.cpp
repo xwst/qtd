@@ -132,12 +132,14 @@ void Task::set_tags(const QSet<TagId> &new_tags) {
 QVariant Task::get_data(int role) const {
     switch (role) {
     case Qt::DisplayRole: return this->get_title();
-    case ActiveRole:     return this->get_status();
-    case StartRole:      return this->get_start_datetime();
-    case DueRole:        return this->get_due_datetime();
-    case ResolveRole:    return this->get_resolve_datetime();
-    case DetailsRole:    return this->get_text_document()->toPlainText();
-    case TagsRole:       return QVariant::fromValue(this->get_tags());
+    case ActiveRole:      return this->get_status();
+    case StartRole:       return this->get_start_datetime();
+    case DueRole:         return this->get_due_datetime();
+    case ResolveRole:     return this->get_resolve_datetime();
+    case PlainTextRole:   return this->get_text_document()->toPlainText();
+    case RichTextRole:    return this->get_text_document()->toHtml();
+    case DocumentRole:    return QVariant::fromValue(this->get_text_document());
+    case TagsRole:        return QVariant::fromValue(this->get_tags());
     default:              return UniqueDataItem::get_data(role);
     }
 }
@@ -164,6 +166,9 @@ void Task::set_data(const QVariant& value, int role) {
         break;
     case RemoveTagRole:
         this->tags.remove(value.value<TagId>());
+        break;
+    case RichTextRole:
+        this->get_text_document()->setHtml(value.toString());
         break;
     default:
         UniqueDataItem::set_data(value, role);

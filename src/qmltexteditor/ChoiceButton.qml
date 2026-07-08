@@ -16,39 +16,81 @@
  * qtd. If not, see <https://www.gnu.org/licenses/>.
  */
 
+pragma ComponentBehavior: Bound
+
 import QtQuick
 import QtQuick.Controls
-import QtQuick.Layouts
 
-Item {
+Row {
+    id: container
     property alias model: control.model
     property alias clip: control.popup.clip
     property alias textRole: control.textRole
     property alias valueRole: control.valueRole
     property alias currentValue: control.currentValue
+    property alias icon: button.icon
+    property alias button_height: button.height
     signal clicked
 
-    implicitWidth: 50
-    height: button.height
+    spacing: -1
+
     Button {
         id: button
-        text: control.currentText
-        width: parent.width - control.width
+        activeFocusOnTab: container.activeFocusOnTab
+        display: AbstractButton.IconOnly
+        width: height
+        icon.width: button.width
+        icon.height: button.height
         onClicked: parent.clicked()
     }
+
     ComboBox {
         id: control
-        anchors.left: button.right
-        displayText: '▼'
-        implicitWidth: 20
+        activeFocusOnTab: container.activeFocusOnTab
+
+        height: button.height
+        width: button.width / 2
+
+        indicator: Image {
+            anchors.centerIn: parent
+            width: parent.width
+            height: width
+            source: "qrc:///resources/icons/caret-down.svg"
+        }
+
         popup: Popup {
             y: parent.height
             x: -button.width
+            spacing: 0
+            padding: 0
             width: button.width + parent.width
             contentItem: ListView {
+                id: list_view
                 implicitHeight: contentHeight
-                model: control.delegateModel
+                model: control.model
+                anchors.fill: parent
                 currentIndex: control.highlightedIndex
+
+                delegate: ToolButton {
+                    required property var model
+                    display: control.textRole === 'icon_source' ? AbstractButton.IconOnly : AbstractButton.TextOnly
+                    text: model.text
+
+                    readonly property int size: button.height * 3 / 4
+                    padding: button.padding
+                    width: list_view.width
+                    height: size
+
+                    icon.source: model.icon_source
+                    icon.height: size
+                    icon.width: size
+
+                    onClicked: {
+                        let new_index = control.indexOfValue(model.value)
+                        control.currentIndex = new_index
+                        control.activated(new_index)
+                    }
+                }
             }
         }
         onActivated: button.clicked()

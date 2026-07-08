@@ -22,6 +22,7 @@ import QtQuick.Layouts
 
 Item {
     id: year_picker
+    objectName: "year_picker"
 
     required property font font
     property int selected_year: new Date().getFullYear()
@@ -29,6 +30,8 @@ Item {
     implicitHeight: main_layout.implicitHeight
 
     signal selectionChanged(year: int)
+
+    onSelected_yearChanged: private_properties.year_min = Math.floor(selected_year / 10) * 10
 
     QtObject {
         id: private_properties
@@ -51,14 +54,19 @@ Item {
 
             ToolButton {
                 id: button_prev
-                text: "<"
-                font: year_picker.font
+                objectName: "button_prev"
+                implicitHeight: grid_layout.children[0].height
+                implicitWidth: height
+                icon.source: "qrc:///resources/icons/angle-left.svg"
+                icon.width: parent.width
+                icon.height: width
                 onClicked: private_properties.year_min -= 10
             }
 
             Item { Layout.fillWidth: true }
 
             Label {
+                objectName: "label_range"
                 text: private_properties.year_min + " - " + private_properties.year_max
                 font: year_picker.font
             }
@@ -67,8 +75,12 @@ Item {
 
             ToolButton {
                 id: button_next
-                text: ">"
-                font: year_picker.font
+                objectName: "button_next"
+                implicitHeight: grid_layout.children[0].height
+                implicitWidth: height
+                icon.source: "qrc:///resources/icons/angle-right.svg"
+                icon.width: parent.width
+                icon.height: width
                 onClicked: private_properties.year_min += 10
             }
         }
@@ -77,6 +89,7 @@ Item {
             Layout.fillWidth: true
         }
         GridLayout {
+            id: grid_layout
             rows: 5
             flow: GridLayout.TopToBottom
             columnSpacing: year_picker.font.pointSize
@@ -88,6 +101,7 @@ Item {
                 model: [ ...Array(10).keys() ].map( i => i+private_properties.year_min);
                 ToolButton {
                     required property int modelData
+                    objectName: "year_button_" + modelData
                     Layout.fillWidth: true
                     text: modelData
                     font: year_picker.font

@@ -28,6 +28,7 @@
 #include "backend/models/filteredtagitemmodel.h"
 #include "backend/models/filteredtaskitemmodel.h"
 #include "backend/models/flatteningproxymodel.h"
+#include "backend/dataitems/task.h"
 #include "backend/models/tagitemmodel.h"
 #include "backend/models/taskitemmodel.h"
 #include "globaleventfilter.h"
@@ -70,6 +71,9 @@ private:
 public:
     QTD_ITEM_DATA_ROLE
     Q_ENUM(QtdItemDataRole)
+
+    TASK_STATUS
+    Q_ENUM(Status)
 
     Q_PROPERTY(QString application_dir MEMBER m_application_dir CONSTANT)
     Q_PROPERTY(TagItemModel*  tags  MEMBER m_tags  CONSTANT)

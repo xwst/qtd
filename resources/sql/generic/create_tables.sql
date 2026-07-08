@@ -16,7 +16,7 @@ FOR EACH ROW
     WHEN NEW.last_modified IS NULL
     BEGIN
         UPDATE tags
-        SET last_modified = strftime('%Y-%m-%dT%H:%M:%SZ', 'now', 'utc')
+        SET last_modified = strftime('%Y-%m-%dT%H:%M:%fZ', 'now', 'utc')
         WHERE uuid = NEW.uuid;
     END;
 
@@ -32,7 +32,7 @@ FOR EACH ROW
         )
     BEGIN
         UPDATE tags
-        SET last_modified = strftime('%Y-%m-%dT%H:%M:%SZ', 'now', 'utc')
+        SET last_modified = strftime('%Y-%m-%dT%H:%M:%fZ', 'now', 'utc')
         WHERE uuid = NEW.uuid;
     END;
 
@@ -42,13 +42,14 @@ FOR EACH ROW
 CREATE TABLE IF NOT EXISTS tasks (
       uuid             VARCHAR(36)   PRIMARY KEY
     , title            VARCHAR(1024) NOT NULL
-    , status           VARCHAR(10)   NOT NULL DEFAULT 'open'
-                                     CHECK(status IN ('open', 'closed'))
+    , status           VARCHAR(10)   NOT NULL DEFAULT 'Open'
+                                     CHECK(status IN ('Open', 'Closed'))
     , start_datetime   VARCHAR(30)
     , due_datetime     VARCHAR(30)
     , resolve_datetime VARCHAR(30)
     , content_text     TEXT
     , last_modified    VARCHAR(30)
+    , CHECK ( due_datetime = '' OR start_datetime < due_datetime )
 );
 
 CREATE INDEX IF NOT EXISTS index_tasks_status_due_datetime
@@ -60,7 +61,7 @@ FOR EACH ROW
     WHEN NEW.last_modified IS NULL
     BEGIN
         UPDATE tasks
-        SET last_modified = strftime('%Y-%m-%dT%H:%M:%SZ', 'now', 'utc')
+        SET last_modified = strftime('%Y-%m-%dT%H:%M:%fZ', 'now', 'utc')
         WHERE uuid = NEW.uuid;
     END;
 
@@ -79,7 +80,7 @@ FOR EACH ROW
         )
     BEGIN
         UPDATE tasks
-        SET last_modified = strftime('%Y-%m-%dT%H:%M:%SZ', 'now', 'utc')
+        SET last_modified = strftime('%Y-%m-%dT%H:%M:%fZ', 'now', 'utc')
         WHERE uuid = NEW.uuid;
     END;
 
@@ -98,7 +99,7 @@ FOR EACH ROW
     WHEN NEW.last_modified IS NULL
     BEGIN
         UPDATE media
-        SET last_modified = strftime('%Y-%m-%dT%H:%M:%SZ', 'now', 'utc')
+        SET last_modified = strftime('%Y-%m-%dT%H:%M:%fZ', 'now', 'utc')
         WHERE media_hash = NEW.media_hash;
     END;
 
@@ -110,7 +111,7 @@ CREATE TABLE IF NOT EXISTS task_media (
     , media_hash    VARCHAR(64)
     , last_modified VARCHAR(30)
     , PRIMARY KEY (task_uuid, media_hash)
-    , FOREIGN KEY (task_uuid)  REFERENCES atasks (uuid)       ON DELETE CASCADE
+    , FOREIGN KEY (task_uuid)  REFERENCES tasks (uuid)       ON DELETE CASCADE
     , FOREIGN KEY (media_hash) REFERENCES media (media_hash) ON DELETE CASCADE
 );
 
@@ -120,7 +121,7 @@ FOR EACH ROW
     WHEN NEW.last_modified IS NULL
     BEGIN
         UPDATE task_media
-        SET last_modified = strftime('%Y-%m-%dT%H:%M:%SZ', 'now', 'utc')
+        SET last_modified = strftime('%Y-%m-%dT%H:%M:%fZ', 'now', 'utc')
         WHERE task_uuid  = NEW.task_uuid
           AND media_hash = NEW.media_hash;
     END;
@@ -143,7 +144,7 @@ FOR EACH ROW
     WHEN NEW.last_modified IS NULL
     BEGIN
         UPDATE tag_assignments
-        SET last_modified = strftime('%Y-%m-%dT%H:%M:%SZ', 'now', 'utc')
+        SET last_modified = strftime('%Y-%m-%dT%H:%M:%fZ', 'now', 'utc')
         WHERE task_uuid = NEW.task_uuid
           AND tag_uuid  = NEW.tag_uuid;
     END;
@@ -168,7 +169,7 @@ FOR EACH ROW
     WHEN NEW.last_modified IS NULL
     BEGIN
         UPDATE dependencies
-        SET last_modified = strftime('%Y-%m-%dT%H:%M:%SZ', 'now', 'utc')
+        SET last_modified = strftime('%Y-%m-%dT%H:%M:%fZ', 'now', 'utc')
         WHERE dependent_uuid    = NEW.dependent_uuid
           AND prerequisite_uuid = NEW.prerequisite_uuid;
     END;

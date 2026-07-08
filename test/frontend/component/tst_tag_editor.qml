@@ -54,18 +54,21 @@ TestCase {
         compare(component_to_test.visible, true)
     }
 
+    function init() {
+        component_to_test.setVisible(true)
+    }
+
     function cleanupTestCase() {
     }
 
     function test_A_cancel_button_closes_window() {
-        var cancel_button = Util.findChildByText("Cancel", component_to_test.contentItem)
         compare(component_to_test.visible, true)
-        mouseClick(cancel_button)
+        Util.click_by_name(this, component_to_test.contentItem, "cancel_button")
         compare(component_to_test.visible, false)
     }
 
     function test_B_delete_button_not_triggered_on_short_click() {
-        var delete_button = Util.findChildByText("Delete", component_to_test.contentItem)
+        var delete_button = Util.find_child(this, component_to_test.contentItem, "delete_button")
         var initial_row_count = dummyIndex.model.rowCount()
 
         compare(model_delete_spy.count, 0)
@@ -79,30 +82,25 @@ TestCase {
     }
 
     function test_C_save_without_change_does_not_trigger_change() {
-        var save_button = Util.findChildByText("Save", component_to_test.contentItem)
-
         compare(model_data_change_spy.count, 0)
-        mouseClick(save_button)
+        Util.click_by_name(this, component_to_test.contentItem, "save_button")
         compare(model_data_change_spy.count, 0)
         compare(component_to_test.visible, false)
     }
 
     function test_D_editing_and_saving_alters_model() {
-        var save_button = Util.findChildByText("Save", component_to_test.contentItem)
-        var name_input = Util.findChildByText(dummyIndex.data(), component_to_test.contentItem)
-
         compare(model_data_change_spy.count, 0)
 
-        mouseClick(name_input)
-        keyClicks("new_name")
-        mouseClick(save_button)
+        var name_input = Util.find_child(this, component_to_test.contentItem, "name_input")
+        name_input.text = "new_name"
+        Util.click_by_name(this, component_to_test.contentItem, "save_button")
 
         compare(component_to_test.visible, false)
-        compare(model_data_change_spy.count, 0)
+        compare(model_data_change_spy.count, 1)
     }
 
     function test_E_delete_button_triggers_deletion_on_long_click() {
-        var delete_button = Util.findChildByText("Delete", component_to_test.contentItem)
+        var delete_button = Util.find_child(this, component_to_test.contentItem, "delete_button")
         var initial_row_count = dummyIndex.model.rowCount()
 
         compare(model_delete_spy.count, 0)

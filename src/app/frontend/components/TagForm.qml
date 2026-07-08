@@ -94,8 +94,9 @@ GridLayout {
         text: "Name:"
         font: GlobalStyle.font
     }
-    LineEdit {
+    TextField {
         id: name_input
+        objectName: "name_input"
         Layout.fillWidth: true
         Layout.minimumWidth: name_label.width * 2
         implicitHeight: 2.5 * font.pointSize
@@ -131,7 +132,7 @@ GridLayout {
     RowLayout {
         Layout.fillWidth: true
         spacing: -1
-        LineEdit {
+        TextField {
             id: color_input
             Layout.fillWidth: true
             implicitHeight: name_input.height
@@ -173,6 +174,7 @@ GridLayout {
             padding: 0
 
             Button {
+                objectName: "cancel_button"
                 text: "Cancel"
                 leftPadding: GlobalStyle.font.pointSize
                 rightPadding: GlobalStyle.font.pointSize
@@ -182,6 +184,7 @@ GridLayout {
             }
 
             Button {
+                objectName: "save_button"
                 text: "Save"
                 leftPadding: GlobalStyle.font.pointSize
                 rightPadding: GlobalStyle.font.pointSize
@@ -192,6 +195,7 @@ GridLayout {
             }
 
             DelayButton {
+                    objectName: "delete_button"
                     id: delete_button
 
                     text: "Delete"

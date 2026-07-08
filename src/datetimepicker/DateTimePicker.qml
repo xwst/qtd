@@ -23,6 +23,7 @@ import QtQuick.Controls
 
 StackView {
     id: stack_view
+    objectName: "date_time_picker"
 
     implicitWidth: Math.max(
         8 * month_names.max_width,
@@ -34,6 +35,25 @@ StackView {
     property int displayed_month: selected_date.getMonth()
     property int displayed_year: selected_date.getFullYear()
 
+    signal dateSelected
+
+    function reset_display_binding() {
+        displayed_month = Qt.binding(function() { return selected_date.getMonth() })
+        displayed_year = Qt.binding(function() { return selected_date.getFullYear() })
+    }
+
+    function push_month_picker() {
+        push(month_picker_component)
+    }
+
+    function push_year_picker() {
+        push(year_picker_component)
+    }
+
+    function push_month_and_year_picker() {
+        push([month_picker_component, year_picker_component])
+    }
+
     MonthNames {
         id: month_names
         font: parent.font
@@ -41,6 +61,7 @@ StackView {
 
     initialItem: DateTimePickerPanel {
         id: date_time_picker_panel
+        objectName: "date_time_picker_panel"
 
         current_selection: stack_view.selected_date
         displayed_month: stack_view.displayed_month
@@ -48,25 +69,35 @@ StackView {
 
         font: stack_view.font
 
-        onSelectMonthClicked: stack_view.push(month_picker_component)
-        onSelectYearClicked: stack_view.push([month_picker_component, year_picker_component])
+        onSelectMonthClicked: stack_view.push_month_picker()
+        onSelectYearClicked: stack_view.push_month_and_year_picker()
         onDisplayYearChanged: year => stack_view.displayed_year = year
         onDisplayMonthChanged: month => stack_view.displayed_month = month
         onDateSelectionChanged: (year, month, day) => {
             stack_view.displayed_year = year
             stack_view.displayed_month = month
-            stack_view.selected_date.setFullYear(year, month, day)
+            var dt = new Date(stack_view.selected_date)
+            dt.setFullYear(year, month, day)
+            stack_view.selected_date = dt
+            stack_view.dateSelected()
         }
-        onHoursSelectionChanged: hours => stack_view.selected_date.setHours(hours)
-        onMinutesSelectionChanged: minutes => stack_view.selected_date.setMinutes(minutes)
+        onHoursSelectionChanged: hours => {
+            stack_view.selected_date.setHours(hours)
+            stack_view.dateSelected()
+        }
+        onMinutesSelectionChanged: minutes => {
+            stack_view.selected_date.setMinutes(minutes)
+            stack_view.dateSelected()
+        }
     }
 
     Component {
         id: month_picker_component
+
         MonthPicker {
             displayed_year: stack_view.displayed_year
             font: stack_view.font
-            onSelectMonthClicked: stack_view.push(year_picker_component)
+            onSelectYearClicked: stack_view.push_year_picker()
             onDisplayYearChanged: year => stack_view.displayed_year = year
             onSelectionChanged: month => {
                 stack_view.displayed_month = month
@@ -77,6 +108,7 @@ StackView {
 
     Component {
         id: year_picker_component
+
         YearPicker {
             font: stack_view.font
             selected_year: stack_view.displayed_year

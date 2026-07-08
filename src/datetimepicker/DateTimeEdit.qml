@@ -16,14 +16,28 @@
  * qtd. If not, see <https://www.gnu.org/licenses/>.
  */
 
+pragma ComponentBehavior: Bound
+
 import QtQml
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
-RowLayout {
+Row {
     id: date_time_edit
     required property font font
+    property alias default_time: parser.default_time
+
+    property var date: ""
+    signal dateInputChanged
+
+    function get_date(default_on_invalid) {
+        let date = new Date(date_time_edit.date)
+        if (isNaN(date)) {
+            return default_on_invalid
+        }
+        return date
+    }
 
     spacing: -1
 
@@ -34,28 +48,51 @@ RowLayout {
         x: text_input.x
         y: text_input.y + text_input.height
 
+        onOpened: form.reset_display_binding()
+
         DateTimePicker {
             id: form
             anchors.fill: parent
             font: date_time_edit.font
-            onSelected_dateChanged:
-                text_input.text = selected_date.toLocaleString(Locale.ShortFormat)
+            activeFocusOnTab: false
+
+            selected_date:
+                date_time_edit.get_date(
+                    new Date(
+                        new Date().setHours(
+                            date_time_edit.default_time.getHours(),
+                            date_time_edit.default_time.getMinutes()
+                        )
+                    )
+                )
+            onDateSelected: {
+                date_time_edit.date = selected_date
+                date_time_edit.dateInputChanged()
+            }
         }
     }
 
-    LineEdit {
+    TextField {
         id: text_input
         font: date_time_edit.font
-        implicitHeight: date_time_edit.height
         implicitWidth: metrics.width * 1.1
-        text_field.maximumLength: metrics.text.length
-        text_field.validator: DateTimeValidator {
-            base_date_time: new Date(new Date().setHours(23, 55, 0, 0))
-            current_date_time: form.selected_date
+        text: date_time_edit.get_date("").toLocaleString(Locale.ShortFormat)
+
+        onEditingFinished: {
+            let parsed_date = parser.parse(text)
+            if (text.trim() !== '' && isNaN(parsed_date)) {
+                text = Qt.binding(function() {
+                    return date_time_edit.get_date("").toLocaleString(Locale.ShortFormat)
+                })
+            } else {
+                date_time_edit.date = parsed_date
+                date_time_edit.dateInputChanged()
+            }
         }
 
-        text_field.onEditingFinished:
-            form.selected_date = Date.fromLocaleString(Qt.locale(), text, Locale.ShortFormat)
+        DateTimeParser {
+            id: parser
+        }
 
         TextMetrics {
             id: metrics
@@ -66,12 +103,13 @@ RowLayout {
 
     Button {
         id: button
-        implicitHeight: date_time_edit.height
+        activeFocusOnTab: false
+        height: text_input.height
         implicitWidth: height
         icon.source: "qrc:///resources/icons/calendar-days.svg"
         icon.width: parent.width
         icon.height: width
-        onClicked: picker.open()
+        onClicked: picker.opened ? picker.close() : picker.open()
     }
 
 }

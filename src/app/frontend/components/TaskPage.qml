@@ -16,10 +16,13 @@
  * qtd. If not, see <https://www.gnu.org/licenses/>.
  */
 
+pragma ComponentBehavior: Bound
+
 import QtQuick
 import QtQuick.Controls 2.15
 import QtQuick.Layouts
 import src.app
+import src.qmltexteditor
 
 SplitView {
     id: task_page_container
@@ -27,30 +30,58 @@ SplitView {
     required property var tag_model
     required property var task_model
     required property string name
+    property int button_size: 20
 
     property alias task_selection_model: task_view.selectionModel
 
     TagOutline {
-        model: tag_model
+        model: task_page_container.tag_model
     }
 
-    ColumnLayout {
-        RowLayout {
-            Label {
-                Layout.fillWidth: true
-                text: "Search Bar"
-                font: GlobalStyle.font
+    SplitView {
+        id: inner_split_view
+        orientation: Qt.Vertical
+
+        handle: Rectangle {
+            id: handleDelegate
+            implicitWidth: 2
+            implicitHeight: 2
+            color: SplitHandle.hovered ? Qt.darker(palette.window, 1.05) : Qt.darker(palette.window, 1.5)
+
+            containmentMask: Item {
+                id: mask
+                y: (handleDelegate.height - height) / 2
+                height: 16
+                width: inner_split_view.width
             }
         }
-        Rectangle {
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            color: "white"
 
-            SelectableTreeView {
-                id: task_view
-                model: task_page_container.task_model
+        ColumnLayout {
+            SplitView.fillHeight: true
+            RowLayout {
+                Label {
+                    Layout.fillWidth: true
+                    text: "Search Bar"
+                    font: GlobalStyle.font
+                }
             }
+            Rectangle {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+
+                SelectableTreeView {
+                    id: task_view
+                    model: task_page_container.task_model
+                    anchors.fill: parent
+                }
+            }
+        }
+        TaskEditor {
+            task_index: task_view.single_selection
+            task_model: task_page_container.task_model
+            SplitView.preferredHeight: task_view.single_selection ? inner_split_view.height * 0.5 : 0
+            SplitView.maximumHeight: inner_split_view.height * 0.8
+            button_size: task_page_container.button_size
         }
     }
 }

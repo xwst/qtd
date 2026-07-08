@@ -20,9 +20,16 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
+import src.app
 import src.qmltexteditor
 
-Frame {
+FocusScope {
+    id: text_editor
+    activeFocusOnTab: false
+    property alias focus_item: text_area
+    property int button_size: 20
+    property alias text: text_area.text
+    property font font
 
     TextFormatter {
         id: backend
@@ -76,7 +83,6 @@ Frame {
         onTriggered: text_area.cursorSelection.font.strikeout = checked
     }
 
-    anchors.fill: parent
     ColumnLayout {
         anchors.fill: parent
         spacing: 2
@@ -84,9 +90,17 @@ Frame {
         RowLayout {
             id: rtf_button_layout
             Layout.fillWidth: true
-            spacing: 10
+            spacing: GlobalStyle.font.pointSize / 3
             Button {
-                text: '<--'
+                id: undo_button
+                objectName: "undo_button"
+                activeFocusOnTab: false
+                icon.source: "qrc:///resources/icons/rotate-left.svg"
+                icon.width: parent.width
+                icon.height: width
+                icon.color: enabled ? "black" : "gray"
+                implicitHeight: text_editor.button_size
+                implicitWidth: height
                 enabled: text_area.canUndo
                 onClicked: {
                     undo_action.trigger()
@@ -94,7 +108,14 @@ Frame {
                 }
             }
             Button {
-                text: '-->'
+                objectName: "redo_button"
+                activeFocusOnTab: false
+                icon.source: "qrc:///resources/icons/rotate-right.svg"
+                icon.width: parent.width
+                icon.height: width
+                icon.color: enabled ? "black" : "gray"
+                implicitHeight: text_editor.button_size
+                implicitWidth: height
                 enabled: text_area.canRedo
                 onClicked: {
                     redo_action.trigger()
@@ -102,7 +123,14 @@ Frame {
                 }
             }
             Button {
-                text: 'B'
+                objectName: "bold_button"
+                activeFocusOnTab: false
+                icon.source: "qrc:///resources/icons/bold.svg"
+                icon.width: parent.width
+                icon.height: width
+                icon.color: enabled ? "black" : "gray"
+                implicitHeight: text_editor.button_size
+                implicitWidth: height
                 checkable: true
                 checked: bold_action.checked
                 onClicked: {
@@ -111,7 +139,14 @@ Frame {
                 }
             }
             Button {
-                text: 'I'
+                objectName: "italic_button"
+                activeFocusOnTab: false
+                icon.source: "qrc:///resources/icons/italic.svg"
+                icon.width: parent.width
+                icon.height: width
+                icon.color: enabled ? "black" : "gray"
+                implicitHeight: text_editor.button_size
+                implicitWidth: height
                 checkable: true
                 checked: italic_action.checked
                 onClicked: {
@@ -120,7 +155,14 @@ Frame {
                 }
             }
             Button {
-                text: 'U'
+                objectName: "underline_button"
+                activeFocusOnTab: false
+                icon.source: "qrc:///resources/icons/underline.svg"
+                icon.width: parent.width
+                icon.height: width
+                icon.color: enabled ? "black" : "gray"
+                implicitHeight: text_editor.button_size
+                implicitWidth: height
                 checkable: true
                 checked: underline_action.checked
                 onClicked: {
@@ -129,7 +171,14 @@ Frame {
                 }
             }
             Button {
-                text: 'S'
+                objectName: "strikeout_button"
+                activeFocusOnTab: false
+                icon.source: "qrc:///resources/icons/strikethrough.svg"
+                icon.width: parent.width
+                icon.height: width
+                icon.color: enabled ? "black" : "gray"
+                implicitHeight: text_editor.button_size
+                implicitWidth: height
                 checkable: true
                 checked: strike_action.checked
                 onClicked: {
@@ -138,12 +187,19 @@ Frame {
                 }
             }
             ChoiceButton {
-                textRole: 'text'
+                objectName: "unordered_list_button"
+                activeFocusOnTab: false
+                button_height: undo_button.height
+                icon.source: "qrc:///resources/icons/list-ul.svg"
+                icon.height: text_editor.button_size
+                icon.width: text_editor.button_size
+                icon.color: enabled ? "black" : "gray"
+                textRole: 'icon_source'
                 valueRole: 'value'
                 model: [
-                    { value: -1, text: '•' }, // QTextListFormat::ListDisc
-                    { value: -2, text: '◦' }, // QTextListFormat::ListCircle
-                    { value: -3, text: '■' }  // QTextListFormat::ListSquare
+                    { value: -1, icon_source: 'qrc:///resources/icons/disc.svg' }, // QTextListFormat::ListDisc
+                    { value: -2, icon_source: 'qrc:///resources/icons/circle.svg' }, // QTextListFormat::ListCircle
+                    { value: -3, icon_source: 'qrc:///resources/icons/square.svg' }  // QTextListFormat::ListSquare
                 ]
                 onClicked: {
                     backend.list_button_clicked(currentValue)
@@ -151,6 +207,12 @@ Frame {
                 }
             }
             ChoiceButton {
+                objectName: "ordered_list_button"
+                activeFocusOnTab: false
+                button_height: undo_button.height
+                icon.source: "qrc:///resources/icons/list-ol.svg"
+                icon.height: text_editor.button_size
+                icon.width: text_editor.button_size
                 textRole: 'text'
                 valueRole: 'value'
                 model: [
@@ -166,7 +228,14 @@ Frame {
                 }
             }
             Button {
-                text: '>'
+                objectName: "indent_button"
+                activeFocusOnTab: false
+                icon.source: "qrc:///resources/icons/indent.svg"
+                icon.width: parent.width
+                icon.height: width
+                icon.color: enabled ? "black" : "gray"
+                implicitHeight: text_editor.button_size
+                implicitWidth: height
                 onClicked: {
                     backend.change_list_indent(true)
                     focus_textarea_action.trigger()
@@ -174,7 +243,14 @@ Frame {
 
             }
             Button {
-                text: '<'
+                objectName: "outdent_button"
+                activeFocusOnTab: false
+                icon.source: "qrc:///resources/icons/outdent.svg"
+                icon.width: parent.width
+                icon.height: width
+                icon.color: enabled ? "black" : "gray"
+                implicitHeight: text_editor.button_size
+                implicitWidth: height
                 onClicked: {
                     backend.change_list_indent(false)
                     focus_textarea_action.trigger()
@@ -187,18 +263,18 @@ Frame {
             id: text_scroll_view
             TextArea {
                 id: text_area
+                objectName: "text_area"
+                activeFocusOnTab: true
                 persistentSelection: true
                 hoverEnabled: false
                 textFormat: Qt.RichText
                 wrapMode: TextEdit.Wrap
-                text: "This is a short sample text."
 
                 background: Rectangle {
-                    anchors.fill: parent
-                    border.color: "gray"
-                    border.width: 2
                     color: "white"
                 }
+                scale: text_editor.font.pointSize * 1.3 / GlobalStyle.default_font_size
+                transformOrigin: Item.TopLeft
 
                 Keys.onPressed: (event) => {
                         if (event.key === Qt.Key_Tab) {

@@ -57,10 +57,11 @@ void TaskItemModel::setup_tasks_from_db() {
 QString TaskItemModel::get_sql_column_name(int role) {
     switch (role) {
         case Qt::DisplayRole: return "title";
-        case ActiveRole:     return "status";
-        case StartRole:      return "start_datetime";
-        case DueRole:        return "due_datetime";
-        case ResolveRole:    return "resolve_datetime";
+        case ActiveRole:      return "status";
+        case StartRole:       return "start_datetime";
+        case DueRole:         return "due_datetime";
+        case ResolveRole:     return "resolve_datetime";
+        case RichTextRole:    return "content_text";
         default:              return "";
     }
 }
@@ -89,14 +90,15 @@ bool TaskItemModel::create_task(const QString& title, const QModelIndexList& par
         return false;
     }
 
-    auto parents_iterator = parent_uuids.begin();
+    auto parent = parent_uuids.begin();
     bool success = this->create_tree_node(
         std::move(new_task),
-        parents_iterator == parent_uuids.end() ? TaskId() : (parents_iterator++)->value<TaskId>()
+        parent == parent_uuids.end() ? TaskId() : parent->value<TaskId>()
     );
-    while (parents_iterator != parent_uuids.end()) {
-        success &= this->clone_tree_node(new_task_uuid, parents_iterator->value<TaskId>());
-        ++parents_iterator;
+    if (parent != parent_uuids.end()) {
+        while (++parent != parent_uuids.end()) {
+            success &= this->clone_tree_node(new_task_uuid, parent->value<TaskId>());
+        }
     }
 
     return task_repository.roll_back_on_failure(success);
@@ -120,6 +122,11 @@ bool TaskItemModel::setData(const QModelIndex& index, const QVariant& value, int
     return task_repository.roll_back_on_failure(
         success && TreeItemModel::setData(index, value, role)
     );
+}
+
+bool TaskItemModel::setData(const TaskId &task_id, const QVariant &value, const int role) {
+    auto index = this->create_index(task_id);
+    return index.isValid() ? this->setData(index, value, role) : false;
 }
 
 bool TaskItemModel::removeRows(int row, int count, const QModelIndex &parent) {

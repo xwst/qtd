@@ -21,6 +21,7 @@
 #include <initializer_list>
 #include <stdexcept>
 
+#include <QDateTime>
 #include <QSqlDatabase>
 #include <QSqlQuery>
 
@@ -86,7 +87,10 @@ bool TransactionalRepository::alter_database(
 
     int value_index = -1;
     for (const auto& value : bind_values) {
-        query.bindValue(++value_index, value);
+        query.bindValue(
+            ++value_index,
+            value.typeId() == QMetaType::QDateTime ? value.toDateTime().toUTC() : value
+        );
     }
     return QueryUtilities::execute_sql_query(query, batch);
 }

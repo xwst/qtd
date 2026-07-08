@@ -95,10 +95,15 @@ TreeItemModel::TreeItemModel(QObject *parent)
     );
 }
 
-QModelIndex TreeItemModel::create_index(const TreeNode *node) const {
-    return node == this->root.get()
+QModelIndex TreeItemModel::create_index(const TreeNode* node) const {
+    return (node == this->root.get())
                 ? QModelIndex()
                 : this->createIndex(node->get_row_in_parent(), 0, node);
+}
+
+QModelIndex TreeItemModel::create_index(const QtdId& node_id) const {
+    auto* node = this->uuid_node_map.value(node_id);
+    return (node != nullptr) ? this->create_index(node) : QModelIndex();
 }
 
 /**

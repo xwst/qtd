@@ -30,6 +30,11 @@
 #include "qtdid.h"
 #include "uniquedataitem.h"
 
+#define TASK_STATUS    \
+enum Status : quint8 { \
+      Open             \
+    , Closed           \
+};
 
 class Task : public QObject, public UniqueDataItem {
 
@@ -37,15 +42,12 @@ class Task : public QObject, public UniqueDataItem {
 
 public:
 
-    enum Status : quint8 {
-        open,
-        closed
-    };
+    TASK_STATUS
     Q_ENUM(Status)
 
     explicit Task(
           QString        title
-        , Status         status        = Status::open
+        , Status         status        = Status::Open
         , QDateTime      start_date    = QDateTime()
         , QDateTime      due_date      = QDateTime()
         , QDateTime      resolve_date  = QDateTime()

@@ -20,34 +20,34 @@
 
 #include <QDateTime>
 #include <QLocale>
+#include <QObject>
 #include <QQmlEngine>
-#include <QRegularExpression>
 #include <QRegularExpressionMatch>
 #include <QString>
-#include <QValidator>
+#include <QTime>
 
-class DateTimeValidator : public QValidator {
+class DateTimeParser : public QObject {
     Q_OBJECT
     QML_ELEMENT
-
-    Q_PROPERTY(QLocale locale MEMBER locale)
-    Q_PROPERTY(QDateTime base_date_time MEMBER base_date_time REQUIRED)
-    Q_PROPERTY(QDateTime current_date_time MEMBER current_date_time REQUIRED)
+    Q_PROPERTY(QTime default_time MEMBER default_time WRITE set_default_time REQUIRED)
 
 private:
     QLocale locale;
-    QDateTime base_date_time;
-    QDateTime current_date_time;
+    QTime default_time;
+    static constexpr int BASE_YEAR = 2000;
 
-    bool parse_date_time_with_two_digit_year(QString& input) const;
-    void parse_shift_pattern_match(const QRegularExpressionMatch& match, QString& input) const;
+    void set_default_time(const QTime& time);
+
+    [[nodiscard]] static QRegularExpressionMatch match_shift_pattern(const QString& input);
+
+    [[nodiscard]] QDateTime parse_shift_pattern_match(const QRegularExpressionMatch& match) const;
+    [[nodiscard]] QStringList year_variants(const QString& format) const;
+    [[nodiscard]] QDateTime try_parse_date_time(const QString& input) const;
+    [[nodiscard]] QDate try_parse_date(QString input) const;
+    [[nodiscard]] QTime try_parse_time(const QString& input) const;
+    [[nodiscard]] QDateTime parse_regular_formats(QString& input) const;
 
 public:
-    explicit DateTimeValidator(
-        const QLocale& locale = QLocale(),
-        QObject *parent = nullptr
-    );
-
-    State validate(QString& input, int& pos) const override;
-    void fixup(QString& input) const override;
+    DateTimeParser(QObject* parent = nullptr);
+    Q_INVOKABLE [[nodiscard]] QDateTime parse(QString input) const;
 };

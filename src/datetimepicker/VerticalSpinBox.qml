@@ -26,6 +26,9 @@ Column {
     required property int max
     property int step: 1
     required property font font
+    property alias wheelEnabled: wheel_handler.enabled
+
+    signal valueEdited(new_value: int)
 
     spacing: 0.5 * font.pointSize
     width: 2 * font.pointSize
@@ -34,7 +37,7 @@ Column {
         id: wheel_handler
         acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
         onWheel: event => {
-            parent.add(Math.sign(event.angleDelta.y))
+            spin_box.add(Math.sign(event.angleDelta.y))
             enabled = false
             trigger_reenable_wheel_handler.running = true
         }
@@ -48,24 +51,40 @@ Column {
         onTriggered: wheel_handler.enabled = true
     }
 
+    function round(x: int, direction: int): int {
+        if (direction > 0) {
+            return Math.ceil(x / step) * step
+        }
+        return Math.floor(x / step) * step
+    }
+
     function add(n) {
-        let new_value = value + n * step
+        let new_value = value
+        if (new_value % step !== 0) {
+            new_value = round(new_value, n)
+            n -= Math.sign(n)
+        }
+
+        new_value = new_value + n * step
+
         let overflow_sign = Math.sign(new_value - max)
         while (new_value < min || new_value > max) {
             new_value = new_value - overflow_sign * (max + 1 - min)
         }
-        value = new_value
+
+        valueEdited(new_value)
     }
 
     function inc() {
         add(1)
     }
 
-    function dec(n = 1) {
+    function dec() {
         add(-1)
     }
 
     ToolButton {
+        objectName: "inc_button"
         implicitHeight: label.height
         implicitWidth: height
         icon.source: "qrc:///resources/icons/angle-up.svg"
@@ -79,6 +98,7 @@ Column {
     }
     Label {
         id: label
+        objectName: "value_label"
         text: (parent.value + "").padStart(2, '0')
         font: spin_box.font
         verticalAlignment: Text.AlignVCenter
@@ -86,6 +106,7 @@ Column {
         width: parent.width
     }
     ToolButton {
+        objectName: "dec_button"
         implicitHeight: label.height
         implicitWidth: height
         icon.source: "qrc:///resources/icons/angle-down.svg"
