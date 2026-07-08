@@ -1,0 +1,6 @@
+{
+    "$schema": "https://opencode.ai/opencode.json",
+    "agent": {
+        "instructions": "Read AGENTS.md at the project root for all project-specific guidance before starting any task. Follow the coding conventions, build/test commands, and architecture guidance there."
+    }
+}

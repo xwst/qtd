@@ -1,0 +1,49 @@
+# qtd Build & Test skill
+
+Use this skill when working on qtd to ensure correct build/test/code-quality workflow.
+
+## Build
+
+```sh
+cmake -B build/opencode -S .
+cmake --build build/opencode --target qtd
+cmake --build build/opencode            # build all (including tests)
+```
+
+## Test
+
+Run backend tests first (faster):
+```sh
+ctest --test-dir build/opencode -LE frontend-test -j8 --output-on-failure
+```
+
+Then frontend tests:
+```sh
+ctest --test-dir build/opencode -L frontend-test -j8 --output-on-failure
+```
+
+Or run all at once:
+```sh
+ctest --test-dir build/opencode --output-on-failure -j8
+```
+
+## Code quality checks (run after editing)
+
+### clang-tidy per file
+```sh
+clang-tidy -p build/opencode --config-file .clang-tidy path/to/edited/file.cpp
+```
+
+### Verification scripts
+```sh
+bash scripts/verify_license_headers.sh
+bash scripts/verify_no_quuid_usage.sh
+bash scripts/verify_no_include_guards.sh
+```
+
+## Coverage (GCC build + gcovr required)
+
+```sh
+cmake --build build/opencode --target coverage
+cmake --build build/opencode --target verify-test-coverage
+```
