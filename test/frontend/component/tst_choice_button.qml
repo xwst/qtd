@@ -1,5 +1,5 @@
 /**
- * Copyright 2025 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
+ * Copyright 2025, 2026 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
  *
  * This file is part of qtd.
  *
@@ -19,6 +19,7 @@
 import QtQuick 2.15
 import QtTest 1.0
 
+import "../util.js" as Util
 import "../../../src/qmltexteditor"
 
 TestCase {
@@ -51,22 +52,26 @@ TestCase {
     }
 
     function test_click_on_left_side_sends_signal() {
-        mouseClick(button_to_test.children[0])
+        Util.click_by_name(this, button_to_test, "button")
         compare(spy.count, 1)
     }
 
     function test_click_on_right_side_does_not_send_signal() {
-        mouseClick(button_to_test, x = button_to_test.width - 10)
+        var combo_box = Util.find_child(this, button_to_test, "combo_box")
+        Util.click_center(this, combo_box)
+
+        verify(combo_box.popup.visible)
         compare(spy.count, 0)
     }
 
     function test_changing_choice_sends_signal() {
-        mouseClick(button_to_test, x = button_to_test.width - 10)
-        mouseClick(
-            button_to_test,
-            x = button_to_test.width - 10,
-            y = button_to_test.height * 2
-        )
+        var combo_box = Util.find_child(this, button_to_test, "combo_box")
+        Util.click_center(this, combo_box)
+        verify(combo_box.popup.visible)
+
+        let click_target = combo_box.popup.contentItem.itemAtIndex(1)
+        verify(click_target)
+        Util.click_center(this, click_target)
         compare(spy.count, 1)
     }
 }

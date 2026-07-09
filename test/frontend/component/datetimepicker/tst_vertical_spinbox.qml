@@ -24,7 +24,7 @@ import "../../../../src/datetimepicker"
 
 TestCase {
     name: "VerticalSpinBox"
-    visible: True
+    visible: true
 
     Window {
            id: test_window

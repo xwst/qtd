@@ -1,4 +1,4 @@
-# Copyright 2025 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
+# Copyright 2025, 2026 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
 
 # This file is part of qtd.
 #
@@ -71,9 +71,7 @@ INCLUDE_DIRECTORIES(src/app/backend/)
 ADD_SUBDIRECTORY(src/qmltexteditor)
 ADD_SUBDIRECTORY(src/datetimepicker)
 ADD_SUBDIRECTORY(src/app)
-ADD_SUBDIRECTORY(test/backend)
-ADD_SUBDIRECTORY(test/frontend/component/)
-ADD_SUBDIRECTORY(test/frontend/journey/)
+ADD_SUBDIRECTORY(test/)
 
 QT_ADD_RESOURCES(
     qtd "resources"

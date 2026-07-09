@@ -1,4 +1,4 @@
-# Copyright 2025 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
+# Copyright 2025, 2026 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
 
 # This file is part of qtd.
 #
@@ -58,36 +58,6 @@ FUNCTION(create_model_test test_name source_file)
         FILES ${RESOURCE_FILES}
     )
 ENDFUNCTION()
-
-ADD_CUSTOM_TARGET(all_tests ALL)
-
-FIND_PROGRAM(GCOVR NAMES gcovr)
-IF(GCOVR AND (${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU"))
-    ADD_CUSTOM_TARGET(
-        coverage
-        ${CMAKE_CTEST_COMMAND} --output-on-failure
-        COMMAND
-        ${GCOVR}
-            -r ${CMAKE_SOURCE_DIR}
-            --filter ${CMAKE_SOURCE_DIR}/src
-            --html-nested ${CMAKE_BINARY_DIR}/gcovr/coverage.html
-            --exclude-throw-branches
-            --exclude-unreachable-branches
-        DEPENDS all_tests
-        BYPRODUCTS ${CMAKE_BINARY_DIR}/gcovr/coverage.html
-    )
-    ADD_CUSTOM_TARGET(
-        verify-test-coverage
-        ${CMAKE_CTEST_COMMAND} --output-on-failure
-        COMMAND
-        ${GCOVR}
-            -r ${CMAKE_SOURCE_DIR}
-            --filter ${CMAKE_SOURCE_DIR}/src
-            --fail-under-line 90
-            --fail-under-function 90
-        DEPENDS all_tests
-    )
-ENDIF()
 
 CREATE_MODEL_TEST(TEST_NAME test_ids                   SOURCES testqtdid.cpp)
 CREATE_MODEL_TEST(TEST_NAME test_treenodes             SOURCES testtreenodes.cpp)

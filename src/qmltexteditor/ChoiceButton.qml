@@ -36,6 +36,7 @@ Row {
 
     Button {
         id: button
+        objectName: "button"
         activeFocusOnTab: container.activeFocusOnTab
         display: AbstractButton.IconOnly
         width: height
@@ -46,6 +47,7 @@ Row {
 
     ComboBox {
         id: control
+        objectName: "combo_box"
         activeFocusOnTab: container.activeFocusOnTab
 
         height: button.height

@@ -28,6 +28,16 @@ TARGET_LINK_LIBRARIES(test_components
     app_libraryplugin
     app_libraryplugin_init
     qmltexteditorplugin
+    datetimepickerplugin
+    datetimepickerplugin_init
 )
+
+QT_ADD_RESOURCES(
+    test_components "resources"
+    PREFIX "/"
+    BASE "${PROJECT_SOURCE_DIR}"
+    FILES ${RESOURCE_FILES}
+)
+ADD_DEPENDENCIES(all_tests test_components)
 
 ADD_SUBDIRECTORY(datetimepicker)

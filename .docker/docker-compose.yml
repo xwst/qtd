@@ -18,6 +18,7 @@ services:
     volumes:
       - ..:/workspaces/qtd
       - .:/workspaces/qtd/.docker:ro
+      - ../../main:/workspaces/main:ro
       - opencode-local-share:/home/appuser/.local/share/opencode
       - opencode-local-state:/home/appuser/.local/state/opencode
     tmpfs:

@@ -30,6 +30,8 @@
 #include <QtQuickTest>
 
 #include "../frontend/components/taskadapter.h"
+#include "../qmlinterface.h"
+#include "models/flatteningproxymodel.h"
 #include "models/treeitemmodel.h"
 #include "models/taskitemmodel.h"
 #include "dataitems/qtditemdatarole.h"
@@ -70,12 +72,23 @@ public slots:
         adapter->set_model(this->dummy_task_model.get());
         engine->rootContext()->setContextProperty("adapter", adapter);
         // NOLINTEND(cppcoreguidelines-owning-memory)
+
+        this->setup_qml_interface(engine);
     }
 
 private:
     void setup_test_models() {
         this->setup_test_stringlist_model();
         this->setup_test_task_model();
+    }
+
+    void setup_qml_interface(QQmlEngine *engine) {
+        auto* qml_interface = engine->singletonInstance<QmlInterface*>("src.app", "QmlInterface");
+        // NOLINTBEGIN(cppcoreguidelines-owning-memory)
+        auto* flat = new FlatteningProxyModel(qml_interface);
+        // NOLINTEND(cppcoreguidelines-owning-memory)
+        flat->setSourceModel(this->dummy_source_model.get());
+        qml_interface->setProperty("flat_tags", QVariant::fromValue(flat));
     }
 
     void setup_test_stringlist_model() {
