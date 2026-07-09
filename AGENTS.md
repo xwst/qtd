@@ -2,7 +2,7 @@
 
 ## Project
 
-C++20 + Qt 6.7+ (Core, Gui, Quick, QuickControls2, Sql, Test, QuickTest, Qml, Concurrent, Widgets).
+C++20 + Qt 6.10+ (Core, Gui, Quick, QuickControls2, Sql, Test, QuickTest, Qml, Concurrent, Widgets).
 QML frontend, C++ backend. CMake build system. SQLite via Qt Sql. GPLv3 licensed.
 
 **Current state**: Early development — backend features functional, frontend is a proof of concept.
