@@ -26,9 +26,11 @@
 #include <QTextDocument>
 #include <QVariant>
 
+// NOLINTBEGIN(misc-include-cleaner)
 #include "dataitems/qtdid.h"
 #include "dataitems/qtditemdatarole.h"
 #include "dataitems/task.h"
+// NOLINTEND(misc-include-cleaner)
 
 class TaskAdapter : public QObject {
     Q_OBJECT
@@ -37,6 +39,7 @@ class TaskAdapter : public QObject {
     Q_PROPERTY(QVariant index READ get_index WRITE set_index NOTIFY indexChanged)
     Q_PROPERTY(QAbstractItemModel* model READ get_model WRITE set_model NOTIFY modelChanged REQUIRED)
 
+    // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
     #define X(type, name, role) \
         Q_PROPERTY(type name READ get_##name WRITE set_##name NOTIFY name##Changed)
     #include "dataitems/task_roles.inc"
@@ -58,6 +61,7 @@ public:
     void set_model(QAbstractItemModel* model);
     void set_index(const QVariant& value);
 
+    // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
     #define X(type, name, role) \
         [[nodiscard]] type get_##name() const; \
         void set_##name(const type& value);
@@ -68,7 +72,6 @@ signals:
     void indexChanged();
     void modelChanged();
 
-    // moc does not work well with macros:
     void uuidChanged();
     void titleChanged();
     void statusChanged();

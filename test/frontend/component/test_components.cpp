@@ -17,6 +17,7 @@
  */
 
 #include <memory>
+#include <utility>
 
 #include <QDateTime>
 #include <QModelIndex>
@@ -29,14 +30,11 @@
 // NOLINTNEXTLINE(misc-include-cleaner)
 #include <QtQuickTest>
 
+#include "../../backend/testmodelwrappers.h"
 #include "../frontend/components/taskadapter.h"
 #include "../qmlinterface.h"
-#include "models/flatteningproxymodel.h"
-#include "models/treeitemmodel.h"
-#include "models/taskitemmodel.h"
-#include "dataitems/qtditemdatarole.h"
 #include "dataitems/task.h"
-#include "../../backend/testmodelwrappers.h"
+#include "models/flatteningproxymodel.h"
 
 class TagEditorTestModel : public QStandardItemModel
 {
@@ -45,7 +43,7 @@ class TagEditorTestModel : public QStandardItemModel
 public:
     using QStandardItemModel::QStandardItemModel;
 
-    Q_INVOKABLE bool change_parent(const QModelIndex& /* index */, const QString& /* new_parent */) {
+    Q_INVOKABLE static bool change_parent(const QModelIndex& /* index */, const QString& /* new_parent */) {
         return true;
     }
 };

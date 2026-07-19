@@ -22,10 +22,11 @@
 
 #include <QDate>
 #include <QDateTime>
+#include <QLocale>
 #include <QString>
 #include <QStringList>
+#include <QTest>
 #include <QTime>
-#include <QtTest>
 
 #include "datetimeparser.h"
 
@@ -116,7 +117,7 @@ void TestDateTimeParser::locale_dates() {
     for (const auto& loc : TestDateTimeParser::locales()) {
         const auto parser = make_parser(loc);
 
-        QString text = loc.toString(sample, QLocale::ShortFormat);
+        const QString text = loc.toString(sample, QLocale::ShortFormat);
         auto result = parser->parse(text);
 
         QVERIFY(result.isValid());
@@ -197,8 +198,8 @@ void TestDateTimeParser::year_variants() {
         format_yyyy.replace(QRegularExpression("y{1,4}"), "yyyy");
         format_yy.replace(QRegularExpression("y{1,4}"), "yy");
 
-        QString text_yyyy = sample.toString(format_yyyy);
-        QString text_yy   = sample.toString(format_yy);
+        const QString text_yyyy = sample.toString(format_yyyy);
+        const QString text_yy   = sample.toString(format_yy);
 
         auto result_yyyy = parser->parse(text_yyyy);
         auto result_yy = parser->parse(text_yy);
@@ -371,12 +372,12 @@ void TestDateTimeParser::normalization_date_without_year_single_digits() {
 
     for (const auto& loc : TestDateTimeParser::locales()) {
         const auto parser = make_parser(loc);
-        const auto r = parser->parse("3/7");
+        const auto result = parser->parse("3/7");
 
-        if (r.isValid()) {
-            QCOMPARE(r.date().month(), 3);
-            QCOMPARE(r.date().day(), 7);
-            QCOMPARE(r.date().year(), currentYear);
+        if (result.isValid()) {
+            QCOMPARE(result.date().month(), 3);
+            QCOMPARE(result.date().day(), 7);
+            QCOMPARE(result.date().year(), currentYear);
         }
     }
 }

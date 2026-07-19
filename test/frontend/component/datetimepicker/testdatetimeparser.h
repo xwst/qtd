@@ -20,9 +20,9 @@
 
 #include <memory>
 
+#include <QLocale>
 #include <QObject>
 #include <QTime>
-#include <QLocale>
 
 #include "datetimeparser.h"
 
@@ -34,7 +34,7 @@ private:
     const QTime defaultTime = QTime(8, 15);
 
     static QList<QLocale> locales();
-    std::unique_ptr<DateTimeParser> make_parser(const QLocale& locale) const;
+    [[nodiscard]] std::unique_ptr<DateTimeParser> make_parser(const QLocale& locale) const;
 
 private slots:
     // ---- shift tests ----

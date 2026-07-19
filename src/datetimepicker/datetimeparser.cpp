@@ -61,7 +61,7 @@ QDateTime DateTimeParser::parse_shift_pattern_match(const QRegularExpressionMatc
     return base_date_time;
 }
 
-QStringList DateTimeParser::year_variants(const QString& format) const
+QStringList DateTimeParser::year_variants(const QString& format)
 {
     QStringList variants;
     variants << format;
@@ -79,7 +79,7 @@ QStringList DateTimeParser::year_variants(const QString& format) const
 QDateTime DateTimeParser::try_parse_date_time(const QString& input) const {
     const QString base_format = this->locale.dateTimeFormat(QLocale::ShortFormat);
 
-    for (const QString& format : this->year_variants(base_format)) {
+    for (const QString& format : DateTimeParser::year_variants(base_format)) {
         QDateTime datetime = this->locale.toDateTime(input, format, DateTimeParser::BASE_YEAR);
         if (datetime.isValid()) {
             return datetime;
@@ -92,7 +92,7 @@ QDateTime DateTimeParser::try_parse_date_time(const QString& input) const {
 QDate DateTimeParser::try_parse_date(QString input) const {
     QString base_format = this->locale.dateFormat(QLocale::ShortFormat);
 
-    for (const QString& format : this->year_variants(base_format)) {
+    for (const QString& format : DateTimeParser::year_variants(base_format)) {
         QDate date = this->locale.toDate(input, format, DateTimeParser::BASE_YEAR);
         if (date.isValid()) {
             return date;
@@ -158,7 +158,7 @@ QDateTime DateTimeParser::parse(QString input) const {
         return {};
     }
 
-    const auto shift_match = this->match_shift_pattern(input);
+    const auto shift_match = DateTimeParser::match_shift_pattern(input);
     if (shift_match.hasMatch()) {
         return this->parse_shift_pattern_match(shift_match);
     }

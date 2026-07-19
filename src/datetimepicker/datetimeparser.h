@@ -41,13 +41,13 @@ private:
     [[nodiscard]] static QRegularExpressionMatch match_shift_pattern(const QString& input);
 
     [[nodiscard]] QDateTime parse_shift_pattern_match(const QRegularExpressionMatch& match) const;
-    [[nodiscard]] QStringList year_variants(const QString& format) const;
+    [[nodiscard]] static QStringList year_variants(const QString& format);
     [[nodiscard]] QDateTime try_parse_date_time(const QString& input) const;
     [[nodiscard]] QDate try_parse_date(QString input) const;
     [[nodiscard]] QTime try_parse_time(const QString& input) const;
     [[nodiscard]] QDateTime parse_regular_formats(QString& input) const;
 
 public:
-    DateTimeParser(QObject* parent = nullptr);
+    explicit DateTimeParser(QObject* parent = nullptr);
     Q_INVOKABLE [[nodiscard]] QDateTime parse(QString input) const;
 };

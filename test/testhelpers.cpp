@@ -20,6 +20,7 @@
 
 #include <algorithm>
 #include <functional>
+#include <tuple>
 #include <vector>
 
 #include <QAbstractItemModel>

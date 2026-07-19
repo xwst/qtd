@@ -25,6 +25,7 @@
 #include <QSet>
 #include <QString>
 #include <QTest>
+#include <QTextDocument>
 
 #include "../testhelpers.h"
 #include "dataitems/qtdid.h"

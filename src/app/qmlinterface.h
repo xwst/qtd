@@ -25,10 +25,10 @@
 #include <QQmlEngine>
 
 #include "backend/dataitems/qtditemdatarole.h"
+#include "backend/dataitems/task.h"
 #include "backend/models/filteredtagitemmodel.h"
 #include "backend/models/filteredtaskitemmodel.h"
 #include "backend/models/flatteningproxymodel.h"
-#include "backend/dataitems/task.h"
 #include "backend/models/tagitemmodel.h"
 #include "backend/models/taskitemmodel.h"
 #include "globaleventfilter.h"

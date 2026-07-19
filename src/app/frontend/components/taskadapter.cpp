@@ -20,7 +20,7 @@
 
 namespace {
 
-static bool is_index_within_range(
+bool is_index_within_range(
     const QModelIndex& index,
     const QModelIndex& top_left,
     const QModelIndex& bottom_right
@@ -49,6 +49,7 @@ QVariant TaskAdapter::data(int role) const {
 
 // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
 void TaskAdapter::emit_all_changed() {
+    // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
     #define X(type, name, role) \
         emit name##Changed();
     #include "backend/dataitems/task_roles.inc"
@@ -102,6 +103,7 @@ void TaskAdapter::on_data_changed(
     const QList<int>& roles
 ) {
     if (is_index_within_range(this->m_index, top_left, bottom_right)) {
+        // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
         #define X(type, name, role) \
             if (roles.isEmpty() || roles.contains(role)) { \
                 emit name##Changed(); \
@@ -111,6 +113,7 @@ void TaskAdapter::on_data_changed(
     }
 }
 
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define X(type, name, role) \
 type TaskAdapter::get_##name() const { \
     return this->data(role).value<type>(); \
