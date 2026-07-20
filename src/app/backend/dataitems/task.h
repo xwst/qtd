@@ -1,5 +1,5 @@
 /**
- * Copyright 2025 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
+ * Copyright 2025, 2026 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
  *
  * This file is part of qtd.
  *
@@ -30,6 +30,11 @@
 #include "qtdid.h"
 #include "uniquedataitem.h"
 
+#define TASK_STATUS    \
+enum Status : quint8 { \
+      Open             \
+    , Closed           \
+};
 
 class Task : public QObject, public UniqueDataItem {
 
@@ -37,15 +42,12 @@ class Task : public QObject, public UniqueDataItem {
 
 public:
 
-    enum Status : quint8 {
-        open,
-        closed
-    };
+    TASK_STATUS
     Q_ENUM(Status)
 
     explicit Task(
           QString        title
-        , Status         status        = Status::open
+        , Status         status        = Status::Open
         , QDateTime      start_date    = QDateTime()
         , QDateTime      due_date      = QDateTime()
         , QDateTime      resolve_date  = QDateTime()

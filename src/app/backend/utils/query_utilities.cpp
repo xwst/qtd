@@ -50,8 +50,11 @@ QString remove_sql_comments(QString queries) {
 
 QString get_sql_query_string(const QString& sql_filename) {
     QFile file(":/resources/sql/generic/" + sql_filename);
-    file.open(QFile::ReadOnly | QFile::Text);
-    return remove_sql_comments(QTextStream(&file).readAll());
+    if (file.open(QFile::ReadOnly | QFile::Text)) {
+        return remove_sql_comments(QTextStream(&file).readAll());
+    }
+    qDebug() << "Could not open file: " << file.fileName();
+    return "";
 }
 
 QSqlQuery get_sql_query(const QString& sql_filename, const QString& connection_name) {

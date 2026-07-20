@@ -20,6 +20,7 @@
 
 #include <algorithm>
 #include <functional>
+#include <tuple>
 #include <vector>
 
 #include <QAbstractItemModel>
@@ -94,7 +95,7 @@ void TestHelpers::assert_table_exists(const QString& table_name) {
 
 void TestHelpers::populate_database() {
     QFile file(":/resources/sql/generic/populate_database.sql");
-    file.open(QFile::ReadOnly | QFile::Text);
+    std::ignore = file.open(QFile::ReadOnly | QFile::Text);
     QTextStream in_stream(&file);
     const QString all_queries_str = QueryUtilities::remove_sql_comments(in_stream.readAll());
 

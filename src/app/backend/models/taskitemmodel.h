@@ -1,5 +1,5 @@
 /**
- * Copyright 2025 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
+ * Copyright 2025, 2026 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
  *
  * This file is part of qtd.
  *
@@ -41,6 +41,7 @@ public:
     explicit TaskItemModel(QString connection_name, QObject* parent = nullptr);
 
     bool setData(const QModelIndex& index, const QVariant& value, int role) override;
+    Q_INVOKABLE bool setData(const TaskId& task_id, const QVariant& value, int role);
     Q_INVOKABLE bool create_task(const QString& title, const QModelIndexList& parents = {});
     bool removeRows(int row, int count, const QModelIndex& parent) override;
     bool add_dependency(const QModelIndex& dependent, const QModelIndex& prerequisite);

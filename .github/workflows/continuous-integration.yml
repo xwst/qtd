@@ -46,7 +46,7 @@ jobs:
     - name: Install Qt
       uses: jurplel/install-qt-action@v4
       with:
-        version: '6.8.1'
+        version: '6.10.3'
         install-deps: 'true'
         cache: 'true'
         cache-key-prefix: 'install-qt-action'
@@ -105,7 +105,7 @@ jobs:
     - name: Install Qt
       uses: jurplel/install-qt-action@v4
       with:
-        version: '6.8.1'
+        version: '6.10.3'
         install-deps: 'true'
         cache: 'true'
         cache-key-prefix: 'install-qt-action'
@@ -176,7 +176,7 @@ jobs:
     - name: Install Qt
       uses: jurplel/install-qt-action@v4
       with:
-        version: '6.8.1'
+        version: '6.10.3'
         install-deps: 'true'
         cache: 'true'
         cache-key-prefix: 'install-qt-action'

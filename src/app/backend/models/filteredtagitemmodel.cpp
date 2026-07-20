@@ -46,8 +46,9 @@ bool FilteredTagItemModel::filterAcceptsRow(
 }
 
 void FilteredTagItemModel::set_tag_whitelist(const QSet<TagId>& new_tag_whitelist) {
+    this->beginFilterChange();
     this->tag_whitelist = new_tag_whitelist;
-    this->invalidateRowsFilter();
+    this->endFilterChange(Direction::Rows);
 }
 
 void FilteredTagItemModel::tag_selection_changed(QList<QModelIndex> selection) const {

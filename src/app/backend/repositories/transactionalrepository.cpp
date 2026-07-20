@@ -1,5 +1,5 @@
 /**
- * Copyright 2025 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
+ * Copyright 2025, 2026 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
  *
  * This file is part of qtd.
  *
@@ -21,6 +21,7 @@
 #include <initializer_list>
 #include <stdexcept>
 
+#include <QDateTime>
 #include <QSqlDatabase>
 #include <QSqlQuery>
 
@@ -86,7 +87,10 @@ bool TransactionalRepository::alter_database(
 
     int value_index = -1;
     for (const auto& value : bind_values) {
-        query.bindValue(++value_index, value);
+        query.bindValue(
+            ++value_index,
+            value.typeId() == QMetaType::QDateTime ? value.toDateTime().toUTC() : value
+        );
     }
     return QueryUtilities::execute_sql_query(query, batch);
 }

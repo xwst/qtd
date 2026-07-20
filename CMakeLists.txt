@@ -1,4 +1,4 @@
-# Copyright 2025 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
+# Copyright 2025, 2026 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
 
 # This file is part of qtd.
 #
@@ -33,6 +33,12 @@ SET(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 INCLUDE(CTest)
 ENABLE_TESTING()
 
+SET(QT_SKIP_AUTO_PLUGIN_INCLUSION OFF)
+# QT_SKIP_AUTO_QML_PLUGIN_INCLUSION is set to OFF by default in Qt distributions
+# but currently set to ON to work around broken QML plugin packages
+# (Qt6QmlAssetDownloader) in the Debian Qt 6.10.2 installation.
+# SET(QT_SKIP_AUTO_QML_PLUGIN_INCLUSION OFF)
+
 FIND_PACKAGE(
     Qt6
     REQUIRED COMPONENTS
@@ -49,7 +55,7 @@ FIND_PACKAGE(
 )
 INCLUDE(CTest)
 
-QT_STANDARD_PROJECT_SETUP(REQUIRES 6.7)
+QT_STANDARD_PROJECT_SETUP(REQUIRES 6.10)
 
 
 FILE(GLOB_RECURSE RESOURCE_FILES
@@ -63,10 +69,9 @@ MESSAGE(${RESOURCE_FILES})
 
 INCLUDE_DIRECTORIES(src/app/backend/)
 ADD_SUBDIRECTORY(src/qmltexteditor)
+ADD_SUBDIRECTORY(src/datetimepicker)
 ADD_SUBDIRECTORY(src/app)
-ADD_SUBDIRECTORY(test/backend)
-ADD_SUBDIRECTORY(test/frontend/component/)
-ADD_SUBDIRECTORY(test/frontend/journey/)
+ADD_SUBDIRECTORY(test/)
 
 QT_ADD_RESOURCES(
     qtd "resources"

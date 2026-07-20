@@ -1,5 +1,5 @@
 /**
- * Copyright 2025 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
+ * Copyright 2025, 2026 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
  *
  * This file is part of qtd.
  *
@@ -68,6 +68,7 @@ private:
     void add_recursively_to_uuid_node_map(TreeNode* node);
 
 protected:
+    [[nodiscard]] QModelIndex create_index(const QtdId& node_id) const;
     bool create_tree_node(
         std::unique_ptr<UniqueDataItem> data_item,
         const QtdId& parent_uuid = QtdId()

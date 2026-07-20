@@ -1,5 +1,5 @@
 /**
- * Copyright 2025, 2026 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
+ * Copyright 2026 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
  *
  * This file is part of qtd.
  *
@@ -16,22 +16,28 @@
  * qtd. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import QtQuick
+import QtQml 2.0
+import QtQuick 2.15
 
-Rectangle {
-    property alias text: text_field.text
-    property alias font: text_field.font
-    color: (enabled ? palette.active : palette.disabled).base
-    border.color: (enabled ? palette.active : palette.disabled).dark
-    border.width: 1
-    radius: 2
-    height: text_field.height + 10
+Item {
+    id: month_names
+    required property font font
+    property int format: Locale.ShortFormat
 
-    TextInput {
-        id: text_field
-        anchors.centerIn: parent
-        width: parent.width - 6
-        clip: true
-        color: (enabled ? palette.active : palette.disabled).text
+    property int max_width: Math.max(
+        ...[ ...Array(12).keys() ].map( i =>
+            month_name.createObject(month_names, { month_index: i }).width
+        )
+    )
+
+    property var locale: Qt.locale()
+
+    Component {
+        id: month_name
+        TextMetrics {
+            required property int month_index
+            font: month_names.font
+            text: locale.monthName(month_index, month_names.format)
+        }
     }
 }

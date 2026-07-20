@@ -29,7 +29,8 @@ enum QtdItemDataRole : quint16 { \
     , StartRole                  \
     , DueRole                    \
     , ResolveRole                \
-    , DetailsRole                \
+    , PlainTextRole              \
+    , RichTextRole               \
     , DocumentRole               \
     , TagsRole                   \
     , AddTagRole                 \

@@ -14,7 +14,6 @@
 # You should have received a copy of the GNU General Public License along with
 # qtd. If not, see <https://www.gnu.org/licenses/>.
 
-
 QT_ADD_LIBRARY(qmltexteditor STATIC)
 
 QT_ADD_QML_MODULE(qmltexteditor
@@ -24,7 +23,8 @@ QT_ADD_QML_MODULE(qmltexteditor
         ChoiceButton.qml
         TextEditor.qml
     SOURCES
-        textformatter.h textformatter.cpp
+        textformatter.cpp
+        textformatter.h
 )
 
 TARGET_LINK_LIBRARIES(qmltexteditor PRIVATE Qt6::Quick)

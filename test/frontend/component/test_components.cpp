@@ -17,53 +17,105 @@
  */
 
 #include <memory>
+#include <utility>
 
-// Includes are required but not all are used directly,
-// because the macros are defined in referenced header files
+#include <QDateTime>
+#include <QModelIndex>
 // NOLINTNEXTLINE(misc-include-cleaner)
 #include <QQmlContext>
 #include <QQmlEngine>
-#include <QStringListModel>
+#include <QSortFilterProxyModel>
+#include <QStandardItemModel>
+#include <QString>
 // NOLINTNEXTLINE(misc-include-cleaner)
 #include <QtQuickTest>
-#include <qqml.h>
 
-#include "dataitems/qtditemdatarole.h"
+#include "../../backend/testmodelwrappers.h"
+#include "../frontend/components/taskadapter.h"
+#include "../qmlinterface.h"
+#include "dataitems/task.h"
+#include "models/flatteningproxymodel.h"
 
-class TestQmlInterface : public QObject {
+class TagEditorTestModel : public QStandardItemModel
+{
     Q_OBJECT
-    QML_ELEMENT
-    QML_SINGLETON
 
 public:
-    QTD_ITEM_DATA_ROLE
-    Q_ENUM(QtdItemDataRole)
+    using QStandardItemModel::QStandardItemModel;
+
+    Q_INVOKABLE static bool change_parent(const QModelIndex& /* index */, const QString& /* new_parent */) {
+        return true;
+    }
 };
 
 class SetupComponentTests : public QObject
 {
     Q_OBJECT
 
-    std::unique_ptr<QStringListModel> dummy_model;
-    std::unique_ptr<TestQmlInterface> qml_interface;
+    std::unique_ptr<TagEditorTestModel> dummy_source_model;
+    std::unique_ptr<QSortFilterProxyModel> dummy_proxy_model;
+    std::unique_ptr<TreeItemModelTestWrapper> dummy_task_model;
 
 public:
     SetupComponentTests() = default;
 
 public slots:
     void qmlEngineAvailable(QQmlEngine *engine) {
-        this->dummy_model = std::make_unique<QStringListModel>();
-        QStringList tmp;
-        tmp << "Name 1" << "Name 2" << "Name 3";
-        this->dummy_model->setStringList(tmp);
-        engine->rootContext()->setContextProperty("dummyIndex", this->dummy_model->index(0));
+        this->setup_test_models();
+        engine->rootContext()->setContextProperty("dummyIndex", this->dummy_proxy_model->index(0, 0));
+        engine->rootContext()->setContextProperty("dummyTaskModel", this->dummy_task_model.get());
 
-        this->qml_interface = std::make_unique<TestQmlInterface>();
-        // NOLINTBEGIN
-        qmlRegisterSingletonInstance(
-            "src.app", 1, 0, "QmlInterface", this->qml_interface.get()
-        );
-        // NOLINTEND
+        // NOLINTBEGIN(cppcoreguidelines-owning-memory)
+        auto* adapter = new TaskAdapter(engine);
+        adapter->set_model(this->dummy_task_model.get());
+        engine->rootContext()->setContextProperty("adapter", adapter);
+        // NOLINTEND(cppcoreguidelines-owning-memory)
+
+        this->setup_qml_interface(engine);
+    }
+
+private:
+    void setup_test_models() {
+        this->setup_test_stringlist_model();
+        this->setup_test_task_model();
+    }
+
+    void setup_qml_interface(QQmlEngine *engine) {
+        auto* qml_interface = engine->singletonInstance<QmlInterface*>("src.app", "QmlInterface");
+        // NOLINTBEGIN(cppcoreguidelines-owning-memory)
+        auto* flat = new FlatteningProxyModel(qml_interface);
+        // NOLINTEND(cppcoreguidelines-owning-memory)
+        flat->setSourceModel(this->dummy_source_model.get());
+        qml_interface->setProperty("flat_tags", QVariant::fromValue(flat));
+    }
+
+    void setup_test_stringlist_model() {
+        this->dummy_source_model = std::make_unique<TagEditorTestModel>();
+        auto* item1 = new QStandardItem("Name 1");
+        item1->setData(QColor("lightblue"), Qt::DecorationRole);
+        auto* item2 = new QStandardItem("Name 2");
+        item2->setData(QColor("lightgreen"), Qt::DecorationRole);
+        auto* item3 = new QStandardItem("Name 3");
+        item3->setData(QColor("lightyellow"), Qt::DecorationRole);
+        this->dummy_source_model->appendRow(item1);
+        this->dummy_source_model->appendRow(item2);
+        this->dummy_source_model->appendRow(item3);
+
+        this->dummy_proxy_model = std::make_unique<QSortFilterProxyModel>();
+        this->dummy_proxy_model->setSourceModel(this->dummy_source_model.get());
+    }
+
+    void setup_test_task_model() {
+        this->dummy_task_model = std::make_unique<TreeItemModelTestWrapper>();
+
+        auto start_1 = QDateTime::fromString("2025-01-01T12:00:00", Qt::ISODate);
+        auto start_2 = QDateTime::fromString("2025-10-10T10:00:00", Qt::ISODate);
+
+        auto test_task_1 = std::make_unique<Task>("Task 1", Task::Status::Open,   start_1);
+        auto test_task_2 = std::make_unique<Task>("Task 2", Task::Status::Closed, start_2);
+
+        this->dummy_task_model->create_tree_node(std::move(test_task_1));
+        this->dummy_task_model->create_tree_node(std::move(test_task_2));
     }
 };
 

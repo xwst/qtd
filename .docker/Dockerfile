@@ -33,6 +33,7 @@ RUN apt-get update \
         clang-tidy \
         gdb \
         lldb \
+        valgrind \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 

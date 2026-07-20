@@ -25,6 +25,7 @@
 #include <QSet>
 #include <QString>
 #include <QTest>
+#include <QTextDocument>
 
 #include "../testhelpers.h"
 #include "dataitems/qtdid.h"
@@ -59,8 +60,24 @@ void TestTaskItemModel::test_initial_dataset_represented_correctly() const {
 }
 
 void TestTaskItemModel::test_model_stores_text_documents() const {
-    QEXPECT_FAIL("", "Document storage is not yet implemented!", Continue);
-    QVERIFY(this->model->data(this->model->index(0, 0), DocumentRole).isValid());
+    const auto index = TestHelpers::find_model_index_by_display_role(
+        *this->model, "Buy groceries"
+    );
+    QVERIFY(index.isValid());
+    const auto* doc = index.data(DocumentRole).value<QTextDocument*>();
+    QVERIFY(doc != nullptr);
+
+    QCOMPARE(index.data(PlainTextRole).toString(), "Also check if toothpaste is empty");
+
+    const QString test_html = "<p>Updated description</p>";
+    QVERIFY(this->model->setData(index, test_html, RichTextRole));
+
+    QCOMPARE(index.data(DocumentRole).value<QTextDocument*>(), doc);
+    QCOMPARE(doc->toPlainText(), "Updated description");
+
+    QCOMPARE(index.data(PlainTextRole).toString(), "Updated description");
+
+    QVERIFY(index.data(RichTextRole).toString().contains("Updated description"));
 }
 
 void TestTaskItemModel::test_data_change_of_unique_task() const {
@@ -70,13 +87,13 @@ void TestTaskItemModel::test_data_change_of_unique_task() const {
 
     const auto due_time = test_index.data(DueRole).toDateTime();
     const auto uuid = test_index.data(UuidRole).value<TaskId>();
-    QCOMPARE(test_index.data(ActiveRole), Task::open);
+    QCOMPARE(test_index.data(ActiveRole), Task::Open);
 
-    const auto new_start_time = QDateTime::currentDateTime();
+    const auto new_start_time = QDateTime::fromString("2025-12-01T08:00:00.000Z", Qt::ISODate);
     QVERIFY(this->model->setData(test_index, new_start_time, StartRole));
-    QVERIFY(this->model->setData(test_index, Task::closed, ActiveRole));
+    QVERIFY(this->model->setData(test_index, Task::Closed, ActiveRole));
 
-    QCOMPARE(test_index.data(ActiveRole), Task::closed);
+    QCOMPARE(test_index.data(ActiveRole), Task::Closed);
     QCOMPARE(test_index.data(StartRole).toDateTime(), new_start_time);
 
     QCOMPARE(test_index.data().toString(), title);
@@ -112,7 +129,7 @@ void TestTaskItemModel::test_data_change_of_cloned_task() const {
     QCOMPARE(test_index_clone.data().toString(), new_title);
     TestTaskItemModel::assert_index_equality(test_index, test_index_clone);
 
-    const auto new_status = (test_index_clone.data(ActiveRole) == Task::open) ? Task::closed : Task::open;
+    const auto new_status = (test_index_clone.data(ActiveRole) == Task::Open) ? Task::Closed : Task::Open;
     QVERIFY(this->model->setData(test_index_clone, new_status, ActiveRole));
     QCOMPARE(test_index.data(ActiveRole), new_status);
     TestTaskItemModel::assert_index_equality(test_index, test_index_clone);
@@ -153,7 +170,7 @@ void TestTaskItemModel::test_create_task() const {
     QVERIFY(new_index2.isValid());
 
     QCOMPARE(new_index1.data(           ),   new_task_title);
-    QCOMPARE(new_index1.data(ActiveRole),              Task::open);
+    QCOMPARE(new_index1.data(ActiveRole),              Task::Open);
     QCOMPARE(new_index1.data(StartRole ).toDateTime(), QDateTime());
     QCOMPARE(new_index1.data(DueRole   ).toDateTime(), QDateTime());
     TestTaskItemModel::assert_index_equality(new_index1, new_index2);
@@ -208,15 +225,15 @@ void TestTaskItemModel::assert_initial_dataset_representation_base_model() const
 
     this->find_task_by_title_and_assert_correctness_of_data(
         "Cook meal",
-        Task::open,
-        QDateTime::fromString("2025-12-01 16:00:00", Qt::ISODate),
-        QDateTime::fromString("2025-12-01 18:15:00", Qt::ISODate),
+        Task::Open,
+        QDateTime::fromString("2025-12-01T16:00:00.000Z", Qt::ISODate),
+        QDateTime::fromString("2025-12-01T18:15:00.000Z", Qt::ISODate),
         2,
         {TaskId("10173aba-edd8-4049-a41c-74f28581c31f")}
     );
     this->find_task_by_title_and_assert_correctness_of_data(
         "Do chores",
-        Task::closed,
+        Task::Closed,
         QDateTime(),
         QDateTime(),
         0,
@@ -224,9 +241,9 @@ void TestTaskItemModel::assert_initial_dataset_representation_base_model() const
     );
     this->find_task_by_title_and_assert_correctness_of_data(
         "Print shopping list",
-        Task::open,
+        Task::Open,
         QDateTime(),
-        QDateTime::fromString("2025-12-01 16:00:00", Qt::ISODate),
+        QDateTime::fromString("2025-12-01T16:00:00.000Z", Qt::ISODate),
         2,
         {}
     );
@@ -240,7 +257,7 @@ void TestTaskItemModel::assert_model_persistence() const {
     TestHelpers::assert_model_equality(
         *model_reloaded_from_db,
         *this->model,
-        {Qt::DisplayRole, UuidRole, ActiveRole, StartRole, DueRole, DetailsRole, DocumentRole, TagsRole},
+        {Qt::DisplayRole, UuidRole, ActiveRole, StartRole, DueRole, PlainTextRole, RichTextRole, TagsRole},
         TestHelpers::compare_indices_by_uuid
     );
 }
@@ -250,7 +267,7 @@ void TestTaskItemModel::assert_index_equality(
     const QModelIndex& index2
 ) {
     const QSet<int> roles = {
-        Qt::DisplayRole, UuidRole, ActiveRole, StartRole, DueRole, DetailsRole
+        Qt::DisplayRole, UuidRole, ActiveRole, StartRole, DueRole, PlainTextRole
     };
     for (const int role : roles) {
         QCOMPARE(index1.data(role), index2.data(role));

@@ -25,6 +25,7 @@
 #include <QQmlEngine>
 
 #include "backend/dataitems/qtditemdatarole.h"
+#include "backend/dataitems/task.h"
 #include "backend/models/filteredtagitemmodel.h"
 #include "backend/models/filteredtaskitemmodel.h"
 #include "backend/models/flatteningproxymodel.h"
@@ -71,6 +72,9 @@ public:
     QTD_ITEM_DATA_ROLE
     Q_ENUM(QtdItemDataRole)
 
+    TASK_STATUS
+    Q_ENUM(Status)
+
     Q_PROPERTY(QString application_dir MEMBER m_application_dir CONSTANT)
     Q_PROPERTY(TagItemModel*  tags  MEMBER m_tags  CONSTANT)
     Q_PROPERTY(TaskItemModel* tasks MEMBER m_tasks CONSTANT)
@@ -80,7 +84,7 @@ public:
     Q_PROPERTY(FilteredTagItemModel* tags_project    MEMBER m_tags_project    CONSTANT)
     Q_PROPERTY(FilteredTagItemModel* tags_archived   MEMBER m_tags_archived   CONSTANT)
 
-    Q_PROPERTY(FlatteningProxyModel* flat_tags       MEMBER m_flat_tags       CONSTANT)
+    Q_PROPERTY(FlatteningProxyModel* flat_tags       MEMBER m_flat_tags)
 
     Q_PROPERTY(FilteredTaskItemModel* open_tasks       MEMBER m_open_tasks       CONSTANT)
     Q_PROPERTY(FilteredTaskItemModel* actionable_tasks MEMBER m_actionable_tasks CONSTANT)

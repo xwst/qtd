@@ -1,5 +1,5 @@
 /**
- * Copyright 2025 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
+ * Copyright 2025, 2026 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
  *
  * This file is part of qtd.
  *
@@ -39,7 +39,7 @@ TestCase {
 
     function initTestCase() {
         compare(component_to_test.visible, true)
-        text_area = Util.findChildByType("TextArea", component_to_test)
+        text_area = Util.find_child(this, component_to_test, "text_area")
     }
 
     function init() {
@@ -50,33 +50,32 @@ TestCase {
         return [
             {
                 tag: "bold",
-                button_text: "B",
+                button_name: "bold_button",
                 get_font_property: () => text_area.cursorSelection.font.bold,
                 span_style: "font-weight:" + Font.Bold
             },
             {
                 tag: "italic",
-                button_text: "I",
+                button_name: "italic_button",
                 get_font_property: () => text_area.cursorSelection.font.italic,
-                        span_style: "font-style:italic"
+                    span_style: "font-style:italic"
             },
             {
                 tag: "underline",
-                button_text: "U",
+                button_name: "underline_button",
                 get_font_property: () => text_area.cursorSelection.font.underline,
-                        span_style: "text-decoration: underline"
+                    span_style: "text-decoration: underline"
             },
             {
                 tag: "strikeout",
-                button_text: "S",
+                button_name: "strikeout_button",
                 get_font_property: () => text_area.cursorSelection.font.strikeout,
-                        span_style: "text-decoration: line-through"
+                    span_style: "text-decoration: line-through"
             }
         ]
     }
 
     function test_font_emphasis_retroactively(data) {
-        var button = Util.findChildByText(data.button_text, component_to_test)
         var expected_html_command = "<span style=\" " + data.span_style + ";\">testing</span>"
         text_area.text = "My dummy text for testing purposes."
 
@@ -85,7 +84,7 @@ TestCase {
         compare(data.get_font_property(), false)
         verify(!text_area.text.includes(expected_html_command))
 
-        mouseClick(button)
+        Util.click_by_name(this, component_to_test, data.button_name)
 
         compare(text_area.selectedText, "testing")
         compare(data.get_font_property(), true)
@@ -93,19 +92,16 @@ TestCase {
     }
 
     function test_lists_and_indentation() {
-        var ol_button = Util.findChildByText("1.", component_to_test)
-        var inc_indent_button = Util.findChildByText(">", component_to_test)
-        var dec_indent_button = Util.findChildByText("<", component_to_test)
-
         text_area.forceActiveFocus()
         keyClicks("First line")
         var initial_text = text_area.text
-        mouseClick(dec_indent_button)
+
+        Util.click_by_name(this, component_to_test, "outdent_button")
         compare(text_area.text, initial_text)
-        mouseClick(inc_indent_button)
+        Util.click_by_name(this, component_to_test, "indent_button")
         compare(text_area.text, initial_text)
 
-        mouseClick(ol_button)
+        Util.click_by_name(this, component_to_test, "ordered_list_button")
         const single_item_list_regex = /<ol[^>]*>\s*<li[^>]*>First line<\/li><\/ol>/;
         verify(single_item_list_regex.test(text_area.text))
 
@@ -114,14 +110,14 @@ TestCase {
         const two_items_list_regex = /<ol[^>]*>\s*<li[^>]*>First line<\/li>\s*<li[^>]*>Second line<\/li><\/ol>/;
         verify(two_items_list_regex.test(text_area.text))
 
-        mouseClick(inc_indent_button)
+        Util.click_by_name(this, component_to_test, "indent_button")
         const nested_list_regex = /<ol[^>]* -qt-list-indent: 1;">\s*<li[^>]*>First line\s*<ol[^>]* -qt-list-indent: 2;">\s*<li[^>]*>Second line<\/li><\/ol><\/li><\/ol>/;
         verify(nested_list_regex.test(text_area.text))
 
-        mouseClick(dec_indent_button)
+        Util.click_by_name(this, component_to_test, "outdent_button")
         verify(two_items_list_regex.test(text_area.text))
 
-        mouseClick(dec_indent_button)
+        Util.click_by_name(this, component_to_test, "outdent_button")
         verify(single_item_list_regex.test(text_area.text))
     }
 
@@ -129,23 +125,20 @@ TestCase {
         var text_step_0 = text_area.text
         var text_step_1 = "A short test message."
         var text_step_2 = "<span style=\" font-weight:" + Font.Bold + ";\">" + text_step_1 + "</span>"
-        var bold_button = Util.findChildByText("B",   component_to_test)
-        var undo_button = Util.findChildByText("<--", component_to_test)
-        var redo_button = Util.findChildByText("-->", component_to_test)
 
         text_area.forceActiveFocus()
         keyClicks(text_step_1)
         text_area.selectAll()
-        mouseClick(bold_button)
+        Util.click_by_name(this, component_to_test, "bold_button")
 
         verify(text_area.text.includes(text_step_2))
-        mouseClick(undo_button)
+        Util.click_by_name(this, component_to_test, "undo_button")
         verify(text_area.text.includes(text_step_1))
-        mouseClick(undo_button)
+        Util.click_by_name(this, component_to_test, "undo_button")
         compare(text_area.text, text_step_0)
-        mouseClick(redo_button)
+        Util.click_by_name(this, component_to_test, "redo_button")
         verify(text_area.text.includes(text_step_1))
-        mouseClick(redo_button)
+        Util.click_by_name(this, component_to_test, "redo_button")
         verify(text_area.text.includes(text_step_2))
     }
 }

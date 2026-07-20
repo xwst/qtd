@@ -27,12 +27,10 @@ while read FILE_NAME; do
         echo " Required years: $EXPECTED_COPYRIGHT_YEARS"
         RESULT=1
     fi
-done < <(find . \( \
-		-name "*.cpp" \
-		-o -name "*.h" \
-		-o -name "*.qml" \
-		-o -name "*.js" \
-	\) -not -path "./build/*")
+done < <(find . \
+    -path "./build" -prune -o \
+    -path "./.opencode" -prune -o \
+    \( -name "*.cpp" -o -name "*.h" -o -name "*.qml" -o -name "*.js" \) -print)
 
 if [[ $FOUND_MAIN -eq 1 ]]; then
     echo "Was not able to find 'main.cpp'. Did you execute the script in the correct directory?"

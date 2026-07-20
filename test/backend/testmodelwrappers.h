@@ -1,5 +1,5 @@
 /**
- * Copyright 2025 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
+ * Copyright 2025, 2026 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
  *
  * This file is part of qtd.
  *
@@ -24,10 +24,21 @@
 
 #pragma once
 
+#include <QObject>
+
 #include "models/treeitemmodel.h"
 
 class TreeItemModelTestWrapper : public TreeItemModel {
+    Q_OBJECT
+
 public:
     using TreeItemModel::create_tree_node;
     using TreeItemModel::clone_tree_node;
+
+    Q_INVOKABLE void emit_data_changed(int row, const QList<int>& roles = {}) {
+        auto idx = this->index(row, 0);
+        if (idx.isValid()) {
+            emit this->dataChanged(idx, idx, roles);
+        }
+    }
 };

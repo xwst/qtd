@@ -20,6 +20,7 @@
 
 #include <initializer_list>
 #include <memory>
+#include <tuple>
 
 #include <QAbstractItemModel>
 #include <QAbstractItemModelTester>
@@ -36,7 +37,7 @@ TestQmlInterface::TestQmlInterface(QObject *parent)
 {}
 
 void TestQmlInterface::set_up_db() {
-    this->temp_db_file.open();
+    std::ignore = this->temp_db_file.open();
     auto database = QSqlDatabase::addDatabase("QSQLITE");
     database.setDatabaseName(this->temp_db_file.fileName());
     this->temp_db_file.close();

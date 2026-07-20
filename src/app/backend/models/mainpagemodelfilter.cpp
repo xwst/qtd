@@ -25,13 +25,11 @@
 
 bool is_task_open(const QModelIndex& index) {
     auto status = index.data(QtdItemDataRole::ActiveRole).value<Task::Status>();
-    auto title = index.data().toString();
-    return status == Task::Status::open;
+    return status == Task::Status::Open;
 }
 
 bool is_task_actionable(const QModelIndex& index) {
-    auto status = index.data(QtdItemDataRole::ActiveRole).value<Task::Status>();
-    return (status == Task::Status::open) && (index.model()->rowCount(index) == 0);
+    return is_task_open(index) && (index.model()->rowCount(index) == 0);
 }
 
 bool is_task_in_open_project(const QModelIndex& index) {
@@ -40,11 +38,10 @@ bool is_task_in_open_project(const QModelIndex& index) {
         top_ancestor = top_ancestor.parent();
     }
 
-    auto status = top_ancestor.data(QtdItemDataRole::ActiveRole);
-    return status.value<Task::Status>() == Task::Status::open;
+    return is_task_open(top_ancestor);
 }
 
 bool is_task_closed(const QModelIndex& index) {
     auto status = index.data(QtdItemDataRole::ActiveRole).value<Task::Status>();
-    return status == Task::Status::closed;
+    return status == Task::Status::Closed;
 }
