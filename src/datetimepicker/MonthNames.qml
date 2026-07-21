@@ -16,6 +16,8 @@
  * qtd. If not, see <https://www.gnu.org/licenses/>.
  */
 
+pragma ComponentBehavior: Bound
+
 import QtQml 2.0
 import QtQuick 2.15
 
@@ -26,7 +28,7 @@ Item {
 
     property int max_width: Math.max(
         ...[ ...Array(12).keys() ].map( i =>
-            month_name.createObject(month_names, { month_index: i }).width
+            month_name.createObject(month_names, { month_index: i }).width // qmllint disable missing-property
         )
     )
 
@@ -37,7 +39,7 @@ Item {
         TextMetrics {
             required property int month_index
             font: month_names.font
-            text: locale.monthName(month_index, month_names.format)
+            text: month_names.locale.monthName(month_index, month_names.format)
         }
     }
 }

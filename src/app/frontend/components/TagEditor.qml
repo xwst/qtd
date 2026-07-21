@@ -68,10 +68,10 @@ Window {
                 return;
             }
         }
-        closeRequested();
+        close_requested();
     }
 
-    function closeRequested() {
+    function close_requested() {
         if (invalid_parent_dialog.visible) {
             invalid_parent_dialog.close();
         } else if (confirm_dialog.visible) {
@@ -109,19 +109,19 @@ Window {
 
     TagForm {
         id: tag_form
-        name: tag_editor.tag_index.model.data(tag_index, Qt.DisplayRole)
+        name: tag_editor.tag_index.model.data(tag_editor.tag_index, Qt.DisplayRole)
         parent_index: tag_editor.get_source_parent(tag_editor.tag_index)
-        tag_color: tag_editor.tag_index.model.data(tag_index, Qt.DecorationRole)
+        tag_color: tag_editor.tag_index.model.data(tag_editor.tag_index, Qt.DecorationRole)
         is_new: false
-        has_children: tag_editor.tag_index.model.hasChildren(tag_index)
+        has_children: tag_editor.tag_index.model.hasChildren(tag_editor.tag_index)
 
         onDeleteActivated: {
-            if (tag_editor.tag_index.model.hasChildren(tag_index))
+            if (tag_editor.tag_index.model.hasChildren(tag_editor.tag_index))
                 confirm_dialog.open()
             else
                 tag_editor.delete_tag_and_children()
         }
-        onCloseClicked: tag_editor.closeRequested()
+        onCloseClicked: tag_editor.close_requested()
         onSaveClicked: (name, parent_id, color) => tag_editor.save(name, parent_id, color)
     }
 }

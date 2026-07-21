@@ -1,5 +1,5 @@
 /**
- * Copyright 2025 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
+ * Copyright 2025, 2026 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
  *
  * This file is part of qtd.
  *
@@ -21,6 +21,7 @@
 #include <QObject>
 
 class PersistedTreeItemModelsTestBase : public QObject
+
 {
     Q_OBJECT
 
@@ -32,7 +33,7 @@ protected:
     [[nodiscard]] QString get_db_connection_name() const;
 
 public:
-    explicit PersistedTreeItemModelsTestBase(QObject *parent = nullptr);
+    explicit PersistedTreeItemModelsTestBase(QObject* parent = nullptr);
 
 protected slots:
     // Test setup/cleanup:

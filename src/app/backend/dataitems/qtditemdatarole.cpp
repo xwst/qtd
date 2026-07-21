@@ -18,8 +18,10 @@
 
 #include "qtditemdatarole.h"
 
-QHash<int, QByteArray> custom_role_names() {
-    static auto names = QHash<int, QByteArray>({
+QHash<int, QByteArray> custom_role_names()
+{
+    static auto names = QHash<int, QByteArray>(
+    {
         {QtdItemDataRole::UuidRole, "uuid"}
     });
     return names;

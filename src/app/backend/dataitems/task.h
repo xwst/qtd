@@ -32,22 +32,34 @@
 
 #define TASK_STATUS    \
 enum Status : quint8 { \
-      Open             \
+    Open               \
     , Closed           \
 };
 
-class Task : public QObject, public UniqueDataItem {
+class Task : public QObject, public UniqueDataItem
+{
 
     Q_OBJECT
+    Q_CLASSINFO("QML.Element", "anonymous")
 
 public:
-
+    // NOLINTNEXTLINE(cppcoreguidelines-use-enum-class)
     TASK_STATUS
     Q_ENUM(Status)
 
+private:
+    QString                        title;
+    std::unique_ptr<QTextDocument> description;
+    Status                         status;
+    QDateTime                      start_date;
+    QDateTime                      due_date;
+    QDateTime                      resolve_date;
+    QSet<TagId>                    tags;
+
+public:
     explicit Task(
-          QString        title
-        , Status         status        = Status::Open
+        QString        title
+        , Status       status        = Status::Open
         , QDateTime      start_date    = QDateTime()
         , QDateTime      due_date      = QDateTime()
         , QDateTime      resolve_date  = QDateTime()
@@ -80,13 +92,4 @@ public:
     void set_data(const QVariant& value, int role) override;
 
     static QString status_to_string(Status status);
-
-private:
-    QString                        title;
-    std::unique_ptr<QTextDocument> description;
-    Status                         status;
-    QDateTime                      start_date;
-    QDateTime                      due_date;
-    QDateTime                      resolve_date;
-    QSet<TagId>                    tags;
 };

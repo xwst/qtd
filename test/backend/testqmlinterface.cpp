@@ -32,11 +32,12 @@
 #include "../testhelpers.h"
 #include "utils/initialize.h"
 
-TestQmlInterface::TestQmlInterface(QObject *parent)
+TestQmlInterface::TestQmlInterface(QObject* parent)
     : QObject{parent}
 {}
 
-void TestQmlInterface::set_up_db() {
+void TestQmlInterface::set_up_db()
+{
     std::ignore = this->temp_db_file.open();
     auto database = QSqlDatabase::addDatabase("QSQLITE");
     database.setDatabaseName(this->temp_db_file.fileName());
@@ -47,12 +48,14 @@ void TestQmlInterface::set_up_db() {
     TestHelpers::populate_database();
 }
 
-void TestQmlInterface::initTestCase() {
+void TestQmlInterface::initTestCase()
+{
     initialize_qt_meta_types();
     this->set_up_db();
     this->qml_interface = std::make_unique<QmlInterface>();
     this->qml_interface->set_up(this->temp_db_file.fileName());
-    set_up_model_testers({
+    set_up_model_testers(
+    {
         "open_tasks",
         "actionable_tasks",
         "project_tasks",
@@ -60,29 +63,35 @@ void TestQmlInterface::initTestCase() {
     });
 }
 
-void TestQmlInterface::set_up_model_testers(std::initializer_list<const char*> model_names) {
-    for (const auto* model_name : model_names) {
+void TestQmlInterface::set_up_model_testers(std::initializer_list<const char*> model_names)
+{
+    for (const auto* model_name : model_names)
+    {
         auto* model = this->get_model(model_name);
         new QAbstractItemModelTester(model, model); // NOLINT (cppcoreguidelines-owning-memory)
     }
 }
 
-QAbstractItemModel* TestQmlInterface::get_model(const char *model_name) const {
+QAbstractItemModel* TestQmlInterface::get_model(const char* model_name) const
+{
     return this->qml_interface->property(model_name).value<QAbstractItemModel*>();
 }
 
-void TestQmlInterface::cleanupTestCase() {
+void TestQmlInterface::cleanupTestCase()
+{
     QSqlDatabase::database().close();
 }
 
-void TestQmlInterface::test_model_size() const {
+void TestQmlInterface::test_model_size() const
+{
     QCOMPARE(this->get_model("open_tasks")->rowCount(), 2);
     QCOMPARE(this->get_model("actionable_tasks")->rowCount(), 1);
     QCOMPARE(this->get_model("project_tasks")->rowCount(), 2);
     QCOMPARE(this->get_model("archived_tasks")->rowCount(), 2);
 }
 
-void TestQmlInterface::test_tag_filtering() const {
+void TestQmlInterface::test_tag_filtering() const
+{
     auto tags_open = TestHelpers::get_display_roles(*this->get_model("tags_open"));
     QCOMPARE(tags_open.size(), 4);
     QVERIFY(tags_open.contains("Hobbies"));

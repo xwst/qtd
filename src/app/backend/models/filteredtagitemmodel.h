@@ -26,14 +26,16 @@
 #include "dataitems/qtdid.h"
 
 class FilteredTagItemModel : public QSortFilterProxyModel
+
 {
     Q_OBJECT
+    Q_CLASSINFO("QML.Element", "anonymous")
 
 private:
     QSet<TagId> tag_whitelist;
 
 public:
-    explicit FilteredTagItemModel(QObject *parent = nullptr);
+    explicit FilteredTagItemModel(QObject* parent = nullptr);
     [[nodiscard]] bool filterAcceptsRow(
         int source_row,
         const QModelIndex& source_parent

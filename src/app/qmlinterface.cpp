@@ -39,13 +39,17 @@
 void QmlInterface::open_database(
     const QString& database_file_path,
     const QString& connection_name
-) const {
+) const
+{
     auto database = QSqlDatabase::addDatabase("QSQLITE", connection_name);
-    if (database_file_path.trimmed().isEmpty()) {
+    if (database_file_path.trimmed().isEmpty())
+    {
         const QDir dir = QDir(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation));
         dir.mkpath(".");
         database.setDatabaseName(dir.absoluteFilePath(this->local_database_name));
-    } else {
+    }
+    else
+    {
         database.setDatabaseName(database_file_path);
     }
     database.open();
@@ -56,7 +60,8 @@ void QmlInterface::set_up_filtered_model(
     FilteredTagItemModel*& tag_model,
     FilteredTaskItemModel*& task_model,
     std::function<bool (const QModelIndex &)> filter
-) {
+)
+{
     // NOLINTBEGIN(cppcoreguidelines-owning-memory,misc-include-cleaner)
     tag_model = new FilteredTagItemModel(this);
     task_model = new FilteredTaskItemModel(std::move(filter), this);
@@ -71,58 +76,62 @@ void QmlInterface::set_up_filtered_model(
         tag_model,  &FilteredTagItemModel::set_tag_whitelist
     );
 
-    tag_model->setSourceModel(this->m_tags);
-    task_model->setSourceModel(this->m_tasks);
+    tag_model->setSourceModel(this->tags);
+    task_model->setSourceModel(this->tasks);
 }
 
-void QmlInterface::set_up_core_models(const QString& connection_name) {
+void QmlInterface::set_up_core_models(const QString& connection_name)
+{
     // NOLINTBEGIN(cppcoreguidelines-owning-memory)
-    this->m_tags      = new TagItemModel(connection_name, this);
-    this->m_flat_tags = new FlatteningProxyModel(this);
-    this->m_tasks     = new TaskItemModel(connection_name, this);
+    this->tags      = new TagItemModel(connection_name, this);
+    this->flat_tags = new FlatteningProxyModel(this);
+    this->tasks     = new TaskItemModel(connection_name, this);
     // NOLINTEND(cppcoreguidelines-owning-memory)
 
-    this->m_flat_tags->setSourceModel(this->m_tags);
+    this->flat_tags->setSourceModel(this->tags);
 }
 
-void QmlInterface::set_up_models(const QString& connection_name) {
+void QmlInterface::set_up_models(const QString& connection_name)
+{
     this->set_up_core_models(connection_name);
 
     this->set_up_filtered_model(
-        this->m_tags_open,
-        this->m_open_tasks,
+        this->tags_open,
+        this->open_tasks,
         is_task_open
     );
     this->set_up_filtered_model(
-        this->m_tags_actionable,
-        this->m_actionable_tasks,
+        this->tags_actionable,
+        this->actionable_tasks,
         is_task_actionable
     );
     this->set_up_filtered_model(
-        this->m_tags_project,
-        this->m_project_tasks,
+        this->tags_project,
+        this->project_tasks,
         is_task_in_open_project
     );
     this->set_up_filtered_model(
-        this->m_tags_archived,
-        this->m_archived_tasks,
+        this->tags_archived,
+        this->archived_tasks,
         is_task_closed
     );
 }
 
-void QmlInterface::set_up_event_filter() {
-    this->m_global_event_filter = new GlobalEventFilter(this); // NOLINT(cppcoreguidelines-owning-memory)
+void QmlInterface::set_up_event_filter()
+{
+    this->global_event_filter = new GlobalEventFilter(this); // NOLINT(cppcoreguidelines-owning-memory)
     auto* app = QCoreApplication::instance();
-    app->installEventFilter(this->m_global_event_filter);
+    app->installEventFilter(this->global_event_filter);
     QmlInterface::connect(
-        this->m_global_event_filter, &GlobalEventFilter::quit,
+        this->global_event_filter, &GlobalEventFilter::quit,
         app, &QCoreApplication::quit,
         Qt::QueuedConnection
     );
 }
 
-void QmlInterface::set_up(const QString& database_file_path) {
-    this->m_application_dir = QCoreApplication::applicationDirPath();
+void QmlInterface::set_up(const QString& database_file_path)
+{
+    this->application_dir = QCoreApplication::applicationDirPath();
 
     const QString connection_name = "local";
     this->open_database(database_file_path, connection_name);

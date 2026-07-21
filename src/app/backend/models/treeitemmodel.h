@@ -38,7 +38,8 @@
  * stored data but different position in the tree).
  * Any modifying operation on a tree node is also performed on all of its clones.
  */
-class TreeItemModel : public QAbstractItemModel {
+class TreeItemModel : public QAbstractItemModel
+{
 
 private:
 
@@ -78,10 +79,9 @@ protected:
         const QtdId& parent_uuid = QtdId()
     );
 
-
 public:
 
-    explicit TreeItemModel(QObject *parent = nullptr);
+    explicit TreeItemModel(QObject* parent = nullptr);
 
     // Required for read-only access:
     [[nodiscard]] int rowCount(const QModelIndex& parent = QModelIndex()) const override;
@@ -101,6 +101,6 @@ public:
     ) override;
 
     // Convenience functions:
-    qsizetype get_size();
+    [[nodiscard]] qsizetype get_size() const;
     [[nodiscard]] QVariant data(const QtdId& uuid, int role) const;
 };

@@ -16,6 +16,8 @@
  * qtd. If not, see <https://www.gnu.org/licenses/>.
  */
 
+pragma ComponentBehavior: Bound
+
 import QtQml 2.0
 import QtQuick 2.15
 import QtQuick.Controls
@@ -94,7 +96,7 @@ Item {
                     Locale.LongFormat
                 )
                 font: date_time_picker_panel.font
-                onClicked: selectMonthClicked()
+                onClicked: date_time_picker_panel.selectMonthClicked()
             }
 
             ToolButton {
@@ -102,7 +104,7 @@ Item {
                 objectName: "button_year"
                 text: date_time_picker_panel.displayed_year
                 font: date_time_picker_panel.font
-                onClicked: selectYearClicked()
+                onClicked: date_time_picker_panel.selectYearClicked()
             }
 
             Item { Layout.fillWidth: true }
@@ -154,6 +156,7 @@ Item {
             year: date_time_picker_panel.displayed_year
 
             delegate: ToolButton {
+                id: day_button
                 objectName: "day_button_" + model.date.getDate()
                 opacity: model.month === month_grid.month ? 1 : 0.3
                 font.family: month_grid.font.family
@@ -166,21 +169,21 @@ Item {
 
                 contentItem: Label {
                     anchors.fill: parent
-                    text: month_grid.locale.toString(parent.model.date, "d")
+                    text: month_grid.locale.toString(day_button.model.date, "d")
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignHCenter
-                    font.bold: parent.is_today
+                    font.bold: day_button.is_today
                     background: Rectangle {
                         anchors.fill: parent
-                        border.width: parent.parent.is_today ? month_grid.font.pointSize / 10 : 0
+                        border.width: day_button.is_today ? month_grid.font.pointSize / 10 : 0
                         color: "transparent"
                     }
                 }
 
                 highlighted:
-                    model.date.getFullYear() === current_selection.getFullYear()
-                    && model.date.getMonth() === current_selection.getMonth()
-                    && model.date.getDate() === current_selection.getDate()
+                    model.date.getFullYear() === date_time_picker_panel.current_selection.getFullYear()
+                    && model.date.getMonth() === date_time_picker_panel.current_selection.getMonth()
+                    && model.date.getDate() === date_time_picker_panel.current_selection.getDate()
                 onClicked: date_time_picker_panel.dateSelectionChanged(
                     model.date.getFullYear(),
                     model.date.getMonth(),

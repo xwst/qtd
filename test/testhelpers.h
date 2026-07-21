@@ -30,6 +30,7 @@
 #include "dataitems/tag.h"
 
 class TestHelpers
+
 {
 private:
     static std::vector<QModelIndex> get_sorted_children(
@@ -40,7 +41,8 @@ private:
 public:
 
     // Inherit QObject to spy on signals:
-    class TestTag : public Tag, public QObject {
+    class TestTag : public Tag, public QObject
+    {
     public:
         explicit TestTag(const QString& name) : Tag(name), QObject(nullptr) {}
     };
@@ -70,7 +72,8 @@ public:
     static void setup_item_model(
         std::unique_ptr<T>& model,
         Types... constructor_parameters
-    ) {
+    )
+    {
         model = std::make_unique<T>(constructor_parameters...);
         new QAbstractItemModelTester(model.get(), model.get());
         // ModelTester will be deleted by the models destructor.
@@ -81,7 +84,8 @@ public:
         std::unique_ptr<T>& model,
         QAbstractItemModel* source_model,
         Types... constructor_parameters
-    ) {
+    )
+    {
         model = std::make_unique<T>(constructor_parameters...);
         model->setSourceModel(source_model);
         new QAbstractItemModelTester(model.get(), source_model);
@@ -106,7 +110,8 @@ public:
     );
 
     template <typename T>
-    static QList<T> sort(const QList<T>& unsorted) {
+    static QList<T> sort(const QList<T>& unsorted)
+    {
         auto result = QList(unsorted);
         result.sort();
         return result;

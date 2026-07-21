@@ -126,7 +126,7 @@ private:
     }
 };
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
     SetupComponentTests setup;
     return quick_test_main_with_setup(

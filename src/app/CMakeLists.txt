@@ -35,6 +35,12 @@ QT_ADD_QML_MODULE(app_library
     URI src.app
     VERSION 1.0
     SOURCES
+        backend/dataitems/task.h
+        backend/models/filteredtagitemmodel.h
+        backend/models/filteredtaskitemmodel.h
+        backend/models/flatteningproxymodel.h
+        backend/models/tagitemmodel.h
+        backend/models/taskitemmodel.h
         globaleventfilter.cpp
         qmlinterface.cpp
         frontend/components/taskadapter.cpp
@@ -70,5 +76,4 @@ TARGET_LINK_LIBRARIES(qtd
     Qt6::Quick
     app_library
     app_libraryplugin
-    app_libraryplugin_init
 )

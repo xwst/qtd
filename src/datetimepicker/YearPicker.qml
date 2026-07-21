@@ -16,6 +16,8 @@
  * qtd. If not, see <https://www.gnu.org/licenses/>.
  */
 
+pragma ComponentBehavior: Bound
+
 import QtQuick 2.15
 import QtQuick.Controls
 import QtQuick.Layouts
@@ -35,7 +37,7 @@ Item {
 
     QtObject {
         id: private_properties
-        property int year_min: Math.floor(selected_year / 10) * 10
+        property int year_min: Math.floor(year_picker.selected_year / 10) * 10
         property int year_max: year_min + 9
     }
 

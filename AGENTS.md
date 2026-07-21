@@ -42,6 +42,7 @@ ctest --test-dir build/opencode -L frontend-test -j8 --output-on-failure
 bash scripts/verify_license_headers.sh      # all .cpp/.h/.qml/.js need GPL header
 bash scripts/verify_no_quuid_usage.sh       # QUuid only in qtdid.h/cpp
 bash scripts/verify_no_include_guards.sh    # #pragma once required, no #ifndef guards
+bash scripts/run_qmllint.sh                 # qmllint on changed .qml files (CI only)
 ```
 
 ### clang-tidy
@@ -53,11 +54,12 @@ clang-tidy -p build/opencode --config-file .clang-tidy <file>
 
 Configuration in `.clang-tidy`: all checks enabled (minus non-applicable ones), `WarningsAsErrors: '*'`.
 
+When testing clang-tidy setup changes, only run on single files instead of all files which takes too much time.
+
 ### Coverage (requires gcovr, GCC build)
 
 ```sh
-cmake --build build/opencode --target coverage              # HTML report
-cmake --build build/opencode --target verify-test-coverage    # ≥90% line & function
+cmake --build build/opencode --target check-coverage    # HTML report + ≥90% line & function
 ```
 
 ## Coding Conventions
@@ -66,19 +68,26 @@ cmake --build build/opencode --target verify-test-coverage    # ≥90% line & fu
 |---|---|
 | **Include guards** | `#pragma once` only (enforced by CI) |
 | **Class names** | PascalCase |
-| **Functions/methods** | snake_case |
-| **Member variables** | snake_case (`this->` always used) |
-| **Getters** | `get_<name>()` with `[[nodiscard]]` |
+| **Functions/methods** | snake_case; Qt-idiomatic methods (`toString()`, `qHash()`) and required Qt overrides are exceptions |
+| **Member variables** | snake_case, constants SCREAMING_SNAKE_CASE (`this->` always used) |
+| **Getters** | `get_<name>()` with `[[nodiscard]]`; `is_`/`has_` prefix allowed for boolean accessors |
+| **`override`** | Required on all overriding virtual functions |
 | **Setters** | `set_<name>()` |
-| **Constructors** | `explicit` on single-arg; `noexcept` on move; copy deleted |
-| **Braces (functions)** | Allman (opening brace on new line) |
-| **Braces (control flow)** | K&R (opening brace on same line) |
-| **Pointer/reference** | Attached to type (`const QString&`, `QObject*`) |
+| **Access specifiers** | Order: `private:`, `protected:`, `public:` (private before public). `Q_OBJECT`, `QML_ELEMENT`, `Q_PROPERTY`, `Q_CLASSINFO` go before the first access specifier. |
+| **Namespaces** | PascalCase |
+| **Constructors** | `explicit` on single-arg; `noexcept` on move; copy deleted. Initializer list: colon on same line, 4-space indent, one per line, trailing commas. Prefer brace init `{}` over `()`. |
+| **Braces** | Allman everywhere (opening brace on new line for functions, classes, and control flow). Exception only when braces open+close on the same line (e.g., small lambdas). No blank line between signature and brace. |
+| **Pointer/reference** | Attached to type (`const QString&`, `QObject*`) — `*` and `&` are part of the type, not a prefix of the variable name. When parameter names are commented out, place `&`/`*` before the comment: `const QString& /*name*/`. |
 | **Indentation** | 4 spaces |
+| **`static const`** | Always `static const`, never `const static` |
 | **CMake commands** | All uppercase (`ADD_EXECUTABLE`, `TARGET_LINK_LIBRARIES`, …) |
 | **License header** | Block `/** */` comment at top of every `.cpp`, `.h`, `.qml`, `.js`, `.cpp.in` |
-| **NOLINT** | Use with descriptive reason, e.g. `// NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)` |
+| **Include order** | Grouped blocks sorted alphabetically: (1) corresponding header (cpp files only), (2) standard library, (3) Qt headers, (4) project headers |
+| **NOLINT** | Use `// NOLINTNEXTLINE(rule1, rule2)` on line preceding violation. Space after `//`, no space between `NOLINT` and `(`. |
 | **Comments** | Use sparingly — Qt docs are the primary reference |
+| **QML/JS naming** | PascalCase for components, snake_case for functions. QML signals are exempt from snake_case (Qt signals use camelCase). Omit trailing `;` on `property` declarations. |
+| **Qt interop** | Prefer `Q_PROPERTY` for data binding, `Q_INVOKABLE` for actions. Use macro-defined `enum` pattern (`Q_ENUM`) for QML-facing enumerations. |
+| **const correctness** | All read-only member functions must be `const`. `const` methods returning pointers should return `const*`. |
 | **Git history** | Clean before pushing; PRs are not squashed on merge |
 
 

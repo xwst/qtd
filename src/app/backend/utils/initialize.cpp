@@ -1,5 +1,5 @@
 /**
- * Copyright 2025 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
+ * Copyright 2025, 2026 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
  *
  * This file is part of qtd.
  *
@@ -23,7 +23,8 @@
 
 #include "dataitems/qtdid.h"
 
-void initialize_qt_meta_types() {
+void initialize_qt_meta_types()
+{
     qRegisterMetaType<QtdId>("QtdId");
     QMetaType::registerConverter<QString, QtdId>();
     QMetaType::registerConverter<QtdId, QString>();

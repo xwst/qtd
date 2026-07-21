@@ -31,24 +31,28 @@
 #include "dataitems/qtditemdatarole.h"
 #include "dataitems/uniquedataitem.h"
 
-TestTreeNodes::TestTreeNodes(QObject *parent)
+TestTreeNodes::TestTreeNodes(QObject* parent)
     : QObject{parent}
 {}
 
-void TestTreeNodes::init() {
+void TestTreeNodes::init()
+{
     this->setup_dummies();
     this->verify_dummies();
 }
 
-void TestTreeNodes::cleanup() {
+void TestTreeNodes::cleanup()
+{
     this->root.reset();
 }
 
-void TestTreeNodes::test_add_child() {
+void TestTreeNodes::test_add_child()
+{
   // Dummy function. Test already carried out in init().
 }
 
-void TestTreeNodes::test_remove_single_child() {
+void TestTreeNodes::test_remove_single_child()
+{
     const auto initial_child_count = this->root->get_child_count();
     this->root->remove_children(0, 0);
     QCOMPARE(this->root->get_child_count(), initial_child_count);
@@ -66,11 +70,13 @@ void TestTreeNodes::test_remove_single_child() {
     QCOMPARE(spy.takeFirst().at(0).value<QObject*>(), data_ptr);
 }
 
-void TestTreeNodes::test_remove_multiple_children() {
+void TestTreeNodes::test_remove_multiple_children()
+{
     auto* node_B = this->root->get_child(1);
     const QString name_pattern = "B%1";
     // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
-    for (int i=2; i<10; i++) {
+    for (int i=2; i<10; i++)
+    {
         node_B->add_child(std::make_unique<TestHelpers::TestTag>(name_pattern.arg(i)));
     }
     QCOMPARE(node_B->get_child_count(), 9);
@@ -81,7 +87,8 @@ void TestTreeNodes::test_remove_multiple_children() {
     TestTreeNodes::verify_item(node_B->get_child(3), "B9", 0, node_B);
 }
 
-void TestTreeNodes::test_remove_child_hierarchy() {
+void TestTreeNodes::test_remove_child_hierarchy()
+{
     const auto initial_child_count = this->root->get_child_count();
     auto* node_A = this->root->get_child(0);
     auto new_item_data = std::make_unique<TestHelpers::TestTag>("A1");
@@ -98,7 +105,8 @@ void TestTreeNodes::test_remove_child_hierarchy() {
     QCOMPARE(spy.first().at(0).value<QObject*>(), data_ptr);
 }
 
-void TestTreeNodes::test_cloning() {
+void TestTreeNodes::test_cloning()
+{
     const auto root_child_count = this->root->get_child_count();
     this->root->add_child(std::make_unique<TestHelpers::TestTag>("C"));
     auto* node_B = this->root->get_child(1);
@@ -117,8 +125,9 @@ void TestTreeNodes::test_cloning() {
     QCOMPARE(node_C_clone->get_data(Qt::DisplayRole), "C");
 }
 
-void TestTreeNodes::test_set_data() {
-    auto *node_A = this->root->get_child(0);
+void TestTreeNodes::test_set_data()
+{
+    auto* node_A = this->root->get_child(0);
     const auto initial_name = node_A->get_data(Qt::DisplayRole);
     const auto uuid = node_A->get_data(UuidRole);
 
@@ -135,27 +144,31 @@ void TestTreeNodes::test_set_data() {
     QCOMPARE(node_A->get_data(UuidRole), uuid);
 }
 
-void TestTreeNodes::setup_dummies() {
+void TestTreeNodes::setup_dummies()
+{
     this->root = TreeNode::create(std::make_unique<UniqueDataItem>());
     this->root->add_child(std::make_unique<TestHelpers::TestTag>("A"));
     this->root->add_child(TreeNode::create(std::make_unique<TestHelpers::TestTag>("B")));
     this->root->get_child(1)->add_child(std::make_unique<TestHelpers::TestTag>("B1"));
 }
 
-void TestTreeNodes::verify_item(TreeNode* item, const QString& name, int child_count, TreeNode* parent) {
+void TestTreeNodes::verify_item(TreeNode* item, const QString& name, int child_count, TreeNode* parent)
+{
     QCOMPARE(item->get_data(Qt::DisplayRole).toString(), name);
     QCOMPARE(item->get_child_count(), child_count);
     QCOMPARE(item->get_parent(), parent);
-    if (parent != nullptr) {
+    if (parent != nullptr)
+    {
         QCOMPARE(parent->get_child(item->get_row_in_parent()), item);
     }
 }
 
-void TestTreeNodes::verify_dummies() {
+void TestTreeNodes::verify_dummies()
+{
     TestTreeNodes::verify_item(this->root.get(), "", 2, nullptr);
     TestTreeNodes::verify_item(this->root->get_child(0), "A", 0, this->root.get());
 
-    auto *node_B = this->root->get_child(1);
+    auto* node_B = this->root->get_child(1);
     TestTreeNodes::verify_item(node_B, "B", 1, this->root.get());
     TestTreeNodes::verify_item(node_B->get_child(0), "B1", 0, node_B);
 }

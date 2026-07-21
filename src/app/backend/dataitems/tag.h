@@ -24,7 +24,8 @@
 
 #include "uniquedataitem.h"
 
-class Tag : public UniqueDataItem {
+class Tag : public UniqueDataItem
+{
 private:
     QString name;
     QColor color;

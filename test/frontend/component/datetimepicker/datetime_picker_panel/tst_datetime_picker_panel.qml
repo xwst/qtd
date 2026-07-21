@@ -35,7 +35,7 @@ TestCase {
             id: panel
             objectName: "panel"
             anchors.fill: parent
-            font.pixelSize: 16
+            font: Qt.font({ pixelSize: 16 })
             current_selection: new Date(2026, 0, 15, 10, 30)
             locale: Qt.locale("en")
 

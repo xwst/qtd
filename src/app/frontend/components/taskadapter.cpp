@@ -18,13 +18,15 @@
 
 #include "taskadapter.h"
 
-namespace {
+namespace
+{
 
 bool is_index_within_range(
     const QModelIndex& index,
     const QModelIndex& top_left,
     const QModelIndex& bottom_right
-) {
+)
+{
     return index.isValid()
         && index.parent() == top_left.parent()
         && index.parent() == top_left.parent()
@@ -34,21 +36,25 @@ bool is_index_within_range(
 
 } // anonymous namespace
 
-bool TaskAdapter::index_is_new_and_valid(const QModelIndex& idx) {
-    return this->m_index != idx
-        && this->m_model != nullptr
-        && this->m_model->checkIndex(idx);
+bool TaskAdapter::index_is_new_and_valid(const QModelIndex& idx)
+{
+    return this->index != idx
+        && this->model != nullptr
+        && this->model->checkIndex(idx);
 }
 
-QVariant TaskAdapter::data(int role) const {
-    if (this->m_model != nullptr && this->m_index.isValid()) {
-        return this->m_model->data(this->m_index, role);
+QVariant TaskAdapter::data(int role) const
+{
+    if (this->model != nullptr && this->index.isValid())
+    {
+        return this->model->data(this->index, role);
     }
     return {};
 }
 
 // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
-void TaskAdapter::emit_all_changed() {
+void TaskAdapter::emit_all_changed()
+{
     // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
     #define X(type, name, role) \
         emit name##Changed();
@@ -56,41 +62,49 @@ void TaskAdapter::emit_all_changed() {
     #undef X
 }
 
-QAbstractItemModel* TaskAdapter::get_model() const {
-    return this->m_model;
+QAbstractItemModel* TaskAdapter::get_model() const
+{
+    return this->model;
 }
 
-QVariant TaskAdapter::get_index() const {
-    return QVariant::fromValue(this->m_index);
+QVariant TaskAdapter::get_index() const
+{
+    return QVariant::fromValue(this->index);
 }
 
-void TaskAdapter::set_model(QAbstractItemModel* model) {
-    if (model == this->m_model) {
+void TaskAdapter::set_model(QAbstractItemModel* new_model)
+{
+    if (new_model == this->model)
+    {
         return;
     }
-    if (this->m_model != nullptr) {
-        QObject::disconnect(this->m_model, nullptr, this, nullptr);
+    if (this->model != nullptr)
+    {
+        QObject::disconnect(this->model, nullptr, this, nullptr);
     }
 
-    this->m_model = model;
+    this->model = new_model;
     emit this->modelChanged();
 
-    if (model != nullptr) {
+    if (new_model != nullptr)
+    {
         QObject::connect(
-            this->m_model, &QAbstractItemModel::dataChanged,
+            new_model, &QAbstractItemModel::dataChanged,
             this, &TaskAdapter::on_data_changed
         );
         QObject::connect(
-            this->m_model, &QAbstractItemModel::modelReset,
+            new_model, &QAbstractItemModel::modelReset,
             this, &TaskAdapter::emit_all_changed
         );
     }
 }
 
-void TaskAdapter::set_index(const QVariant& value) {
+void TaskAdapter::set_index(const QVariant& value)
+{
     const QModelIndex idx = value.toModelIndex();
-    if (this->index_is_new_and_valid(idx)) {
-        this->m_index = idx;
+    if (this->index_is_new_and_valid(idx))
+    {
+        this->index = idx;
 
         emit this->indexChanged();
         this->emit_all_changed();
@@ -101,8 +115,10 @@ void TaskAdapter::on_data_changed(
     const QModelIndex& top_left,
     const QModelIndex& bottom_right,
     const QList<int>& roles
-) {
-    if (is_index_within_range(this->m_index, top_left, bottom_right)) {
+)
+{
+    if (is_index_within_range(this->index, top_left, bottom_right))
+    {
         // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
         #define X(type, name, role) \
             if (roles.isEmpty() || roles.contains(role)) { \
@@ -121,12 +137,12 @@ type TaskAdapter::get_##name() const { \
 \
 void TaskAdapter::set_##name(const type& value) { \
     if ( \
-             this->m_model != nullptr \
-         && this->m_index.isValid() \
+             this->model != nullptr \
+         && this->index.isValid() \
          && value != this->get_##name() \
     ) { \
-        this->m_model->setData( \
-            this->m_index, \
+        this->model->setData( \
+            this->index, \
             QVariant::fromValue(value), \
             role \
         ); \

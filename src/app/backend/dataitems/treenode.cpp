@@ -1,5 +1,5 @@
 /**
- * Copyright 2025 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
+ * Copyright 2025, 2026 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
  *
  * This file is part of qtd.
  *
@@ -36,7 +36,8 @@ TreeNode::TreeNode(std::shared_ptr<UniqueDataItem> data, const TreeNode* parent)
 std::unique_ptr<TreeNode> TreeNode::create(
     std::shared_ptr<UniqueDataItem> data,
     const TreeNode* parent
-) {
+)
+{
     return std::unique_ptr<TreeNode>(new TreeNode(std::move(data), parent));
 }
 
@@ -49,7 +50,8 @@ std::unique_ptr<TreeNode> TreeNode::create(
 std::unique_ptr<TreeNode> TreeNode::create(
     std::unique_ptr<UniqueDataItem> data,
     const TreeNode* parent
-) {
+)
+{
     return std::unique_ptr<TreeNode>(new TreeNode(std::move(data), parent));
 }
 
@@ -69,14 +71,17 @@ std::unique_ptr<TreeNode> TreeNode::create(
 std::unique_ptr<TreeNode> TreeNode::clone(
     const TreeNode* to_be_cloned,
     const TreeNode* parent
-) {
+)
+{
     std::stack<std::pair<TreeNode*, TreeNode*>> to_be_cloned_stack;
 
     const auto clone_node_and_queue_children
-        = [&to_be_cloned_stack](const TreeNode* original_node, const TreeNode* parent_node) {
+        = [&to_be_cloned_stack](const TreeNode* original_node, const TreeNode* parent_node)
+        {
         auto clone = TreeNode::create(original_node->data, parent_node);
         clone->children.reserve(original_node->children.size());
-        for (const auto& child : original_node->children) {
+        for (const auto& child : original_node->children)
+        {
             to_be_cloned_stack.emplace(child.get(), clone.get());
         }
         return clone;
@@ -84,10 +89,11 @@ std::unique_ptr<TreeNode> TreeNode::clone(
 
     auto result = clone_node_and_queue_children(to_be_cloned, parent);
 
-    TreeNode* original_node = nullptr;
+    const TreeNode* original_node = nullptr;
     TreeNode* new_parent_node = nullptr;
 
-    while (!to_be_cloned_stack.empty()) {
+    while (!to_be_cloned_stack.empty())
+    {
         std::tie(original_node, new_parent_node) = to_be_cloned_stack.top();
         to_be_cloned_stack.pop();
 
@@ -98,37 +104,46 @@ std::unique_ptr<TreeNode> TreeNode::clone(
     return result;
 }
 
-const TreeNode* TreeNode::get_parent() const {
+const TreeNode* TreeNode::get_parent() const
+{
     return this->parent;
 }
 
-TreeNode* TreeNode::get_child(int row) const {
+TreeNode* TreeNode::get_child(int row) const
+{
     return this->children.at(row).get();
 }
 
-void TreeNode::add_child(std::unique_ptr<UniqueDataItem> child_data) {
+void TreeNode::add_child(std::unique_ptr<UniqueDataItem> child_data)
+{
     auto new_child = TreeNode::create(std::move(child_data), this);
     this->children.push_back(std::move(new_child));
 }
 
-void TreeNode::add_child(std::unique_ptr<TreeNode> new_child) {
+void TreeNode::add_child(std::unique_ptr<TreeNode> new_child)
+{
     new_child->parent = this;
     this->children.push_back(std::move(new_child));
 }
 
-int TreeNode::get_child_count() const {
+int TreeNode::get_child_count() const
+{
     return static_cast<int>(this->children.size());
 }
 
-void TreeNode::remove_children(int row, int count) {
+void TreeNode::remove_children(int row, int count)
+{
     auto it_first = this->children.begin() + row;
     this->children.erase(it_first, it_first + count);
 }
 
-int TreeNode::get_row_in_parent() const {
+int TreeNode::get_row_in_parent() const
+{
     int result = 0;
-    for (const auto& child : this->parent->children) {
-        if (child.get() == this) {
+    for (const auto& child : this->parent->children)
+    {
+        if (child.get() == this)
+        {
             return result;
         }
         result++;
@@ -136,11 +151,13 @@ int TreeNode::get_row_in_parent() const {
     return -1; // Should not happen
 }
 
-QVariant TreeNode::get_data(int role) const {
+QVariant TreeNode::get_data(int role) const
+{
     return this->data->get_data(role);
 }
 
-void TreeNode::set_data(const QVariant& value, int role) {
+void TreeNode::set_data(const QVariant& value, int role)
+{
     this->data->set_data(value, role);
 }
 

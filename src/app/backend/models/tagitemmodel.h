@@ -25,8 +25,10 @@
 #include "treeitemmodel.h"
 
 class TagItemModel : public TreeItemModel
+
 {
     Q_OBJECT
+    Q_CLASSINFO("QML.Element", "anonymous")
 
 private:
     QString connection_name;

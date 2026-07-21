@@ -37,17 +37,20 @@
  * of the used SqlResultIterator.
  */
 
-QVariant TagRepository::convert_id(const TagId &tag_id) {
+QVariant TagRepository::convert_id(const TagId& tag_id)
+{
     return tag_id.is_valid()
                ? QVariant(tag_id.toString())
                : QVariant(QMetaType::fromType<TagId>());
 }
 
-TagRepository TagRepository::create(const QString &database_connection_name) {
+TagRepository TagRepository::create(const QString& database_connection_name)
+{
     return TagRepository(database_connection_name); // NOLINT (modernize-return-braced-init-list)
 }
 
-SqlResultView<Tag> TagRepository::get_all_tags() const {
+SqlResultView<Tag> TagRepository::get_all_tags() const
+{
     auto query = QueryUtilities::get_sql_query(
         "select_tags.sql",
         this->get_connection_name()
@@ -55,7 +58,8 @@ SqlResultView<Tag> TagRepository::get_all_tags() const {
     return SqlResultView<Tag>(std::move(query));
 }
 
-bool TagRepository::update_name(const QString& new_name, const TagId& tag_id) const {
+bool TagRepository::update_name(const QString& new_name, const TagId& tag_id) const
+{
     return this->alter_database(
         "update_tag.sql",
         {new_name, tag_id.toString()},
@@ -65,10 +69,12 @@ bool TagRepository::update_name(const QString& new_name, const TagId& tag_id) co
     );
 }
 
-bool TagRepository::update_color(const QColor& new_color, const TagId& tag_id) const {
+bool TagRepository::update_color(const QColor& new_color, const TagId& tag_id) const
+{
     return this->alter_database(
         "update_tag.sql",
-        {
+
+{
             new_color.isValid() ? new_color.name(QColor::HexArgb) : "",
             tag_id.toString()
         },
@@ -78,10 +84,12 @@ bool TagRepository::update_color(const QColor& new_color, const TagId& tag_id) c
     );
 }
 
-bool TagRepository::update_parent(const TagId &new_parent_id, const TagId &tag_id) const {
+bool TagRepository::update_parent(const TagId& new_parent_id, const TagId& tag_id) const
+{
     return this->alter_database(
         "update_tag.sql",
-        {
+
+{
             TagRepository::convert_id(new_parent_id),
             tag_id.toString()
         },
@@ -91,10 +99,12 @@ bool TagRepository::update_parent(const TagId &new_parent_id, const TagId &tag_i
     );
 }
 
-bool TagRepository::save(const Tag& tag, const TagId& parent_id) const {
+bool TagRepository::save(const Tag& tag, const TagId& parent_id) const
+{
     return this->alter_database(
         "create_tag.sql",
-        {
+
+{
             tag.get_uuid_string(),
             tag.get_name(),
             tag.get_color().isValid()
@@ -105,7 +115,8 @@ bool TagRepository::save(const Tag& tag, const TagId& parent_id) const {
     );
 }
 
-bool TagRepository::remove(const QVariantList& tag_ids) const {
+bool TagRepository::remove(const QVariantList& tag_ids) const
+{
     return this->alter_database(
         "delete_tags.sql",
         { tag_ids },

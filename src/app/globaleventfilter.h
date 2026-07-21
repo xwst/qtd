@@ -1,5 +1,5 @@
 /**
- * Copyright 2025 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
+ * Copyright 2025, 2026 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
  *
  * This file is part of qtd.
  *
@@ -22,16 +22,22 @@
 #include <QWheelEvent>
 
 class GlobalEventFilter : public QObject
+
 {
     Q_OBJECT
-public:
-    explicit GlobalEventFilter(QObject* parent = nullptr);
-protected:
-    bool eventFilter(QObject* dest, QEvent* event) override;
+    Q_CLASSINFO("QML.Element", "anonymous")
+
 private:
     const double ZOOM_CHANGE_RATIO = 200.0;
     bool process_wheel_event(QObject* /* dest */, QWheelEvent* event);
     bool process_key_event(QObject* /* dest */, QKeyEvent* event);
+
+public:
+    explicit GlobalEventFilter(QObject* parent = nullptr);
+
+protected:
+    bool eventFilter(QObject* dest, QEvent* event) override;
+
 signals:
     void zoomChanged(double value_diff);
     void zoomReset();

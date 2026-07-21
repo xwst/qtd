@@ -1,5 +1,5 @@
 /**
- * Copyright 2025 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
+ * Copyright 2025, 2026 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
  *
  * This file is part of qtd.
  *
@@ -28,6 +28,7 @@
 #include "models/taskitemmodel.h"
 
 class TestFilteredTaskItemModel : public QObject
+
 {
     Q_OBJECT
 
@@ -37,7 +38,7 @@ private:
     std::unique_ptr<QSignalSpy> spy;
 
 public:
-    explicit TestFilteredTaskItemModel(QObject *parent = nullptr);
+    explicit TestFilteredTaskItemModel(QObject* parent = nullptr);
 
 private slots:
     // Test setup/cleanup:

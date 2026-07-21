@@ -36,35 +36,45 @@
  */
 
 TransactionalRepository::TransactionalRepository(
-    const QString &database_connection_name
+    const QString& database_connection_name
 ) : connection_name(database_connection_name), rollback_requested(false)
+
 {
-    if (!QSqlDatabase::database(database_connection_name).transaction()) {
+    if (!QSqlDatabase::database(database_connection_name).transaction())
+    {
         throw std::runtime_error("Failed to initialize a database transaction.");
     }
 }
 
-TransactionalRepository::~TransactionalRepository() {
+TransactionalRepository::~TransactionalRepository()
+{
     auto database = QSqlDatabase::database(this->connection_name);
-    if (this->rollback_requested) {
+    if (this->rollback_requested)
+    {
         database.rollback();
-    } else {
+    }
+    else
+    {
         database.commit();
     }
 }
 
-void TransactionalRepository::roll_back() {
+void TransactionalRepository::roll_back()
+{
     this->rollback_requested = true;
 }
 
-bool TransactionalRepository::roll_back_on_failure(bool execution_result) {
-    if (!execution_result) {
+bool TransactionalRepository::roll_back_on_failure(bool execution_result)
+{
+    if (!execution_result)
+    {
         this->roll_back();
     }
     return execution_result;
 }
 
-const QString& TransactionalRepository::get_connection_name() const {
+const QString& TransactionalRepository::get_connection_name() const
+{
     return this->connection_name;
 }
 
@@ -74,19 +84,23 @@ bool TransactionalRepository::alter_database(
     bool batch,
     const QString& replace_pattern,
     const QString& replace_string
-) const {
+) const
+{
     auto query_str = QueryUtilities::get_sql_query_string(sql_file_name);
-    if (!replace_pattern.isEmpty()) {
+    if (!replace_pattern.isEmpty())
+    {
         query_str = query_str.replace(replace_pattern, replace_string);
     }
 
     auto query = QSqlQuery(QSqlDatabase::database(this->connection_name));
-    if (!query.prepare(query_str)) {
+    if (!query.prepare(query_str))
+    {
         return false;
     }
 
     int value_index = -1;
-    for (const auto& value : bind_values) {
+    for (const auto& value : bind_values)
+    {
         query.bindValue(
             ++value_index,
             value.typeId() == QMetaType::QDateTime ? value.toDateTime().toUTC() : value

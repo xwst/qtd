@@ -31,40 +31,48 @@
 #include <QTextStream>
 #include <QtLogging>
 
-namespace QueryUtilities {
+namespace QueryUtilities
+{
 
 /**
  * @brief Splits a string of queries at empty lines or lines that contain only a comment.
  * @param sql_queries String containing multiple queries
  * @return a list of individual queries
  */
-QStringList split_queries(const QString& sql_queries) {
+QStringList split_queries(const QString& sql_queries)
+{
     const QString regex_str = R"([\r\n]\s*(?:--.*)?[\r\n])";
     return sql_queries.split(QRegularExpression(regex_str), Qt::SkipEmptyParts);
 }
 
-QString remove_sql_comments(QString queries) {
+QString remove_sql_comments(QString queries)
+{
     const QString comment_regex = "--.*\n";
     return queries.remove(QRegularExpression(comment_regex));
 }
 
-QString get_sql_query_string(const QString& sql_filename) {
+QString get_sql_query_string(const QString& sql_filename)
+{
     QFile file(":/resources/sql/generic/" + sql_filename);
-    if (file.open(QFile::ReadOnly | QFile::Text)) {
+    if (file.open(QFile::ReadOnly | QFile::Text))
+    {
         return remove_sql_comments(QTextStream(&file).readAll());
     }
     qDebug() << "Could not open file: " << file.fileName();
     return "";
 }
 
-QSqlQuery get_sql_query(const QString& sql_filename, const QString& connection_name) {
+QSqlQuery get_sql_query(const QString& sql_filename, const QString& connection_name)
+{
     auto connection = QSqlDatabase::database(connection_name);
     return QSqlQuery(get_sql_query_string(sql_filename), connection);
 }
 
-bool execute_sql_query(QSqlQuery& query, bool batch) {
+bool execute_sql_query(QSqlQuery& query, bool batch)
+{
     const bool exec_result = batch ? query.execBatch() : query.exec();
-    if (!exec_result) {
+    if (!exec_result)
+    {
         qDebug() << "Last SQL query: " << query.lastQuery();
         qDebug() << "Bound values: " << query.boundValues();
         qDebug() << "Last SQL error: " << query.lastError() << "\n";
@@ -73,7 +81,8 @@ bool execute_sql_query(QSqlQuery& query, bool batch) {
     return true;
 }
 
-bool create_tables_if_not_exist(const QString& connection_name) {
+bool create_tables_if_not_exist(const QString& connection_name)
+{
     // The "if not exist"-part is governed by the SQL commands.
     const QString all_queries_str = get_sql_query_string("create_tables.sql");
     auto connection = QSqlDatabase::database(connection_name);
@@ -81,7 +90,8 @@ bool create_tables_if_not_exist(const QString& connection_name) {
     QSqlQuery query(connection);
     bool no_error = connection.transaction();
     no_error &= query.exec("PRAGMA foreign_keys = ON;");
-    for (const QString& query_str : split_queries(all_queries_str)) {
+    for (const QString& query_str : split_queries(all_queries_str))
+    {
         no_error &= query.exec(query_str);
     }
 
@@ -110,21 +120,25 @@ bool alter_model_and_persist_in_database(
     const std::function<void(QSqlQuery&)>& bind_values,
     const std::function<bool(void)>& alter_model,
     const bool use_batch_mode
-) {
+)
+{
     auto database = QSqlDatabase::database(database_connection_name);
     auto query = QSqlQuery(database);
 
-    if (!query.prepare(query_str)) {
+    if (!query.prepare(query_str))
+    {
         return false;
     }
 
     bind_values(query);
 
-    if (!database.transaction()) {
+    if (!database.transaction())
+    {
         return false;
     }
 
-    if (execute_sql_query(query, use_batch_mode) && alter_model()) {
+    if (execute_sql_query(query, use_batch_mode) && alter_model())
+    {
         database.commit();
         return true;
     }

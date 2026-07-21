@@ -27,19 +27,22 @@
 #include "dataitems/qtditemdatarole.h"
 #include "utils/modeliteration.h"
 
-QModelIndex FlatteningProxyModel::find_source_model_index(int proxy_row) const {
+QModelIndex FlatteningProxyModel::find_source_model_index(int proxy_row) const
+{
     QModelIndex current_index = sourceModel()->index(0, 0);
-    while (proxy_row > 0) {
+    while (proxy_row > 0)
+    {
         current_index = ModelIteration::next_row_index_depth_first(sourceModel(), current_index);
         proxy_row--;
     }
     return current_index;
 }
 
-FlatteningProxyModel::FlatteningProxyModel(QObject *parent)
+FlatteningProxyModel::FlatteningProxyModel(QObject* parent)
     : QAbstractProxyModel(parent) {}
 
-void FlatteningProxyModel::setSourceModel(QAbstractItemModel* model) {
+void FlatteningProxyModel::setSourceModel(QAbstractItemModel* model)
+{
     QObject::connect(
         model, &QAbstractItemModel::rowsAboutToBeRemoved,
         this, &FlatteningProxyModel::on_rows_about_to_be_removed
@@ -67,7 +70,8 @@ void FlatteningProxyModel::on_rows_about_to_be_removed(
     const QModelIndex& parent,
     int first,
     int last
-) {
+)
+{
     const auto proxy_parent = this->mapFromSource(parent);
     const int first_proxy_row = proxy_parent.row() + 1 + first;
 
@@ -82,15 +86,17 @@ void FlatteningProxyModel::on_rows_removed(
     const QModelIndex& /* parent */,
     int /* first */,
     int /* last */
-) {
+)
+{
     this->endRemoveRows();
 }
 
 void FlatteningProxyModel::on_data_changed(
     const QModelIndex& topLeft,
     const QModelIndex& bottomRight,
-    const QList<int> &roles
-) {
+    const QList<int>& roles
+)
+{
     emit this->dataChanged(
         this->mapFromSource(topLeft),
         this->mapFromSource(bottomRight),
@@ -112,7 +118,8 @@ void FlatteningProxyModel::on_rows_about_to_be_inserted(
     const QModelIndex& /*parent*/,
     int /*first*/,
     int /*last*/
-) {
+)
+{
     this->beginResetModel();
 }
 
@@ -125,19 +132,23 @@ void FlatteningProxyModel::on_rows_inserted(
     const QModelIndex& /* parent */,
     int /* first */,
     int /* last */
-) {
+)
+{
     this->endResetModel();
 }
 
-QModelIndex FlatteningProxyModel::mapFromSource(const QModelIndex& sourceIndex) const {
-    if (!sourceIndex.isValid()) {
+QModelIndex FlatteningProxyModel::mapFromSource(const QModelIndex& sourceIndex) const
+{
+    if (!sourceIndex.isValid())
+    {
         return {};
     }
 
     int proxy_row = -1;
     const std::function<bool(const QModelIndex&)> find_source_index_operation
         = [&proxy_row, &sourceIndex](const QModelIndex& index) -> bool
-    {
+
+{
         proxy_row++;
         return index == sourceIndex;
     };
@@ -146,15 +157,19 @@ QModelIndex FlatteningProxyModel::mapFromSource(const QModelIndex& sourceIndex) 
     return createIndex(proxy_row, sourceIndex.column(), sourceIndex.internalPointer());
 }
 
-QModelIndex FlatteningProxyModel::mapToSource(const QModelIndex& proxyIndex) const {
-    if (!proxyIndex.isValid()) {
+QModelIndex FlatteningProxyModel::mapToSource(const QModelIndex& proxyIndex) const
+{
+    if (!proxyIndex.isValid())
+    {
         return {};
     }
     return find_source_model_index(proxyIndex.row());
 }
 
-QModelIndex FlatteningProxyModel::index(int row, int column, const QModelIndex& parent) const {
-    if (parent.isValid() || (row < 0) || (column > 0)) {
+QModelIndex FlatteningProxyModel::index(int row, int column, const QModelIndex& parent) const
+{
+    if (parent.isValid() || (row < 0) || (column > 0))
+    {
         return {};
     }
     auto source_model_index = this->find_source_model_index(row);
@@ -162,30 +177,37 @@ QModelIndex FlatteningProxyModel::index(int row, int column, const QModelIndex& 
     return result;
 }
 
-QModelIndex FlatteningProxyModel::parent(const QModelIndex& /* child */) const {
+QModelIndex FlatteningProxyModel::parent(const QModelIndex& /* child */) const
+{
     return {};
 }
 
-QModelIndex FlatteningProxyModel::sibling(int row, int column, const QModelIndex& idx) const {
-    if (!idx.isValid()) {
+QModelIndex FlatteningProxyModel::sibling(int row, int column, const QModelIndex& idx) const
+{
+    if (!idx.isValid())
+    {
         return {};
     }
     return this->index(row, column);
 }
 
-int FlatteningProxyModel::rowCount(const QModelIndex& parent) const {
+int FlatteningProxyModel::rowCount(const QModelIndex& parent) const
+{
     return parent.isValid() ? 0 : ModelIteration::count_model_rows(this->sourceModel());
 }
 
-int FlatteningProxyModel::columnCount(const QModelIndex& parent) const {
+int FlatteningProxyModel::columnCount(const QModelIndex& parent) const
+{
     return parent.isValid() ? 0 : 1;
 }
 
-bool FlatteningProxyModel::hasChildren(const QModelIndex& parent) const {
+bool FlatteningProxyModel::hasChildren(const QModelIndex& parent) const
+{
     return !parent.isValid();
 }
 
-QHash<int, QByteArray> FlatteningProxyModel::roleNames() const {
+QHash<int, QByteArray> FlatteningProxyModel::roleNames() const
+{
     auto result = QAbstractProxyModel::roleNames();
     result.insert(custom_role_names());
     return result;

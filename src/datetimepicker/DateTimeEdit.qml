@@ -21,12 +21,11 @@ pragma ComponentBehavior: Bound
 import QtQml
 import QtQuick
 import QtQuick.Controls
-import QtQuick.Layouts
 
 Row {
     id: date_time_edit
     required property font font
-    property alias default_time: parser.default_time
+    property alias default_time: parser.default_time // qmllint disable unresolved-alias
 
     property var date: ""
     signal dateInputChanged
@@ -60,8 +59,8 @@ Row {
                 date_time_edit.get_date(
                     new Date(
                         new Date().setHours(
-                            date_time_edit.default_time.getHours(),
-                            date_time_edit.default_time.getMinutes()
+                            date_time_edit.default_time.getHours(), // qmllint disable unresolved-type
+                            date_time_edit.default_time.getMinutes() // qmllint disable unresolved-type
                         )
                     )
                 )
@@ -72,27 +71,27 @@ Row {
         }
     }
 
-    TextField {
-        id: text_input
-        font: date_time_edit.font
-        implicitWidth: metrics.width * 1.1
-        text: date_time_edit.get_date("").toLocaleString(Locale.ShortFormat)
+        TextField {
+            id: text_input
+            font: date_time_edit.font
+            implicitWidth: metrics.width * 1.1
+            text: date_time_edit.get_date("").toLocaleString(Locale.ShortFormat)
 
-        onEditingFinished: {
-            let parsed_date = parser.parse(text)
-            if (text.trim() !== '' && isNaN(parsed_date)) {
-                text = Qt.binding(function() {
-                    return date_time_edit.get_date("").toLocaleString(Locale.ShortFormat)
-                })
-            } else {
-                date_time_edit.date = parsed_date
-                date_time_edit.dateInputChanged()
+            onEditingFinished: {
+                let parsed_date = parser.parse(text) // qmllint disable missing-property
+                if (text.trim() !== '' && isNaN(parsed_date)) {
+                    text = Qt.binding(function() {
+                        return date_time_edit.get_date("").toLocaleString(Locale.ShortFormat)
+                    })
+                } else {
+                    date_time_edit.date = parsed_date
+                    date_time_edit.dateInputChanged()
+                }
             }
-        }
 
-        DateTimeParser {
-            id: parser
-        }
+            DateTimeParser { // qmllint disable import
+                id: parser
+            }
 
         TextMetrics {
             id: metrics

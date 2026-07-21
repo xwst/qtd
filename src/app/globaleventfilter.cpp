@@ -1,5 +1,5 @@
 /**
- * Copyright 2025 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
+ * Copyright 2025, 2026 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
  *
  * This file is part of qtd.
  *
@@ -25,13 +25,16 @@ GlobalEventFilter::GlobalEventFilter(QObject* parent)
     : QObject{parent}
 {}
 
-bool GlobalEventFilter::eventFilter(QObject* dest, QEvent* event) {
-    if (event->type() == QEvent::Wheel) {
+bool GlobalEventFilter::eventFilter(QObject* dest, QEvent* event)
+{
+    if (event->type() == QEvent::Wheel)
+    {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-static-cast-downcast)
         return this->process_wheel_event(dest, static_cast<QWheelEvent*>(event));
     }
 
-    if (event->type() == QEvent::KeyPress) {
+    if (event->type() == QEvent::KeyPress)
+    {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-static-cast-downcast)
         return this->process_key_event(dest, static_cast<QKeyEvent*>(event));
     }
@@ -39,17 +42,22 @@ bool GlobalEventFilter::eventFilter(QObject* dest, QEvent* event) {
     return false;
 }
 
-bool GlobalEventFilter::process_wheel_event(QObject* /* dest */, QWheelEvent* wheel_event) {
-    if (wheel_event->modifiers() == Qt::ControlModifier) {
+bool GlobalEventFilter::process_wheel_event(QObject* /* dest */, QWheelEvent* wheel_event)
+{
+    if (wheel_event->modifiers() == Qt::ControlModifier)
+    {
         emit this->zoomChanged(wheel_event->angleDelta().y() / ZOOM_CHANGE_RATIO);
         return true;
     }
     return false;
 }
 
-bool GlobalEventFilter::process_key_event(QObject* /* dest */, QKeyEvent* key_event) {
-    if (key_event->modifiers() == Qt::ControlModifier) {
-        switch (key_event->key()) {
+bool GlobalEventFilter::process_key_event(QObject* /* dest */, QKeyEvent* key_event)
+{
+    if (key_event->modifiers() == Qt::ControlModifier)
+    {
+        switch (key_event->key())
+        {
         case Qt::Key_Q:
             emit this->quit();
             break;

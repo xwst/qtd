@@ -25,39 +25,52 @@ FUNCTION(create_model_test test_name source_file)
     QT_ADD_EXECUTABLE(
         ${arg_TEST_NAME}
         ${arg_SOURCES}
-        ../testhelpers.cpp
-        persistedtreeitemmodelstestbase.cpp
     )
-    IF(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
+    IF(QTD_ENABLE_COVERAGE)
         TARGET_COMPILE_OPTIONS(${arg_TEST_NAME} PRIVATE -O0 --coverage)
-        TARGET_LINK_LIBRARIES(${arg_TEST_NAME} PRIVATE gcov)
         TARGET_LINK_OPTIONS(${arg_TEST_NAME} PRIVATE --coverage)
+        IF(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
+            TARGET_LINK_LIBRARIES(${arg_TEST_NAME} PRIVATE gcov)
+        ENDIF()
     ENDIF()
     TARGET_LINK_LIBRARIES(${arg_TEST_NAME}
         PRIVATE
         Qt6::Test
         Qt6::Sql
         Qt6::Gui
-        backend_internal
+        backend
+        test_helpers
     )
     IF (${arg_QML})
         TARGET_LINK_LIBRARIES(${arg_TEST_NAME} PRIVATE Qt6::Quick)
+    ENDIF()
+    IF(MSVC)
+        SET_TARGET_PROPERTIES(${arg_TEST_NAME} PROPERTIES WIN32_EXECUTABLE FALSE)
     ENDIF()
     ADD_TEST(NAME ${arg_TEST_NAME} COMMAND ${arg_TEST_NAME})
     ADD_DEPENDENCIES(all_tests ${arg_TEST_NAME})
     QT_ADD_RESOURCES(
         ${arg_TEST_NAME} "test-resources"
         PREFIX "/"
-	BASE "${PROJECT_SOURCE_DIR}/test"
+        BASE "${PROJECT_SOURCE_DIR}/test"
         FILES "${PROJECT_SOURCE_DIR}/test/resources/sql/generic/populate_database.sql"
     )
     QT_ADD_RESOURCES(
         ${arg_TEST_NAME} "resources"
         PREFIX "/"
-	BASE "${PROJECT_SOURCE_DIR}"
+        BASE "${PROJECT_SOURCE_DIR}"
         FILES ${RESOURCE_FILES}
     )
 ENDFUNCTION()
+
+ADD_LIBRARY(test_helpers OBJECT
+    ../testhelpers.cpp
+    persistedtreeitemmodelstestbase.cpp
+)
+TARGET_LINK_LIBRARIES(test_helpers PRIVATE Qt6::Test Qt6::Sql Qt6::Gui)
+IF(QTD_ENABLE_COVERAGE)
+    TARGET_COMPILE_OPTIONS(test_helpers PRIVATE -O0 --coverage)
+ENDIF()
 
 CREATE_MODEL_TEST(TEST_NAME test_ids                   SOURCES testqtdid.cpp)
 CREATE_MODEL_TEST(TEST_NAME test_treenodes             SOURCES testtreenodes.cpp)

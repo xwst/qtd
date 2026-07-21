@@ -24,19 +24,20 @@
 
 #define QTD_ITEM_DATA_ROLE       \
 enum QtdItemDataRole : quint16 { \
-      UuidRole = Qt::UserRole    \
-    , ActiveRole                 \
-    , StartRole                  \
-    , DueRole                    \
-    , ResolveRole                \
-    , PlainTextRole              \
-    , RichTextRole               \
-    , DocumentRole               \
-    , TagsRole                   \
-    , AddTagRole                 \
-    , RemoveTagRole              \
+    UuidRole = Qt::UserRole      \
+    , ActiveRole               \
+    , StartRole                \
+    , DueRole                  \
+    , ResolveRole              \
+    , PlainTextRole            \
+    , RichTextRole             \
+    , DocumentRole             \
+    , TagsRole                 \
+    , AddTagRole               \
+    , RemoveTagRole            \
 };
 
+// NOLINTNEXTLINE(cppcoreguidelines-use-enum-class)
 QTD_ITEM_DATA_ROLE
 
 QHash<int, QByteArray> custom_role_names();

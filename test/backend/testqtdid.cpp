@@ -1,5 +1,5 @@
 /**
- * Copyright 2025 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
+ * Copyright 2025, 2026 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
  *
  * This file is part of qtd.
  *
@@ -28,15 +28,17 @@
 #include "dataitems/qtdid.h"
 #include "utils/initialize.h"
 
-TestQtdId::TestQtdId(QObject *parent)
+TestQtdId::TestQtdId(QObject* parent)
     : QObject{parent}
 {}
 
-void TestQtdId::initTestCase() {
+void TestQtdId::initTestCase()
+{
     initialize_qt_meta_types();
 }
 
-void TestQtdId::test_creation_from_string() {
+void TestQtdId::test_creation_from_string()
+{
     const QString test_id_str = "7e4f1320-4682-425d-808a-7ac534fa23cb";
     const auto test_id = QtdId(test_id_str);
     QCOMPARE(test_id.toString(), test_id_str);
@@ -49,7 +51,8 @@ void TestQtdId::test_creation_from_string() {
 
 void TestQtdId::helper_test_conversion(
     const std::function<QVariant(QtdId)>& convert_id
-) {
+)
+{
     const QString test_id_str = "c7ad2469-c662-43b5-9f3e-3e05ee26efaf";
     const auto test_id = QtdId(test_id_str);
     auto test_variant = convert_id(test_id);
@@ -61,19 +64,22 @@ void TestQtdId::helper_test_conversion(
     QCOMPARE(QVariant(test_id), test_variant);
 }
 
-void TestQtdId::test_implicit_qvariant_conversion() {
+void TestQtdId::test_implicit_qvariant_conversion()
+{
     TestQtdId::helper_test_conversion(
         [](const QtdId& test_id) { return QVariant(test_id); }
     );
 }
 
-void TestQtdId::test_qvariant_conversion() {
+void TestQtdId::test_qvariant_conversion()
+{
     TestQtdId::helper_test_conversion(
         [](const QtdId& test_id) { return QVariant::fromValue(test_id); }
     );
 }
 
-void TestQtdId::test_database_serialization() {
+void TestQtdId::test_database_serialization()
+{
     const auto test_id = QtdId::create();
     auto database = QSqlDatabase::addDatabase("QSQLITE");
     database.setDatabaseName(":memory:");

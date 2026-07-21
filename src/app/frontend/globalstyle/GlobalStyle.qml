@@ -22,12 +22,12 @@ import QtQuick 2.0
 
 QtObject {
 
-    property int default_font_size: 12;
-    property int min_font_size: 6;
-    property int max_font_size: 40;
+    property int default_font_size: 12
+    property int min_font_size: 6
+    property int max_font_size: 40
 
     property font font: Qt.font({
         pointSize: default_font_size
-    });
+    })
 
 }

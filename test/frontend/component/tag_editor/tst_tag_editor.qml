@@ -44,7 +44,7 @@ TestCase {
         signalName: "dataChanged"
     }
 
-    function keyClicks(text) {
+    function key_clicks(text) {
         for (var character of text)
             keyClick(character)
     }
@@ -107,10 +107,8 @@ TestCase {
 
         mousePress(delete_button)
         wait(delete_button.delay + 100)
+        tryCompare(model_delete_spy, "count", 1)
         mouseRelease(this)
-
-        wait(20)
-        compare(model_delete_spy.count, 1)
         compare(dummyIndex.model.rowCount(), initial_row_count - 1)
     }
 }

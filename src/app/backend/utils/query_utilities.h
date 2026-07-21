@@ -24,7 +24,8 @@
 #include <QSqlQuery>
 #include <QString>
 
-namespace QueryUtilities {
+namespace QueryUtilities
+{
 
 QStringList split_queries(const QString& sql_queries);
 QString remove_sql_comments(QString queries);

@@ -1,5 +1,5 @@
 /**
- * Copyright 2025 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
+ * Copyright 2025, 2026 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
  *
  * This file is part of qtd.
  *
@@ -26,6 +26,7 @@
 #include "models/tagitemmodel.h"
 
 class TestFilteredTagItemModel : public QObject
+
 {
     Q_OBJECT
 
@@ -36,7 +37,7 @@ private:
     void whitelist_single_parent_tag_and_validate() const;
 
 public:
-    explicit TestFilteredTagItemModel(QObject *parent = nullptr);
+    explicit TestFilteredTagItemModel(QObject* parent = nullptr);
 
 private slots:
     // Test setup/cleanup:

@@ -23,7 +23,7 @@ ADD_SUBDIRECTORY(frontend/journey/)
 FIND_PROGRAM(GCOVR NAMES gcovr)
 IF(GCOVR AND (${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU"))
     ADD_CUSTOM_TARGET(
-        coverage
+        check-coverage
         find ${CMAKE_BINARY_DIR} -name "*.gcda" -type f -delete
         COMMAND
         QT_QPA_PLATFORM=offscreen ${CMAKE_CTEST_COMMAND} --test-dir ${CMAKE_BINARY_DIR} --output-on-failure
@@ -36,20 +36,9 @@ IF(GCOVR AND (${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU"))
             --html-nested ${CMAKE_BINARY_DIR}/gcovr/coverage.html
             --exclude-throw-branches
             --exclude-unreachable-branches
-        DEPENDS all_tests
-        BYPRODUCTS ${CMAKE_BINARY_DIR}/gcovr/coverage.html
-    )
-    ADD_CUSTOM_TARGET(
-        verify-test-coverage
-        find ${CMAKE_BINARY_DIR} -name "*.gcda" -type f -delete
-        COMMAND
-        QT_QPA_PLATFORM=offscreen ${CMAKE_CTEST_COMMAND} --test-dir ${CMAKE_BINARY_DIR} --output-on-failure
-        COMMAND
-        ${GCOVR}
-            -r ${CMAKE_SOURCE_DIR}
-            --filter ${CMAKE_SOURCE_DIR}/src
             --fail-under-line 90
             --fail-under-function 90
         DEPENDS all_tests
+        BYPRODUCTS ${CMAKE_BINARY_DIR}/gcovr/coverage.html
     )
 ENDIF()

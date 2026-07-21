@@ -35,31 +35,36 @@
 #include "persistedtreeitemmodelstestbase.h"
 #include "utils/modeliteration.h"
 
-TestTaskItemModel::TestTaskItemModel(QObject *parent)
+TestTaskItemModel::TestTaskItemModel(QObject* parent)
     : PersistedTreeItemModelsTestBase{parent}
 {}
 
-void TestTaskItemModel::initTestCase() {
+void TestTaskItemModel::initTestCase()
+{
     PersistedTreeItemModelsTestBase::initTestCase();
     TestHelpers::assert_table_exists("tasks");
 }
 
-void TestTaskItemModel::init() {
+void TestTaskItemModel::init()
+{
     PersistedTreeItemModelsTestBase::init();
     TestHelpers::setup_item_model(this->model, this->get_db_connection_name());
 }
 
-void TestTaskItemModel::cleanup() {
+void TestTaskItemModel::cleanup()
+{
     this->assert_model_persistence();
     this->model.reset();
     PersistedTreeItemModelsTestBase::cleanup();
 }
 
-void TestTaskItemModel::test_initial_dataset_represented_correctly() const {
+void TestTaskItemModel::test_initial_dataset_represented_correctly() const
+{
     this->assert_initial_dataset_representation_base_model();
 }
 
-void TestTaskItemModel::test_model_stores_text_documents() const {
+void TestTaskItemModel::test_model_stores_text_documents() const
+{
     const auto index = TestHelpers::find_model_index_by_display_role(
         *this->model, "Buy groceries"
     );
@@ -80,7 +85,8 @@ void TestTaskItemModel::test_model_stores_text_documents() const {
     QVERIFY(index.data(RichTextRole).toString().contains("Updated description"));
 }
 
-void TestTaskItemModel::test_data_change_of_unique_task() const {
+void TestTaskItemModel::test_data_change_of_unique_task() const
+{
     const QString title = "Buy groceries";
     const auto test_index = TestHelpers::find_model_index_by_display_role(*this->model, title);
     QVERIFY(test_index.isValid());
@@ -101,7 +107,8 @@ void TestTaskItemModel::test_data_change_of_unique_task() const {
     QCOMPARE(test_index.data(UuidRole).value<TaskId>(), uuid);
 }
 
-void TestTaskItemModel::test_data_change_of_cloned_task() const {
+void TestTaskItemModel::test_data_change_of_cloned_task() const
+{
     const auto test_index = TestHelpers::find_model_index_by_display_role(
         *this->model,
         "Fix printer",
@@ -135,7 +142,8 @@ void TestTaskItemModel::test_data_change_of_cloned_task() const {
     TestTaskItemModel::assert_index_equality(test_index, test_index_clone);
 }
 
-void TestTaskItemModel::test_remove_rows() const {
+void TestTaskItemModel::test_remove_rows() const
+{
     const auto index_to_remove = TestHelpers::find_model_index_by_display_role(
         *this->model, "Buy groceries"
     );
@@ -149,7 +157,8 @@ void TestTaskItemModel::test_remove_rows() const {
     QCOMPARE(this->model->rowCount(index_parent), number_of_siblings);
 }
 
-void TestTaskItemModel::test_create_task() const {
+void TestTaskItemModel::test_create_task() const
+{
     const auto parent1 = TestHelpers::find_model_index_by_display_role(
         *this->model, "Buy groceries"
     );
@@ -176,7 +185,8 @@ void TestTaskItemModel::test_create_task() const {
     TestTaskItemModel::assert_index_equality(new_index1, new_index2);
 }
 
-void TestTaskItemModel::test_add_dependency() const {
+void TestTaskItemModel::test_add_dependency() const
+{
     const auto index_buy_groceries = TestHelpers::find_model_index_by_display_role(
         *this->model, "Buy groceries"
     );
@@ -193,14 +203,16 @@ void TestTaskItemModel::test_add_dependency() const {
     QCOMPARE(this->model->rowCount(cloned_index), this->model->rowCount(index_buy_groceries));
 }
 
-void TestTaskItemModel::test_adding_dependency_with_invalid_parent() const {
+void TestTaskItemModel::test_adding_dependency_with_invalid_parent() const
+{
     const auto child = TestHelpers::find_model_index_by_display_role(
         *this->model, "Buy groceries"
     );
     QVERIFY(!this->model->add_dependency(QModelIndex(), child));
 }
 
-void TestTaskItemModel::test_can_not_create_dependency_cycle() const {
+void TestTaskItemModel::test_can_not_create_dependency_cycle() const
+{
     const auto parent_index = TestHelpers::find_model_index_by_display_role(
         *this->model, "Buy groceries"
     );
@@ -218,7 +230,8 @@ void TestTaskItemModel::test_can_not_create_dependency_cycle() const {
     QCOMPARE(this->model->rowCount(nested_child_index), child_count_nested_child);
 }
 
-void TestTaskItemModel::assert_initial_dataset_representation_base_model() const {
+void TestTaskItemModel::assert_initial_dataset_representation_base_model() const
+{
     QCOMPARE(this->model->rowCount(), 3);
     QCOMPARE(this->model->get_size(), 10);
     QCOMPARE(this->model->get_size(), ModelIteration::count_model_rows(this->model.get()));
@@ -249,7 +262,8 @@ void TestTaskItemModel::assert_initial_dataset_representation_base_model() const
     );
 }
 
-void TestTaskItemModel::assert_model_persistence() const {
+void TestTaskItemModel::assert_model_persistence() const
+{
     std::unique_ptr<TaskItemModel> model_reloaded_from_db;
 
     TestHelpers::setup_item_model(model_reloaded_from_db, this->get_db_connection_name());
@@ -265,11 +279,14 @@ void TestTaskItemModel::assert_model_persistence() const {
 void TestTaskItemModel::assert_index_equality(
     const QModelIndex& index1,
     const QModelIndex& index2
-) {
-    const QSet<int> roles = {
+)
+{
+    const QSet<int> roles =
+    {
         Qt::DisplayRole, UuidRole, ActiveRole, StartRole, DueRole, PlainTextRole
     };
-    for (const int role : roles) {
+    for (const int role : roles)
+    {
         QCOMPARE(index1.data(role), index2.data(role));
     }
 }
@@ -281,7 +298,8 @@ void TestTaskItemModel::find_task_by_title_and_assert_correctness_of_data(
     const QDateTime& due_datetime,
     const int number_of_children,
     const QSet<TagId>& assigned_tags
-) const {
+) const
+{
     const auto index = TestHelpers::find_model_index_by_display_role(*this->model, title);
     QVERIFY(index.isValid());
     QCOMPARE(index.data(ActiveRole), status);
@@ -291,7 +309,8 @@ void TestTaskItemModel::find_task_by_title_and_assert_correctness_of_data(
     QCOMPARE(index.data(TagsRole).value<QSet<TagId>>(), assigned_tags);
 }
 
-void TestTaskItemModel::test_adding_and_removing_tags() const {
+void TestTaskItemModel::test_adding_and_removing_tags() const
+{
     const auto index = TestHelpers::find_model_index_by_display_role(*this->model, "Cook meal");
     const auto initial_tag = TagId("10173aba-edd8-4049-a41c-74f28581c31f");
     QCOMPARE(index.data(TagsRole).value<QSet<TagId>>(), {initial_tag});
@@ -337,7 +356,8 @@ void TestTaskItemModel::test_adding_and_removing_tags() const {
     QCOMPARE(index.data(TagsRole).value<QSet<TagId>>(), {initial_tag});
 }
 
-void TestTaskItemModel::test_task_creation_with_unknown_parents() const {
+void TestTaskItemModel::test_task_creation_with_unknown_parents() const
+{
     auto valid_parent = TestHelpers::find_model_index_by_display_role(
         *this->model,
         "Fix printer"

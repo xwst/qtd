@@ -23,6 +23,7 @@ import QtTest 1.0
 import src.app
 
 TestCase {
+    id: task_adapter_test_case
     name: "task_adapter"
     visible: true
 
@@ -40,7 +41,7 @@ TestCase {
 
     Instantiator {
         id: _spyInstantiator
-        model: _spyNames
+        model: task_adapter_test_case._spyNames
         delegate: SignalSpy {
             target: adapter
             signalName: modelData
@@ -50,7 +51,7 @@ TestCase {
     function _spy(signalName) {
         for (var i = 0; i < _spyInstantiator.count; i++) {
             var s = _spyInstantiator.objectAt(i);
-            if (s.signalName === signalName) {
+            if (s.signalName === signalName) { // qmllint disable missing-property
                 return s;
             }
         }
@@ -59,14 +60,14 @@ TestCase {
 
     function clear_spies() {
         for (var i = 0; i < _spyInstantiator.count; i++) {
-            _spyInstantiator.objectAt(i).clear();
+            _spyInstantiator.objectAt(i).clear(); // qmllint disable missing-property
         }
     }
 
     function _verify_all(expected) {
         for (var i = 0; i < _spyInstantiator.count; i++) {
             var s = _spyInstantiator.objectAt(i);
-            compare(s.count, expected, s.signalName);
+            compare(s.count, expected, s.signalName); // qmllint disable missing-property
         }
     }
 

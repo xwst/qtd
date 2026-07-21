@@ -34,6 +34,7 @@
 #include "globaleventfilter.h"
 
 class QmlInterface : public QObject
+
 {
     Q_OBJECT
     QML_ELEMENT
@@ -41,19 +42,19 @@ class QmlInterface : public QObject
 
 private:
     const QString          local_database_name = "qtd.sqlite";
-    QString                m_application_dir;
-    TagItemModel*          m_tags;
-    FilteredTagItemModel*  m_tags_open;
-    FilteredTagItemModel*  m_tags_actionable;
-    FilteredTagItemModel*  m_tags_project;
-    FilteredTagItemModel*  m_tags_archived;
-    FlatteningProxyModel*  m_flat_tags;
-    TaskItemModel*         m_tasks;
-    FilteredTaskItemModel* m_open_tasks;
-    FilteredTaskItemModel* m_actionable_tasks;
-    FilteredTaskItemModel* m_project_tasks;
-    FilteredTaskItemModel* m_archived_tasks;
-    GlobalEventFilter*     m_global_event_filter;
+    QString                application_dir;
+    TagItemModel*          tags = nullptr;
+    FilteredTagItemModel*  tags_open = nullptr;
+    FilteredTagItemModel*  tags_actionable = nullptr;
+    FilteredTagItemModel*  tags_project = nullptr;
+    FilteredTagItemModel*  tags_archived = nullptr;
+    FlatteningProxyModel*  flat_tags = nullptr;
+    TaskItemModel*         tasks = nullptr;
+    FilteredTaskItemModel* open_tasks = nullptr;
+    FilteredTaskItemModel* actionable_tasks = nullptr;
+    FilteredTaskItemModel* project_tasks = nullptr;
+    FilteredTaskItemModel* archived_tasks = nullptr;
+    GlobalEventFilter*     global_event_filter = nullptr;
 
     void open_database(
         const QString& database_file_path,
@@ -69,29 +70,33 @@ private:
     void set_up_event_filter();
 
 public:
+    explicit QmlInterface(QObject* parent = nullptr) : QObject(parent) {}
+
+    // NOLINTNEXTLINE(cppcoreguidelines-use-enum-class)
     QTD_ITEM_DATA_ROLE
     Q_ENUM(QtdItemDataRole)
 
+    // NOLINTNEXTLINE(cppcoreguidelines-use-enum-class)
     TASK_STATUS
     Q_ENUM(Status)
 
-    Q_PROPERTY(QString application_dir MEMBER m_application_dir CONSTANT)
-    Q_PROPERTY(TagItemModel*  tags  MEMBER m_tags  CONSTANT)
-    Q_PROPERTY(TaskItemModel* tasks MEMBER m_tasks CONSTANT)
+    Q_PROPERTY(QString application_dir MEMBER application_dir CONSTANT)
+    Q_PROPERTY(TagItemModel*  tags  MEMBER tags  CONSTANT)
+    Q_PROPERTY(TaskItemModel* tasks MEMBER tasks CONSTANT)
 
-    Q_PROPERTY(FilteredTagItemModel* tags_open       MEMBER m_tags_open       CONSTANT)
-    Q_PROPERTY(FilteredTagItemModel* tags_actionable MEMBER m_tags_actionable CONSTANT)
-    Q_PROPERTY(FilteredTagItemModel* tags_project    MEMBER m_tags_project    CONSTANT)
-    Q_PROPERTY(FilteredTagItemModel* tags_archived   MEMBER m_tags_archived   CONSTANT)
+    Q_PROPERTY(FilteredTagItemModel* tags_open       MEMBER tags_open       CONSTANT)
+    Q_PROPERTY(FilteredTagItemModel* tags_actionable MEMBER tags_actionable CONSTANT)
+    Q_PROPERTY(FilteredTagItemModel* tags_project    MEMBER tags_project    CONSTANT)
+    Q_PROPERTY(FilteredTagItemModel* tags_archived   MEMBER tags_archived   CONSTANT)
 
-    Q_PROPERTY(FlatteningProxyModel* flat_tags       MEMBER m_flat_tags)
+    Q_PROPERTY(FlatteningProxyModel* flat_tags       MEMBER flat_tags)
 
-    Q_PROPERTY(FilteredTaskItemModel* open_tasks       MEMBER m_open_tasks       CONSTANT)
-    Q_PROPERTY(FilteredTaskItemModel* actionable_tasks MEMBER m_actionable_tasks CONSTANT)
-    Q_PROPERTY(FilteredTaskItemModel* project_tasks    MEMBER m_project_tasks    CONSTANT)
-    Q_PROPERTY(FilteredTaskItemModel* archived_tasks   MEMBER m_archived_tasks   CONSTANT)
+    Q_PROPERTY(FilteredTaskItemModel* open_tasks       MEMBER open_tasks       CONSTANT)
+    Q_PROPERTY(FilteredTaskItemModel* actionable_tasks MEMBER actionable_tasks CONSTANT)
+    Q_PROPERTY(FilteredTaskItemModel* project_tasks    MEMBER project_tasks    CONSTANT)
+    Q_PROPERTY(FilteredTaskItemModel* archived_tasks   MEMBER archived_tasks   CONSTANT)
 
-    Q_PROPERTY(GlobalEventFilter*    global_event_filter   MEMBER m_global_event_filter   CONSTANT)
+    Q_PROPERTY(GlobalEventFilter*    global_event_filter   MEMBER global_event_filter   CONSTANT)
 
     void set_up(const QString& database_file_path = "");
 };

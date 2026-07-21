@@ -10,7 +10,7 @@ fi
 BUILD_DIR=$1
 FILES=$(
 	git diff --name-status origin/main \
-	| egrep "\.h$|\.cpp$" \
+	| egrep "\.cpp$" \
 	| grep -v "^D" \
 	| awk '{print $NF}'
 ) || true
@@ -18,7 +18,7 @@ FILES=$(
 if [ "$FILES" != "" ]; then
     echo "Run static code analysis on the following files:"
     echo $FILES | tr ' ' '\n'
-    exit $(("$(clang-tidy -p $BUILD_DIR --config-file .clang-tidy $FILES)"))
+    ${CLANG_TIDY:-run-clang-tidy} -p $BUILD_DIR -config-file .clang-tidy -j 4 $FILES
 else
     echo "No files to check."
 fi

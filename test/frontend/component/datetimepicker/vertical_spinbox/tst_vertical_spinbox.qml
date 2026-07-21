@@ -43,7 +43,7 @@ TestCase {
             step: 1
             value: 0
 
-            font.pixelSize: 16
+            font: Qt.font({ pixelSize: 16 })
 
             onValueEdited: new_value => value = new_value
         }
@@ -90,28 +90,28 @@ TestCase {
         Util.wheel_down(this, spinbox)
     }
 
-    function test_initialValue() {
+    function test_initial_value() {
         compare(spinbox.value, 0)
         compare(Util.find_child(this, spinbox, "value_label").text, "00")
     }
 
-    function test_incrementButton() {
+    function test_increment_button() {
         click_inc()
         compare(spinbox.value, 1)
     }
 
-    function test_decrementButton() {
+    function test_decrement_button() {
         click_dec()
         compare(spinbox.value, 23) // wrap
     }
 
-    function test_wrapAround_upperBoundary() {
+    function test_wrap_around_upper_boundary() {
         spinbox.value = spinbox.max
         click_inc()
         compare(spinbox.value, spinbox.min)
     }
 
-    function test_wrapAround_lowerBoundary() {
+    function test_wrap_around_lower_boundary() {
         spinbox.value = spinbox.min
         click_dec()
         compare(spinbox.value, spinbox.max)
@@ -127,7 +127,7 @@ TestCase {
         compare(spinbox.value, 23)
     }
 
-    function test_signalEmission() {
+    function test_signal_emission() {
         click_inc()
         click_inc()
 
@@ -136,7 +136,7 @@ TestCase {
         compare(value_edited_spy.signalArguments[1][0], 2)
     }
 
-    function test_stepAlignment_increment() {
+    function test_step_alignment_increment() {
         spinbox.step = 5
         spinbox.value = 3
 
@@ -145,7 +145,7 @@ TestCase {
         compare(spinbox.value, 5)
     }
 
-    function test_stepAlignment_decrement() {
+    function test_step_alignment_decrement() {
         spinbox.step = 5
         spinbox.value = 7
 
@@ -154,7 +154,7 @@ TestCase {
         compare(spinbox.value, 5)
     }
 
-    function test_stepSequence() {
+    function test_step_sequence() {
         spinbox.step = 4
 
         var expected = 0
@@ -170,7 +170,7 @@ TestCase {
         }
     }
 
-    function test_displayFormatting() {
+    function test_display_formatting() {
         let label = Util.find_child(this, spinbox, "value_label")
         spinbox.value = 5
         compare(label.text, "05")
@@ -179,7 +179,7 @@ TestCase {
         compare(label.text, "12")
     }
 
-    function test_rangeChangeRobustness() {
+    function test_range_change_robustness() {
         spinbox.min = 10
         spinbox.max = 20
         spinbox.value = 20

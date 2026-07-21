@@ -28,7 +28,8 @@
 
 Q_IMPORT_QML_PLUGIN(src_qmltexteditorPlugin)
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[])
+{
 
     QGuiApplication app(argc, argv);
     QQmlApplicationEngine engine;

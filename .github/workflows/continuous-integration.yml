@@ -3,41 +3,111 @@ on:
   pull_request:
     branches: [ "main" ]
 
+env:
+  QT_VERSION: '6.10.3'
+
 jobs:
+  build-gcc-release:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v7
+
+    - name: Set reusable strings
+      id: strings
+      shell: bash
+      run: |
+        echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: ${{ env.QT_VERSION }}
+        install-deps: 'true'
+        cache: 'true'
+        cache-key-prefix: 'install-qt-action'
+
+    - name: Install gcovr
+      run: python -m pip install gcovr
+
+    - name: Configure CMake
+      run: >
+        cmake -B ${{ steps.strings.outputs.build-output-dir }}
+        -DCMAKE_CXX_COMPILER=g++
+        -DCMAKE_BUILD_TYPE=Release
+        -DQTD_ENABLE_COVERAGE=ON
+        -DCMAKE_PREFIX_PATH=${{ env.QT_ROOT_DIR }}
+        -S ${{ github.workspace }}
+
+    - name: Build all targets
+      run: cmake --build ${{ steps.strings.outputs.build-output-dir }} -j 8
+
+    - name: Upload build artifact
+      uses: actions/upload-artifact@v7
+      with:
+        name: GNU-build
+        path: ${{ steps.strings.outputs.build-output-dir }}
+
   build-and-test:
     runs-on: ${{ matrix.os }}
 
     strategy:
       fail-fast: false
 
-      # Set up a matrix to run the following 3 configurations:
-      # 1. <Windows, Release, latest MSVC compiler toolchain on the default runner image, default generator>
-      # 2. <Linux, Release, latest GNU compiler toolchain on the default runner image, default generator>
-      # 3. <Linux, Release, latest Clang compiler toolchain on the default runner image, default generator>
       matrix:
-        os: [ubuntu-latest, windows-latest]
-        build_type: [Release]
-        cpp_compiler: [g++, clang++, cl]
         include:
-          - os: windows-latest
-            run_tests_target: RUN_TESTS
           - os: ubuntu-latest
-            run_tests_target: test
-          - os: ubuntu-latest
-            run_tests_target: test
-        exclude:
-          - os: windows-latest
-            cpp_compiler: g++
-          - os: windows-latest
             cpp_compiler: clang++
+            build_type: Release
+            sanitize_flags: ""
+            parallel_jobs: 8
+            ctest_repeat: "--repeat until-fail:10"
+
           - os: ubuntu-latest
+            cpp_compiler: g++
+            build_type: Release
+            sanitize_flags: ""
+            parallel_jobs: 8
+            ctest_repeat: "--repeat until-fail:10"
+
+          - os: ubuntu-latest
+            cpp_compiler: clang++
+            build_type: Release
+            sanitize_flags: "-DQTD_ENABLE_SANITIZERS=ON"
+            parallel_jobs: 4
+            ctest_repeat: ""
+
+          - os: windows-latest
             cpp_compiler: cl
+            build_type: Release
+            sanitize_flags: ""
+            parallel_jobs: 8
+            ctest_repeat: "--repeat until-fail:10"
+
+          - os: ubuntu-latest
+            cpp_compiler: g++
+            build_type: Debug
+            sanitize_flags: "-DQTD_ENABLE_SANITIZERS=ON"
+            parallel_jobs: 4
+            ctest_repeat: ""
+
+          - os: ubuntu-latest
+            cpp_compiler: clang++
+            build_type: Debug
+            sanitize_flags: "-DQTD_ENABLE_SANITIZERS=ON"
+            parallel_jobs: 4
+            ctest_repeat: ""
+
+          - os: windows-latest
+            cpp_compiler: cl
+            build_type: Debug
+            sanitize_flags: ""
+            parallel_jobs: 4
+            ctest_repeat: ""
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
 
     - name: Set reusable strings
-      # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
       id: strings
       shell: bash
       run: |
@@ -46,54 +116,87 @@ jobs:
     - name: Install Qt
       uses: jurplel/install-qt-action@v4
       with:
-        version: '6.10.3'
+        version: ${{ env.QT_VERSION }}
         install-deps: 'true'
         cache: 'true'
         cache-key-prefix: 'install-qt-action'
-
-    - name: Install gcovr
-      if: matrix.cpp_compiler == 'g++'
-      run: python -m pip install gcovr
 
     - name: Configure CMake
       run: >
         cmake -B ${{ steps.strings.outputs.build-output-dir }}
         -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+        ${{ matrix.sanitize_flags }}
         -DCMAKE_PREFIX_PATH=${{ env.QT_ROOT_DIR }}
         -S ${{ github.workspace }}
 
     - name: Build all targets
-      run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }} -j8
+      run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }} -j ${{ matrix.parallel_jobs }}
 
-    - name: Run backend tests
-      if: matrix.os != 'windows-latest'
-      run: QT_QPA_PLATFORM=offscreen ctest --test-dir ${{ steps.strings.outputs.build-output-dir }} -C ${{ matrix.build_type }} -LE frontend-test -j8 --output-on-failure
+    - name: Run tests
+      env:
+        QT_QPA_PLATFORM: offscreen
+      run: >
+        ctest --test-dir ${{ steps.strings.outputs.build-output-dir }}
+        -C ${{ matrix.build_type }}
+        ${{ matrix.ctest_repeat }}
+        -j ${{ matrix.parallel_jobs }}
+        --output-on-failure
 
-    - name: Run backend tests
-      if: matrix.os == 'windows-latest'
-      run: ctest --test-dir ${{ steps.strings.outputs.build-output-dir }} -C ${{ matrix.build_type }} -LE frontend-test -j8 --output-on-failure
+    - name: Upload test logs
+      uses: actions/upload-artifact@v7
+      if: failure()
+      with:
+        name: test-logs-${{ matrix.os }}-${{ matrix.cpp_compiler }}-${{ matrix.build_type }}
+        path: ${{ steps.strings.outputs.build-output-dir }}/Testing/Temporary/
 
-    - name: Run frontend tests
-      if: matrix.os != 'windows-latest'
-      run: QT_QPA_PLATFORM=offscreen ctest --test-dir ${{ steps.strings.outputs.build-output-dir }} -C ${{ matrix.build_type }} -L frontend-test -j8 --output-on-failure
+  test-gcc-release:
+    needs: build-gcc-release
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v7
 
-    - name: Run frontend tests
-      if: matrix.os == 'windows-latest'
-      run: ctest --test-dir ${{ steps.strings.outputs.build-output-dir }} -C ${{ matrix.build_type }} -L frontend-test -j8 --output-on-failure
+    - name: Set reusable strings
+      id: strings
+      shell: bash
+      run: |
+        echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
 
-    - name: Cache build artifacts
-      if: matrix.cpp_compiler == 'g++'
-      uses: actions/upload-artifact@v4
+    - name: Receive cached build directory
+      uses: actions/download-artifact@v8
       with:
         name: GNU-build
         path: ${{ steps.strings.outputs.build-output-dir }}
 
+    - name: Fix execute permissions
+      run: chmod -R +x ${{ steps.strings.outputs.build-output-dir }}
+
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: ${{ env.QT_VERSION }}
+        cache: 'true'
+        cache-key-prefix: 'install-qt-action'
+
+    - name: Run tests
+      env:
+        QT_QPA_PLATFORM: offscreen
+      run: >
+        ctest --test-dir ${{ steps.strings.outputs.build-output-dir }}
+        -C Release --repeat until-fail:10 -j8 --output-on-failure
+
+    - name: Upload test logs
+      uses: actions/upload-artifact@v7
+      if: failure()
+      with:
+        name: test-logs-ubuntu-latest-g++-Release
+        path: ${{ steps.strings.outputs.build-output-dir }}/Testing/Temporary/
+
   test-coverage:
-    needs: build-and-test
+    needs: build-gcc-release
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
 
     - name: Set reusable strings
       # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
@@ -105,8 +208,7 @@ jobs:
     - name: Install Qt
       uses: jurplel/install-qt-action@v4
       with:
-        version: '6.10.3'
-        install-deps: 'true'
+        version: ${{ env.QT_VERSION }}
         cache: 'true'
         cache-key-prefix: 'install-qt-action'
 
@@ -114,29 +216,27 @@ jobs:
       run: python -m pip install gcovr
 
     - name: Receive caches build directory
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: GNU-build
         path: ${{ steps.strings.outputs.build-output-dir }}
 
-    - name: Generage test coverage report
-      run: |
-        mkdir -p ${{ steps.strings.outputs.build-output-dir }}/gcovr
-        QT_QPA_PLATFORM=offscreen cmake --build ${{ steps.strings.outputs.build-output-dir }} --target coverage
+    - name: Fix execute permissions
+      run: chmod -R +x ${{ steps.strings.outputs.build-output-dir }}
+
+    - name: Generate coverage report & verify thresholds
+      run: QT_QPA_PLATFORM=offscreen cmake --build ${{ steps.strings.outputs.build-output-dir }} --target check-coverage
 
     - name: Cache coverage artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: coverage-report
         path: ${{ steps.strings.outputs.build-output-dir }}/gcovr
 
-    - name: Test coverage
-      run: QT_QPA_PLATFORM=offscreen cmake --build ${{ steps.strings.outputs.build-output-dir }} --target verify-test-coverage -j8
-
   code-checks:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
       with:
         fetch-depth: 0
 
@@ -152,11 +252,45 @@ jobs:
       shell: bash
       run: bash ./scripts/verify_no_include_guards.sh
 
-  static-code-analysis:
-    needs: build-and-test
+  qmllint:
+    needs: build-gcc-release
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
+      with:
+        fetch-depth: 0
+
+    - name: Set reusable strings
+      id: strings
+      shell: bash
+      run: |
+        echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: ${{ env.QT_VERSION }}
+        cache: 'true'
+        cache-key-prefix: 'install-qt-action'
+
+    - name: Receive cached build directory
+      uses: actions/download-artifact@v8
+      with:
+        name: GNU-build
+        path: ${{ steps.strings.outputs.build-output-dir }}
+
+    - name: Fix execute permissions
+      run: chmod -R +x ${{ steps.strings.outputs.build-output-dir }}
+
+    - name: Run qmllint
+      shell: bash
+      run: bash ./scripts/run_qmllint.sh ${{ steps.strings.outputs.build-output-dir }}
+
+  clang-tidy:
+    needs: build-gcc-release
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v7
       with:
         fetch-depth: 0
 
@@ -168,7 +302,7 @@ jobs:
         echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
 
     - name: Receive caches build directory
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: GNU-build
         path: ${{ steps.strings.outputs.build-output-dir }}
@@ -176,17 +310,26 @@ jobs:
     - name: Install Qt
       uses: jurplel/install-qt-action@v4
       with:
-        version: '6.10.3'
+        version: ${{ env.QT_VERSION }}
         install-deps: 'true'
         cache: 'true'
         cache-key-prefix: 'install-qt-action'
 
+    - name: Install clang-tidy 21
+      run: |
+        wget https://apt.llvm.org/llvm.sh
+        chmod +x llvm.sh
+        sudo ./llvm.sh 21
+        sudo apt-get install -y clang-tidy-21
+
     - name: Run clang-tidy
       shell: bash
+      env:
+        CLANG_TIDY: run-clang-tidy-21
       run: ./scripts/run_linter_on_changed_files.sh ${{ steps.strings.outputs.build-output-dir }}
 
   summary:
-    needs: [code-checks, test-coverage, static-code-analysis, build-and-test]
+    needs: [code-checks, test-gcc-release, test-coverage, clang-tidy, build-and-test, qmllint]
     runs-on: ubuntu-latest
     steps:
     - name: Print success message

@@ -24,14 +24,17 @@
 #include "qtditemdatarole.h"
 
 class UniqueDataItem
+
 {
 private:
     QtdId item_id;
 
 public:
-    explicit UniqueDataItem(const QString& data_item_id = "") {
+    explicit UniqueDataItem(const QString& data_item_id = "")
+    {
         this->item_id = data_item_id.trimmed().isEmpty() ? QtdId::create() : QtdId(data_item_id);
-        if (!this->item_id.is_valid()) {
+        if (!this->item_id.is_valid())
+        {
             throw std::invalid_argument("Passed ID is neither empty nor valid!");
         }
     }
@@ -39,8 +42,10 @@ public:
     [[nodiscard]] QtdId get_uuid() const { return this->item_id; }
     [[nodiscard]] QString get_uuid_string() const { return this->item_id.toString(); }
 
-    [[nodiscard]] virtual QVariant get_data(int role) const {
-        if (role == UuidRole) {
+    [[nodiscard]] virtual QVariant get_data(int role) const
+    {
+        if (role == UuidRole)
+        {
             return this->get_uuid();
         }
         return {};

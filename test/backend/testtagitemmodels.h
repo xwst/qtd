@@ -27,11 +27,12 @@
 #include "persistedtreeitemmodelstestbase.h"
 
 class TestTagItemModels : public PersistedTreeItemModelsTestBase
+
 {
     Q_OBJECT
 
 public:
-    explicit TestTagItemModels(QObject *parent = nullptr);
+    explicit TestTagItemModels(QObject* parent = nullptr);
 
 private:
     std::unique_ptr<TagItemModel> model;
