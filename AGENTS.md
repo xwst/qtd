@@ -75,7 +75,8 @@ cmake --build build/opencode --target verify-test-coverage    # ≥90% line & fu
 | **Braces (control flow)** | K&R (opening brace on same line) |
 | **Pointer/reference** | Attached to type (`const QString&`, `QObject*`) |
 | **Indentation** | 4 spaces |
-| **License header** | Block `/** */` comment at top of every `.cpp`, `.h`, `.qml`, `.js` |
+| **CMake commands** | All uppercase (`ADD_EXECUTABLE`, `TARGET_LINK_LIBRARIES`, …) |
+| **License header** | Block `/** */` comment at top of every `.cpp`, `.h`, `.qml`, `.js`, `.cpp.in` |
 | **NOLINT** | Use with descriptive reason, e.g. `// NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)` |
 | **Comments** | Use sparingly — Qt docs are the primary reference |
 | **Git history** | Clean before pushing; PRs are not squashed on merge |

@@ -19,6 +19,7 @@
 #include <memory>
 #include <utility>
 
+#include <QColor>
 #include <QDateTime>
 #include <QModelIndex>
 // NOLINTNEXTLINE(misc-include-cleaner)
@@ -43,7 +44,8 @@ class TagEditorTestModel : public QStandardItemModel
 public:
     using QStandardItemModel::QStandardItemModel;
 
-    Q_INVOKABLE static bool change_parent(const QModelIndex& /* index */, const QString& /* new_parent */) {
+    Q_INVOKABLE static bool change_parent(const QModelIndex& /* index */, const QString& /* new_parent */)
+    {
         return true;
     }
 };
@@ -60,7 +62,8 @@ public:
     SetupComponentTests() = default;
 
 public slots:
-    void qmlEngineAvailable(QQmlEngine *engine) {
+    void qmlEngineAvailable(QQmlEngine *engine)
+    {
         this->setup_test_models();
         engine->rootContext()->setContextProperty("dummyIndex", this->dummy_proxy_model->index(0, 0));
         engine->rootContext()->setContextProperty("dummyTaskModel", this->dummy_task_model.get());
@@ -75,12 +78,14 @@ public slots:
     }
 
 private:
-    void setup_test_models() {
+    void setup_test_models()
+    {
         this->setup_test_stringlist_model();
         this->setup_test_task_model();
     }
 
-    void setup_qml_interface(QQmlEngine *engine) {
+    void setup_qml_interface(QQmlEngine *engine)
+    {
         auto* qml_interface = engine->singletonInstance<QmlInterface*>("src.app", "QmlInterface");
         // NOLINTBEGIN(cppcoreguidelines-owning-memory)
         auto* flat = new FlatteningProxyModel(qml_interface);
@@ -89,7 +94,8 @@ private:
         qml_interface->setProperty("flat_tags", QVariant::fromValue(flat));
     }
 
-    void setup_test_stringlist_model() {
+    void setup_test_stringlist_model()
+    {
         this->dummy_source_model = std::make_unique<TagEditorTestModel>();
         auto* item1 = new QStandardItem("Name 1");
         item1->setData(QColor("lightblue"), Qt::DecorationRole);
@@ -105,7 +111,8 @@ private:
         this->dummy_proxy_model->setSourceModel(this->dummy_source_model.get());
     }
 
-    void setup_test_task_model() {
+    void setup_test_task_model()
+    {
         this->dummy_task_model = std::make_unique<TreeItemModelTestWrapper>();
 
         auto start_1 = QDateTime::fromString("2025-01-01T12:00:00", Qt::ISODate);
@@ -119,8 +126,12 @@ private:
     }
 };
 
+int main(int argc, char **argv)
+{
+    SetupComponentTests setup;
+    return quick_test_main_with_setup(
+        argc, argv, "@TEST_NAME@",
+        "@QML_DIR@", &setup);
+}
 
-
-QUICK_TEST_MAIN_WITH_SETUP(test_components, SetupComponentTests)
-
-#include "test_components.moc"
+#include "@TEST_NAME@_runner.moc"

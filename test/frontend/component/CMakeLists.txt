@@ -14,30 +14,81 @@
 # You should have received a copy of the GNU General Public License along with
 # qtd. If not, see <https://www.gnu.org/licenses/>.
 
-ADD_DEFINITIONS(-DQUICK_TEST_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
-ADD_EXECUTABLE(test_components test_components.cpp ../../backend/testmodelwrappers.h)
-ADD_TEST(NAME test_components COMMAND test_components)
-SET_PROPERTY(TEST test_components PROPERTY LABELS "frontend-test")
+SET(QML_COMPONENT_TEST_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
 
-TARGET_LINK_LIBRARIES(test_components
-    PRIVATE
-    Qt6::QuickTest
-    Qt6::Qml
-    Qt6::Gui
-    app_library
-    app_libraryplugin
-    app_libraryplugin_init
-    qmltexteditorplugin
-    datetimepickerplugin
-    datetimepickerplugin_init
+FUNCTION(CREATE_QML_COMPONENT_TEST)
+    SET(options "")
+    SET(oneValueArgs TEST_NAME QML_DIR SETUP)
+    SET(multiValueArgs LIBS)
+    CMAKE_PARSE_ARGUMENTS(PARSE_ARGV 0 arg "${options}" "${oneValueArgs}" "${multiValueArgs}")
+
+    SET(runner "${CMAKE_CURRENT_BINARY_DIR}/${arg_TEST_NAME}_runner.cpp")
+
+    SET(TEST_NAME "${arg_TEST_NAME}")
+    SET(QML_DIR "${arg_QML_DIR}")
+
+    IF(arg_SETUP)
+        CONFIGURE_FILE(
+            "${QML_COMPONENT_TEST_DIR}/test_runner_setup.cpp.in"
+            "${runner}"
+            @ONLY
+        )
+        ADD_EXECUTABLE(${arg_TEST_NAME} "${runner}" "${PROJECT_SOURCE_DIR}/test/backend/testmodelwrappers.h")
+    ELSE()
+        CONFIGURE_FILE(
+            "${QML_COMPONENT_TEST_DIR}/test_runner_simple.cpp.in"
+            "${runner}"
+            @ONLY
+        )
+        ADD_EXECUTABLE(${arg_TEST_NAME} "${runner}")
+    ENDIF()
+
+    TARGET_INCLUDE_DIRECTORIES(${arg_TEST_NAME}
+        PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"
+        PRIVATE "${PROJECT_SOURCE_DIR}/src/app"
+        PRIVATE "${PROJECT_SOURCE_DIR}/src/app/backend"
+        PRIVATE "${PROJECT_SOURCE_DIR}/test"
+    )
+
+    TARGET_LINK_LIBRARIES(${arg_TEST_NAME} PRIVATE
+        Qt6::QuickTest
+        Qt6::Qml
+        Qt6::Gui
+        app_library
+        app_libraryplugin
+        app_libraryplugin_init
+        qmltexteditorplugin
+        datetimepickerplugin
+        datetimepickerplugin_init
+        ${arg_LIBS}
+    )
+
+    ADD_TEST(NAME ${arg_TEST_NAME} COMMAND ${arg_TEST_NAME})
+    SET_TESTS_PROPERTIES(${arg_TEST_NAME} PROPERTIES LABELS "frontend-test")
+    ADD_DEPENDENCIES(all_tests ${arg_TEST_NAME})
+ENDFUNCTION()
+
+
+CREATE_QML_COMPONENT_TEST(
+    TEST_NAME test_taskadapter
+    QML_DIR   "${CMAKE_CURRENT_SOURCE_DIR}/taskadapter"
+    SETUP     YES
 )
 
-QT_ADD_RESOURCES(
-    test_components "resources"
-    PREFIX "/"
-    BASE "${PROJECT_SOURCE_DIR}"
-    FILES ${RESOURCE_FILES}
+CREATE_QML_COMPONENT_TEST(
+    TEST_NAME test_tag_editor
+    QML_DIR   "${CMAKE_CURRENT_SOURCE_DIR}/tag_editor"
+    SETUP     YES
 )
-ADD_DEPENDENCIES(all_tests test_components)
+
+CREATE_QML_COMPONENT_TEST(
+    TEST_NAME test_text_editor
+    QML_DIR   "${CMAKE_CURRENT_SOURCE_DIR}/text_editor"
+)
+
+CREATE_QML_COMPONENT_TEST(
+    TEST_NAME test_choice_button
+    QML_DIR   "${CMAKE_CURRENT_SOURCE_DIR}/choice_button"
+)
 
 ADD_SUBDIRECTORY(datetimepicker)

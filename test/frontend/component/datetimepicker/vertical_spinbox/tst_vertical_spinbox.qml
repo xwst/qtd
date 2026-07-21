@@ -19,8 +19,8 @@
 import QtQuick
 import QtTest 1.0
 
-import "../../util.js" as Util
-import "../../../../src/datetimepicker"
+import "../../../util.js" as Util
+import "../../../../../src/datetimepicker"
 
 TestCase {
     name: "VerticalSpinBox"

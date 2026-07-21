@@ -19,8 +19,8 @@
 import QtQuick 2.15
 import QtTest 1.0
 
-import "../util.js" as Util
-import "../../../src/qmltexteditor"
+import "../../util.js" as Util
+import "../../../../src/qmltexteditor"
 
 TestCase {
     name: "text_editor"

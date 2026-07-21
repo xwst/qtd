@@ -16,18 +16,11 @@
  * qtd. If not, see <https://www.gnu.org/licenses/>.
  */
 
-pragma Singleton
+#include <QtQuickTest>
 
-import QtQuick 2.0
-
-QtObject {
-
-    property int default_font_size: 12;
-    property int min_font_size: 6;
-    property int max_font_size: 40;
-
-    property font font: Qt.font({
-        pointSize: default_font_size
-    });
-
+int main(int argc, char **argv)
+{
+    return quick_test_main(
+        argc, argv, "@TEST_NAME@",
+        "@QML_DIR@");
 }

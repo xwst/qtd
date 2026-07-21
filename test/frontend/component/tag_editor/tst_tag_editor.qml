@@ -19,8 +19,8 @@
 import QtQuick
 import QtTest 1.0
 
-import "../util.js" as Util
-import "../../../src/app/frontend/components"
+import "../../util.js" as Util
+import "../../../../src/app/frontend/components"
 
 TestCase {
     name: "tag_editor"

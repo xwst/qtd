@@ -34,3 +34,24 @@ TARGET_LINK_LIBRARIES(test_datetimeparser
 )
 ADD_TEST(NAME test_datetimeparser COMMAND test_datetimeparser)
 ADD_DEPENDENCIES(all_tests test_datetimeparser)
+
+CREATE_QML_COMPONENT_TEST(
+    TEST_NAME test_datetime_picker
+    QML_DIR   "${CMAKE_CURRENT_SOURCE_DIR}/datetime_picker"
+)
+CREATE_QML_COMPONENT_TEST(
+    TEST_NAME test_datetime_picker_panel
+    QML_DIR   "${CMAKE_CURRENT_SOURCE_DIR}/datetime_picker_panel"
+)
+CREATE_QML_COMPONENT_TEST(
+    TEST_NAME test_month_picker
+    QML_DIR   "${CMAKE_CURRENT_SOURCE_DIR}/month_picker"
+)
+CREATE_QML_COMPONENT_TEST(
+    TEST_NAME test_year_picker
+    QML_DIR   "${CMAKE_CURRENT_SOURCE_DIR}/year_picker"
+)
+CREATE_QML_COMPONENT_TEST(
+    TEST_NAME test_vertical_spinbox
+    QML_DIR   "${CMAKE_CURRENT_SOURCE_DIR}/vertical_spinbox"
+)
