@@ -19,8 +19,8 @@
 import QtQuick
 import QtTest
 
-import "../../util.js" as Util
-import "../../../../src/datetimepicker"
+import "../../../util.js" as Util
+import "../../../../../src/datetimepicker"
 
 TestCase {
     name: "month_picker"

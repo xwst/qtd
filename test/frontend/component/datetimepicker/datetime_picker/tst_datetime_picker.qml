@@ -20,8 +20,8 @@ import QtQuick
 import QtQuick.Window
 import QtTest
 
-import "../../util.js" as Util
-import "../../../../src/datetimepicker"
+import "../../../util.js" as Util
+import "../../../../../src/datetimepicker"
 
 TestCase {
     name: "datetime_picker"

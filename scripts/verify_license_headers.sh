@@ -17,7 +17,7 @@ while read FILE_NAME; do
     fi
 
     EXPECTED_COPYRIGHT_YEARS=$(
-        git log --date=format:'%Y' --format='%cd' -- $FILE_NAME \
+        git log --follow --date=format:'%Y' --format='%cd' -- $FILE_NAME \
             | sort -u \
             | tr '\n' ',' \
             | sed -e 's/,$/\n/' -e 's/,/, /g'
@@ -30,7 +30,7 @@ while read FILE_NAME; do
 done < <(find . \
     -path "./build" -prune -o \
     -path "./.opencode" -prune -o \
-    \( -name "*.cpp" -o -name "*.h" -o -name "*.qml" -o -name "*.js" \) -print)
+    \( -name "*.cpp" -o -name "*.h" -o -name "*.qml" -o -name "*.js" -o -name "*.cpp.in" \) -print)
 
 if [[ $FOUND_MAIN -eq 1 ]]; then
     echo "Was not able to find 'main.cpp'. Did you execute the script in the correct directory?"
