@@ -22,7 +22,6 @@ import QtQuick
 import QtQuick.Controls 2.15
 import QtQuick.Layouts
 import src.app
-import src.qmltexteditor
 
 SplitView {
     id: task_page_container
@@ -43,14 +42,14 @@ SplitView {
         orientation: Qt.Vertical
 
         handle: Rectangle {
-            id: handleDelegate
+            id: handle_delegate
             implicitWidth: 2
             implicitHeight: 2
             color: SplitHandle.hovered ? Qt.darker(palette.window, 1.05) : Qt.darker(palette.window, 1.5)
 
             containmentMask: Item {
                 id: mask
-                y: (handleDelegate.height - height) / 2
+                y: (handle_delegate.height - height) / 2
                 height: 16
                 width: inner_split_view.width
             }

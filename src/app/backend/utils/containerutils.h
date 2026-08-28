@@ -1,5 +1,5 @@
 /**
- * Copyright 2025 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
+ * Copyright 2025, 2026 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
  *
  * This file is part of qtd.
  *
@@ -25,6 +25,7 @@
 #include <QSet>
 
 class ContainerUtils
+
 {
 public:
     ContainerUtils() = delete;
@@ -36,18 +37,25 @@ public:
     static Container<typename std::invoke_result_t<Func, const T&>> transform(
         const Container<T>& container,
         Func transformation
-    ) {
+    )
+    {
         using ResultType = typename std::invoke_result_t<Func, const T&>;
         auto view = container | std::views::transform(transformation);
 
         Container<ResultType> result;
         result.reserve(container.size());
-        for (const auto& element : view) {
-            if constexpr (std::is_same_v<Container<T>, QList<T>>) {
+        for (const auto& element : view)
+        {
+            if constexpr (std::is_same_v<Container<T>, QList<T>>)
+            {
                 result.append(element);
-            } else if constexpr (std::is_same_v<Container<T>, QSet<T>>) {
+            }
+            else if constexpr (std::is_same_v<Container<T>, QSet<T>>)
+            {
                 result.insert(element);
-            } else {
+            }
+            else
+            {
                 static_assert("Unsupported container type");
             }
         }

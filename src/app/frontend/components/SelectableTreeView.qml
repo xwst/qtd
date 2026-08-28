@@ -32,7 +32,7 @@ TreeView {
     Connections {
         target: tree_view.model
         function onModelReset() {
-            Qt.callLater(expandRecursively)
+            Qt.callLater(function() { tree_view.expandRecursively() })
         }
     }
 
@@ -56,6 +56,6 @@ TreeView {
     }
 
     delegate: SelectableTreeViewDelegate {
-        onRowDoubleClicked: (row) => treeView.rowDoubleClicked(row)
+        onRowDoubleClicked: (row) => treeView.rowDoubleClicked(row) // qmllint disable missing-property
     }
 }

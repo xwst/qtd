@@ -20,7 +20,6 @@ import QtQuick
 import QtQuick.Window
 import QtTest
 
-import "../../../util.js" as Util
 import "../../../../../src/datetimepicker"
 
 TestCase {
@@ -54,7 +53,7 @@ TestCase {
         return picker.find(function(item, index) {
                 return item.objectName === object_name
             },
-            picker.ForceLoad
+            picker.ForceLoad // qmllint disable missing-property
         )
     }
 
@@ -142,7 +141,7 @@ TestCase {
         let old_display_year = picker.displayed_year
         let old_selection = new Date(picker.selected_date)
 
-        picker.currentItem.selectionChanged(new_month)
+        picker.currentItem.selectionChanged(new_month) // qmllint disable missing-property
 
         tryCompare(picker, "displayed_month", new_month)
         tryCompare(picker, "depth", depth_before - 1)
@@ -158,7 +157,7 @@ TestCase {
         let old_display_month = picker.displayed_month
         let old_selection = new Date(picker.selected_date)
 
-        picker.currentItem.selectionChanged(new_year)
+        picker.currentItem.selectionChanged(new_year) // qmllint disable missing-property
 
         tryCompare(picker, "displayed_year", new_year)
         tryCompare(picker, "depth", depth_before - 1)
@@ -218,7 +217,7 @@ TestCase {
         let year_picker = picker.currentItem
         let target_year = picker.displayed_year + 1
 
-        year_picker.selectionChanged(target_year)
+        year_picker.selectionChanged(target_year) // qmllint disable missing-property
 
         tryCompare(picker, "depth", 2)
         compare(picker.currentItem.objectName, "month_picker")
@@ -228,7 +227,7 @@ TestCase {
         picker.push_month_picker()
 
         let month_picker = picker.currentItem
-        month_picker.selectionChanged(3)
+        month_picker.selectionChanged(3) // qmllint disable missing-property
 
         tryCompare(picker, "depth", 1)
         compare(picker.currentItem.objectName, "date_time_picker_panel")

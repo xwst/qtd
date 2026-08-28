@@ -15,7 +15,7 @@
 # qtd. If not, see <https://www.gnu.org/licenses/>.
 
 
-CMAKE_MINIMUM_REQUIRED(VERSION 3.16)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.17)
 
 PROJECT(qtd VERSION 0.1 LANGUAGES CXX)
 
@@ -25,6 +25,24 @@ IF(MSVC)
     ADD_COMPILE_OPTIONS(/W4 /WX $<$<CONFIG:RELEASE>:/O2> /wd4702)
 ELSE()
     ADD_COMPILE_OPTIONS(-Wall -Wextra -Wpedantic -Werror $<$<CONFIG:RELEASE>:-O2>)
+ENDIF()
+
+OPTION(QTD_ENABLE_SANITIZERS "Enable address and undefined-behavior sanitizers" OFF)
+IF(QTD_ENABLE_SANITIZERS)
+    IF(MSVC)
+        ADD_COMPILE_OPTIONS(/fsanitize=address)
+        ADD_LINK_OPTIONS(/fsanitize=address)
+    ELSE()
+        ADD_COMPILE_OPTIONS(-fsanitize=address,undefined -fno-omit-frame-pointer -g -O1)
+        ADD_LINK_OPTIONS(-fsanitize=address,undefined)
+    ENDIF()
+ENDIF()
+
+# Coverage instrumentation works with GCC and Clang (gcov format), but not
+# with MSVC.
+OPTION(QTD_ENABLE_COVERAGE "Build with code coverage instrumentation" OFF)
+IF(QTD_ENABLE_COVERAGE AND MSVC)
+    MESSAGE(FATAL_ERROR "QTD_ENABLE_COVERAGE is not supported with MSVC, use GCC or Clang")
 ENDIF()
 
 SET(CMAKE_AUTOMOC ON)

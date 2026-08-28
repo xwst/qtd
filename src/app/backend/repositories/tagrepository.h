@@ -18,8 +18,6 @@
 
 #pragma once
 
-#include "transactionalrepository.h"
-
 #include <QColor>
 #include <QString>
 #include <QVariantList>
@@ -28,8 +26,10 @@
 #include "dataitems/qtdid.h"
 #include "dataitems/tag.h"
 #include "sqlresultview.h"
+#include "transactionalrepository.h"
 
 class TagRepository : public TransactionalRepository
+
 {
 private:
     using TransactionalRepository::TransactionalRepository;
@@ -37,9 +37,10 @@ private:
     [[nodiscard]] static QVariant convert_id(const TagId& tag_id);
 
 public:
-    static TagRepository create(const QString &database_connection_name);
+    static TagRepository create(const QString& database_connection_name);
 
-    enum columns : quint8 {
+    enum class columns : quint8
+    {
         name,
         color,
         uuid,

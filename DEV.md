@@ -43,6 +43,6 @@ on Linux/Windows (gcc) or
 
 on Windows (Visual Studio) to execute all tests. If you have `gcovr` installed (`pip install gcovr`) you can also create a code coverage report:
 
-    cmake --build ./build --target coverage
+    cmake --build ./build --target check-coverage
 
-`gcovr` needs to be installed before the configuration step; otherwise, the `coverage`-target will not be set up.
+`gcovr` needs to be installed before the configuration step; otherwise, the `check-coverage` target will not be set up.

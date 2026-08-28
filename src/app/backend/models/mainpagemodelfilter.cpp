@@ -23,25 +23,30 @@
 #include "dataitems/qtditemdatarole.h"
 #include "dataitems/task.h"
 
-bool is_task_open(const QModelIndex& index) {
+bool is_task_open(const QModelIndex& index)
+{
     auto status = index.data(QtdItemDataRole::ActiveRole).value<Task::Status>();
     return status == Task::Status::Open;
 }
 
-bool is_task_actionable(const QModelIndex& index) {
+bool is_task_actionable(const QModelIndex& index)
+{
     return is_task_open(index) && (index.model()->rowCount(index) == 0);
 }
 
-bool is_task_in_open_project(const QModelIndex& index) {
+bool is_task_in_open_project(const QModelIndex& index)
+{
     auto top_ancestor = index;
-    while (top_ancestor.parent().isValid()) {
+    while (top_ancestor.parent().isValid())
+    {
         top_ancestor = top_ancestor.parent();
     }
 
     return is_task_open(top_ancestor);
 }
 
-bool is_task_closed(const QModelIndex& index) {
+bool is_task_closed(const QModelIndex& index)
+{
     auto status = index.data(QtdItemDataRole::ActiveRole).value<Task::Status>();
     return status == Task::Status::Closed;
 }

@@ -16,6 +16,8 @@
  * qtd. If not, see <https://www.gnu.org/licenses/>.
  */
 
+pragma ComponentBehavior: Bound
+
 import QtQuick
 import QtQuick.Controls 2.15
 import src.app
@@ -37,7 +39,7 @@ Rectangle {
 
         model: tag_view_container.model
         selectionModel: ItemSelectionModel {
-            onSelectionChanged: (selected, deselected) => model.tag_selection_changed(selectedIndexes)
+            onSelectionChanged: (selected, deselected) => tag_view_container.model.tag_selection_changed(selectedIndexes)
         }
 
         delegate: TreeViewDelegate {

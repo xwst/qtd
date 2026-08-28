@@ -32,18 +32,22 @@
 #include "models/taskitemmodel.h"
 #include "utils/initialize.h"
 
-namespace {
+namespace
+{
 
-void check_parents(const QAbstractItemModel& model) {
+void check_parents(const QAbstractItemModel& model)
+{
     QList<QPair<QModelIndex, QModelIndex>> expected_parent_child_pairs;
     expected_parent_child_pairs.append(QPair<QModelIndex, QModelIndex>());
 
-    while (!expected_parent_child_pairs.isEmpty()) {
+    while (!expected_parent_child_pairs.isEmpty())
+    {
         auto& [parent, child] = expected_parent_child_pairs.last();
         expected_parent_child_pairs.removeLast();
         QCOMPARE(model.parent(child), parent);
 
-        for (int row=0; row<model.rowCount(child); row++) {
+        for (int row=0; row<model.rowCount(child); row++)
+        {
             expected_parent_child_pairs.append(
                 QPair<QModelIndex, QModelIndex>(child, model.index(row, 0, child))
             );
@@ -54,16 +58,18 @@ void check_parents(const QAbstractItemModel& model) {
 } // namespace
 
 
-TestFilteredTaskItemModel::TestFilteredTaskItemModel(QObject *parent)
+TestFilteredTaskItemModel::TestFilteredTaskItemModel(QObject* parent)
     : QObject{parent}
 {}
 
-void TestFilteredTaskItemModel::initTestCase() {
+void TestFilteredTaskItemModel::initTestCase()
+{
     QLoggingCategory::setFilterRules("qt.modeltest.debug=true");
     initialize_qt_meta_types();
 }
 
-void TestFilteredTaskItemModel::init() {
+void TestFilteredTaskItemModel::init()
+{
     QVERIFY(TestHelpers::setup_database());
     TestHelpers::populate_database();
 
@@ -80,7 +86,8 @@ void TestFilteredTaskItemModel::init() {
     );
 }
 
-void TestFilteredTaskItemModel::test_filter_single_word() const {
+void TestFilteredTaskItemModel::test_filter_single_word() const
+{
     this->model->set_search_string("buy");
     QCOMPARE(this->model->rowCount(), 1);
     const auto remaining_index = this->model->index(0, 0);
@@ -94,7 +101,8 @@ void TestFilteredTaskItemModel::test_filter_single_word() const {
     );
 }
 
-void TestFilteredTaskItemModel::test_filter_multiple_words() const {
+void TestFilteredTaskItemModel::test_filter_multiple_words() const
+{
     this->model->set_search_string("Answer mail");
     QCOMPARE(this->model->rowCount(), 1);
     const auto remaining_index = this->model->index(0, 0);
@@ -102,7 +110,8 @@ void TestFilteredTaskItemModel::test_filter_multiple_words() const {
     QCOMPARE(this->model->rowCount(remaining_index), 0);
 }
 
-void TestFilteredTaskItemModel::test_filter_with_quotes() const {
+void TestFilteredTaskItemModel::test_filter_with_quotes() const
+{
     const QString task1 = "Dummy task with short description";
     const QString task2 = "Another task with a dummy description";
     this->base_model->create_task(task1);
@@ -121,7 +130,8 @@ void TestFilteredTaskItemModel::test_filter_with_quotes() const {
     );
 }
 
-void TestFilteredTaskItemModel::test_filter_for_task_details() const {
+void TestFilteredTaskItemModel::test_filter_for_task_details() const
+{
     this->model->set_search_string("TOOTHPASTE");
     QCOMPARE(this->model->rowCount(), 1);
 
@@ -133,12 +143,14 @@ void TestFilteredTaskItemModel::test_filter_for_task_details() const {
     QCOMPARE(this->model->rowCount(remaining_index), 0);
 }
 
-void TestFilteredTaskItemModel::test_no_search_string_matches() const {
+void TestFilteredTaskItemModel::test_no_search_string_matches() const
+{
     this->model->set_search_string("55fe5a86-d010-4a31-8016-d25034921f30");
     QCOMPARE(this->model->rowCount(), 0);
 }
 
-void TestFilteredTaskItemModel::test_no_filter() const {
+void TestFilteredTaskItemModel::test_no_filter() const
+{
     this->model->clear_search_string();
     TestHelpers::assert_model_equality(
         *this->model,
@@ -148,7 +160,8 @@ void TestFilteredTaskItemModel::test_no_filter() const {
     );
 }
 
-void TestFilteredTaskItemModel::test_filter_independent_of_filter_word_order() const {
+void TestFilteredTaskItemModel::test_filter_independent_of_filter_word_order() const
+{
     this->model->set_search_string("a e p");
     const auto filtered_items = TestHelpers::get_display_roles(*this->model);
 
@@ -159,7 +172,8 @@ void TestFilteredTaskItemModel::test_filter_independent_of_filter_word_order() c
     );
 }
 
-void TestFilteredTaskItemModel::test_repeating_words_has_no_effect() const {
+void TestFilteredTaskItemModel::test_repeating_words_has_no_effect() const
+{
     this->model->set_search_string("a e p");
     const auto filtered_items = TestHelpers::get_display_roles(*this->model);
 
@@ -170,7 +184,8 @@ void TestFilteredTaskItemModel::test_repeating_words_has_no_effect() const {
     );
 }
 
-void TestFilteredTaskItemModel::test_modifying_base_model_propagates_to_proxy() const {
+void TestFilteredTaskItemModel::test_modifying_base_model_propagates_to_proxy() const
+{
     this->model->clear_search_string();
     this->model->set_search_string("print");
 
@@ -182,7 +197,8 @@ void TestFilteredTaskItemModel::test_modifying_base_model_propagates_to_proxy() 
     this->base_model->setData(base_index, new_description, Qt::DisplayRole);
     QCOMPARE(proxy_index.data(), new_description);
 
-    while (base_index.isValid()) {
+    while (base_index.isValid())
+    {
         this->base_model->removeRow(base_index.row(), base_index.parent());
         base_index = TestHelpers::find_model_index_by_display_role(*this->base_model, "Fix printer issues");
     }
@@ -204,7 +220,8 @@ void TestFilteredTaskItemModel::test_modifying_base_model_propagates_to_proxy() 
     QCOMPARE(new_proxy_index.data(), new_index_description);
 }
 
-void TestFilteredTaskItemModel::test_adding_children_to_cloned_items_in_base_model() const {
+void TestFilteredTaskItemModel::test_adding_children_to_cloned_items_in_base_model() const
+{
     check_parents(*this->model);
     auto cloned_index = TestHelpers::find_model_index_by_display_role(*this->model, "Fix printer");
     QVERIFY(cloned_index.isValid());
@@ -217,7 +234,8 @@ void TestFilteredTaskItemModel::test_adding_children_to_cloned_items_in_base_mod
     check_parents(*this->model);
 };
 
-void TestFilteredTaskItemModel::test_parents_become_childless_if_no_child_matches() const {
+void TestFilteredTaskItemModel::test_parents_become_childless_if_no_child_matches() const
+{
     this->model->set_search_string("meal");
     QCOMPARE(
         this->model->rowCount(this->model->index(0, 0)),
@@ -225,7 +243,8 @@ void TestFilteredTaskItemModel::test_parents_become_childless_if_no_child_matche
     );
 }
 
-void TestFilteredTaskItemModel::test_matching_children_are_kept_if_parents_are_filtered_out() const {
+void TestFilteredTaskItemModel::test_matching_children_are_kept_if_parents_are_filtered_out() const
+{
     const QString index_title = "Check food supplies";
     this->model->set_search_string(index_title);
     const auto index = TestHelpers::find_model_index_by_display_role(*this->model, index_title);
@@ -233,7 +252,8 @@ void TestFilteredTaskItemModel::test_matching_children_are_kept_if_parents_are_f
     QCOMPARE(index.parent(), QModelIndex());
 }
 
-void TestFilteredTaskItemModel::test_filter_by_tag_selection() const {
+void TestFilteredTaskItemModel::test_filter_by_tag_selection() const
+{
     this->model->set_selected_tags(
         {TagId("54c1f21d-bb9a-41df-9658-5111e153f745")}
     );
@@ -248,9 +268,11 @@ void TestFilteredTaskItemModel::test_filter_by_tag_selection() const {
     );
 }
 
-void TestFilteredTaskItemModel::test_filter_by_tag_and_search_string() const {
+void TestFilteredTaskItemModel::test_filter_by_tag_and_search_string() const
+{
     this->model->set_selected_tags(
-        QSet<TagId>({
+        QSet<TagId>(
+        {
             TagId("10173aba-edd8-4049-a41c-74f28581c31f"),
             TagId("18a2d601-712e-4ac4-b655-93c5a288dc99")
         })

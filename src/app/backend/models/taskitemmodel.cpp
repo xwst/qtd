@@ -35,12 +35,14 @@
 #include "treeitemmodel.h"
 #include "utils/containerutils.h"
 
-void TaskItemModel::setup_tasks_from_db() {
+void TaskItemModel::setup_tasks_from_db()
+{
     auto task_repository = TaskRepository::create(this->connection_name);
     auto dependents = task_repository.get_all_dependencies();
     auto tag_assignments = task_repository.get_all_tag_assignments();
 
-    for (auto& task : task_repository.get_all_tasks()) {
+    for (auto& task : task_repository.get_all_tasks())
+    {
         auto task_uuid = task.get_data(UuidRole).value<TaskId>();
         task.set_tags(tag_assignments[task_uuid]);
         auto [parents_iterator, parents_end] = dependents.equal_range(task_uuid);
@@ -48,14 +50,17 @@ void TaskItemModel::setup_tasks_from_db() {
             std::make_unique<Task>(std::move(task)),
             parents_iterator == dependents.end() ? TaskId() : *(parents_iterator++)
         );
-        while (parents_iterator != parents_end) {
+        while (parents_iterator != parents_end)
+        {
             this->clone_tree_node(task_uuid, *(parents_iterator++));
         }
     }
 }
 
-QString TaskItemModel::get_sql_column_name(int role) {
-    switch (role) {
+QString TaskItemModel::get_sql_column_name(int role)
+{
+    switch (role)
+    {
         case Qt::DisplayRole: return "title";
         case ActiveRole:      return "status";
         case StartRole:       return "start_datetime";
@@ -68,11 +73,13 @@ QString TaskItemModel::get_sql_column_name(int role) {
 
 TaskItemModel::TaskItemModel(QString connection_name, QObject* parent)
     : TreeItemModel(parent), connection_name(std::move(connection_name))
+
 {
     this->setup_tasks_from_db();
 }
 
-bool TaskItemModel::create_task(const QString& title, const QModelIndexList& parents) {
+bool TaskItemModel::create_task(const QString& title, const QModelIndexList& parents)
+{
     auto new_task = std::make_unique<Task>(title.isEmpty() ? "New Task" : title);
     auto new_task_uuid = new_task->get_data(UuidRole).value<TaskId>();
     auto parent_uuids = ContainerUtils::transform(
@@ -85,7 +92,8 @@ bool TaskItemModel::create_task(const QString& title, const QModelIndexList& par
     if (
            !task_repository.save(*new_task)
         || !task_repository.add_dependents(new_task_uuid, parent_uuids)
-    ) {
+    )
+    {
         task_repository.roll_back();
         return false;
     }
@@ -95,8 +103,10 @@ bool TaskItemModel::create_task(const QString& title, const QModelIndexList& par
         std::move(new_task),
         parent == parent_uuids.end() ? TaskId() : parent->value<TaskId>()
     );
-    if (parent != parent_uuids.end()) {
-        while (++parent != parent_uuids.end()) {
+    if (parent != parent_uuids.end())
+    {
+        while (++parent != parent_uuids.end())
+        {
             success &= this->clone_tree_node(new_task_uuid, parent->value<TaskId>());
         }
     }
@@ -104,12 +114,15 @@ bool TaskItemModel::create_task(const QString& title, const QModelIndexList& par
     return task_repository.roll_back_on_failure(success);
 }
 
-bool TaskItemModel::setData(const QModelIndex& index, const QVariant& value, int role) {
-    if (!index.isValid()) {
+bool TaskItemModel::setData(const QModelIndex& index, const QVariant& value, int role)
+{
+    if (!index.isValid())
+    {
         return false;
     }
     const auto column_name = TaskItemModel::get_sql_column_name(role);
-    if (column_name.isEmpty()) {
+    if (column_name.isEmpty())
+    {
         return false;
     }
 
@@ -124,17 +137,20 @@ bool TaskItemModel::setData(const QModelIndex& index, const QVariant& value, int
     );
 }
 
-bool TaskItemModel::setData(const TaskId &task_id, const QVariant &value, const int role) {
+bool TaskItemModel::set_data(const TaskId& task_id, const QVariant& value, const int role)
+{
     auto index = this->create_index(task_id);
     return index.isValid() ? this->setData(index, value, role) : false;
 }
 
-bool TaskItemModel::removeRows(int row, int count, const QModelIndex &parent) {
+bool TaskItemModel::removeRows(int row, int count, const QModelIndex& parent)
+{
     auto task_repository = TaskRepository::create(this->connection_name);
     auto parent_uuid = parent.isValid() ? parent.data(UuidRole).value<TaskId>() : TaskId();
 
     QList<QVariant> task_ids(count);
-    for (int i=row; i<row+count; i++) {
+    for (int i=row; i<row+count; i++)
+    {
         task_ids[i-row] = this->index(i, 0, parent).data(UuidRole);
     }
 
@@ -157,8 +173,10 @@ bool TaskItemModel::removeRows(int row, int count, const QModelIndex &parent) {
 bool TaskItemModel::add_dependency(
     const QModelIndex& dependent,
     const QModelIndex& prerequisite
-) {
-    if (!(dependent.isValid() && prerequisite.isValid())) {
+)
+{
+    if (!(dependent.isValid() && prerequisite.isValid()))
+    {
         return false;
     }
 
@@ -191,8 +209,10 @@ bool TaskItemModel::add_dependency(
 bool TaskItemModel::add_tag(
     const QModelIndex& index,
     const TagId& tag
-) {
-    if (!index.isValid()) {
+)
+{
+    if (!index.isValid())
+    {
         return false;
     }
     auto task_repository = TaskRepository::create(this->connection_name);
@@ -215,8 +235,10 @@ bool TaskItemModel::add_tag(
 bool TaskItemModel::remove_tag(
     const QModelIndex& index,
     const TagId& tag
-) {
-    if (!(index.isValid() && index.data(TagsRole).value<QSet<TagId>>().contains(tag))) {
+)
+{
+    if (!(index.isValid() && index.data(TagsRole).value<QSet<TagId>>().contains(tag)))
+    {
         return false;
     }
     auto task_repository = TaskRepository::create(this->connection_name);

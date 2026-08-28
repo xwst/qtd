@@ -32,7 +32,8 @@
 #include "dataitems/task.h"
 // NOLINTEND(misc-include-cleaner)
 
-class TaskAdapter : public QObject {
+class TaskAdapter : public QObject
+{
     Q_OBJECT
     QML_ELEMENT
 
@@ -46,19 +47,19 @@ class TaskAdapter : public QObject {
     #undef X
 
 private:
-    QModelIndex m_index;
-    QAbstractItemModel* m_model = nullptr;
+    QModelIndex index;
+    QAbstractItemModel* model = nullptr;
 
     [[nodiscard]] bool index_is_new_and_valid(const QModelIndex& idx);
     [[nodiscard]] QVariant data(int role) const;
     void emit_all_changed();
 
 public:
-    explicit TaskAdapter(QObject *parent = nullptr) : QObject(parent) {}
+    explicit TaskAdapter(QObject* parent = nullptr) : QObject(parent) {}
 
     [[nodiscard]] QAbstractItemModel* get_model() const;
     [[nodiscard]] QVariant get_index() const;
-    void set_model(QAbstractItemModel* model);
+    void set_model(QAbstractItemModel* new_model);
     void set_index(const QVariant& value);
 
     // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)

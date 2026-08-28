@@ -31,14 +31,16 @@
 #include "dataitems/qtdid.h"
 
 class FilteredTaskItemModel : public QAbstractProxyModel
+
 {
     Q_OBJECT
+    Q_CLASSINFO("QML.Element", "anonymous")
 
 public:
     using TaskFilterFunction = std::function<bool(const QModelIndex&)>;
 
 private:
-    const static char* split_pattern;
+    static const char* split_pattern;
 
     const TaskFilterFunction is_task_accepted;
     QStringList filter_words;
@@ -78,7 +80,7 @@ public:
 
     [[nodiscard]] QModelIndex parent(const QModelIndex& child_index) const override;
 
-    [[nodiscard]] int columnCount(const QModelIndex &parent = QModelIndex()) const override;
+    [[nodiscard]] int columnCount(const QModelIndex& parent = QModelIndex()) const override;
     [[nodiscard]] int rowCount(const QModelIndex& /* parent */ = QModelIndex()) const override;
     [[nodiscard]] bool hasChildren(const QModelIndex& parent) const override;
     [[nodiscard]] QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;

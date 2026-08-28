@@ -1,5 +1,5 @@
 /**
- * Copyright 2025 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
+ * Copyright 2025, 2026 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
  *
  * This file is part of qtd.
  *
@@ -24,10 +24,13 @@
 #include <QAbstractItemModel>
 #include <QModelIndex>
 
-namespace {
+namespace
+{
 
-bool is_last_child(const QModelIndex& index) {
-    if (index.isValid()) {
+bool is_last_child(const QModelIndex& index)
+{
+    if (index.isValid())
+    {
         auto parent = index.parent();
         return index.row() == index.model()->rowCount(parent) - 1;
     }
@@ -36,9 +39,11 @@ bool is_last_child(const QModelIndex& index) {
 
 } // anonymous namespace
 
-namespace ModelIteration {
+namespace ModelIteration
+{
 
-int count_model_rows(const QAbstractItemModel* model, const QModelIndex &index) {
+int count_model_rows(const QAbstractItemModel* model, const QModelIndex& index)
+{
     auto result = 0;
     model_foreach(*model, [&result](const QModelIndex&){ result++; }, index);
     return result;
@@ -50,13 +55,16 @@ int count_model_rows(const QAbstractItemModel* model, const QModelIndex &index) 
 QModelIndex next_row_index_depth_first(
     const QAbstractItemModel* model,
     QModelIndex current_index
-    ) {
-    if (model->hasChildren(current_index)) {
+    )
+    {
+    if (model->hasChildren(current_index))
+    {
         return model->index(0, current_index.column(), current_index);
     }
 
     // Traverse upwards until next "depth first"-row is found:
-    while (is_last_child(current_index)) {
+    while (is_last_child(current_index))
+    {
         current_index = current_index.parent();
     }
 
@@ -86,24 +94,32 @@ QModelIndex model_foreach(
     const QAbstractItemModel& model,
     const std::function<bool (const QModelIndex &)>& operation,
     const QModelIndex& parent_index
-    ) {
+    )
+    {
     std::stack<QModelIndex> to_be_visited;
-    if (parent_index.isValid()) {
+    if (parent_index.isValid())
+    {
         to_be_visited.push(parent_index);
-    } else {
-        for (auto i=model.rowCount(parent_index)-1; i>=0; i--) {
+    }
+    else
+    {
+        for (auto i=model.rowCount(parent_index)-1; i>=0; i--)
+        {
             to_be_visited.push(model.index(i, 0, parent_index));
         }
     }
 
-    while (!to_be_visited.empty()) {
+    while (!to_be_visited.empty())
+    {
         auto current_index = to_be_visited.top();
         to_be_visited.pop();
-        if (operation(current_index)) {
+        if (operation(current_index))
+        {
             return current_index;
         }
 
-        for (auto i=model.rowCount(current_index)-1; i>=0; i--) {
+        for (auto i=model.rowCount(current_index)-1; i>=0; i--)
+        {
             to_be_visited.push(model.index(i, 0, current_index));
         }
     }
@@ -121,7 +137,8 @@ void model_foreach(
     const QAbstractItemModel& model,
     const std::function<void (const QModelIndex &)>& operation,
     const QModelIndex& parent_index
-    ) {
+    )
+    {
     const std::function<bool (const QModelIndex&)> operation_wrapper
         = [&operation](const QModelIndex& index) -> bool { operation(index); return false; };
     model_foreach(model, operation_wrapper, parent_index);
@@ -138,7 +155,8 @@ QModelIndex model_find(
     const QAbstractItemModel& model,
     const std::function<bool(const QModelIndex&)>& operation,
     const QModelIndex& parent_index
-    ) {
+    )
+    {
     return model_foreach(model, operation, parent_index);
 }
 

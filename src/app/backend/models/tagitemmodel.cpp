@@ -37,18 +37,22 @@
 
 TagItemModel::TagItemModel(QString connection_name, QObject* parent)
     : TreeItemModel(parent), connection_name(std::move(connection_name))
+
 {
     auto all_tags = TagRepository::create(this->connection_name).get_all_tags();
-    for (auto tag_iterator = all_tags.begin(); tag_iterator != all_tags.end(); ++tag_iterator) {
+    for (auto tag_iterator = all_tags.begin(); tag_iterator != all_tags.end(); ++tag_iterator)
+    {
         this->create_tree_node(
             std::make_unique<Tag>(*tag_iterator),
-            tag_iterator.get_raw(TagRepository::columns::parent_uuid).value<TagId>()
+            tag_iterator.get_raw(static_cast<int>(TagRepository::columns::parent_uuid)).value<TagId>()
         );
     }
 }
 
-bool TagItemModel::setData(const QModelIndex& index, const QVariant& value, int role) {
-    if (!index.isValid() || (role != Qt::DisplayRole && role != Qt::DecorationRole)) {
+bool TagItemModel::setData(const QModelIndex& index, const QVariant& value, int role)
+{
+    if (!index.isValid() || (role != Qt::DisplayRole && role != Qt::DecorationRole))
+    {
         return false;
     }
     auto tag_repository = TagRepository::create(this->connection_name);
@@ -62,7 +66,8 @@ bool TagItemModel::setData(const QModelIndex& index, const QVariant& value, int 
     );
 }
 
-bool TagItemModel::create_tag(const QString& name, const QColor& color, const QModelIndex& parent) {
+bool TagItemModel::create_tag(const QString& name, const QColor& color, const QModelIndex& parent)
+{
     auto new_tag = std::make_unique<Tag>(name, color);
     const TagId parent_uuid
         = parent.isValid() ? parent.data(UuidRole).value<TagId>() : TagId();
@@ -74,9 +79,11 @@ bool TagItemModel::create_tag(const QString& name, const QColor& color, const QM
     );
 }
 
-bool TagItemModel::removeRows(int row, int count, const QModelIndex &parent) {
+bool TagItemModel::removeRows(int row, int count, const QModelIndex& parent)
+{
     QVariantList uuids_to_remove(count);
-    for (int i=row; i<row+count; i++) {
+    for (int i=row; i<row+count; i++)
+    {
         uuids_to_remove << this->index(i, 0, parent).data(UuidRole).toString();
     }
 
@@ -87,8 +94,10 @@ bool TagItemModel::removeRows(int row, int count, const QModelIndex &parent) {
     );
 }
 
-bool TagItemModel::change_parent(const QModelIndex& index, const TagId& new_parent) {
-    if (!this->checkIndex(index, QAbstractItemModel::CheckIndexOption::IndexIsValid)) {
+bool TagItemModel::change_parent(const QModelIndex& index, const TagId& new_parent)
+{
+    if (!this->checkIndex(index, QAbstractItemModel::CheckIndexOption::IndexIsValid))
+    {
         return false;
     }
 

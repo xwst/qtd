@@ -23,9 +23,10 @@
 #include <QAbstractItemModel>
 #include <QModelIndex>
 
-namespace ModelIteration {
+namespace ModelIteration
+{
 
-int count_model_rows(const QAbstractItemModel* model, const QModelIndex &index = QModelIndex());
+int count_model_rows(const QAbstractItemModel* model, const QModelIndex& index = QModelIndex());
 QModelIndex next_row_index_depth_first(const QAbstractItemModel* model, QModelIndex current_index = QModelIndex());
 QModelIndex model_foreach(
     const QAbstractItemModel& model,
@@ -59,11 +60,13 @@ QList<T> model_flat_map(
     const QAbstractItemModel& model,
     const std::function<T(const QModelIndex&)>& operation,
     const QModelIndex& parent_index = QModelIndex()
-    ) {
+    )
+    {
     QList<T> result;
     model_foreach(
         model,
-        [&result, &operation](const QModelIndex& index) {
+        [&result, &operation](const QModelIndex& index)
+        {
             result.push_back(operation(index));
         },
         parent_index

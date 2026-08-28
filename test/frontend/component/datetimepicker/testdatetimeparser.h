@@ -27,6 +27,7 @@
 #include "datetimeparser.h"
 
 class TestDateTimeParser : public QObject
+
 {
     Q_OBJECT
 
@@ -35,6 +36,9 @@ private:
 
     static QList<QLocale> locales();
     [[nodiscard]] std::unique_ptr<DateTimeParser> make_parser(const QLocale& locale) const;
+
+public:
+    explicit TestDateTimeParser(QObject* parent = nullptr) : QObject(parent) {}
 
 private slots:
     // ---- shift tests ----

@@ -34,19 +34,22 @@
 #include "testmodelwrappers.h"
 #include "utils/modeliteration.h"
 
-TestTreeItemModel::TestTreeItemModel(QObject *parent)
+TestTreeItemModel::TestTreeItemModel(QObject* parent)
     : QObject{parent}
 {}
 
-void TestTreeItemModel::init() {
+void TestTreeItemModel::init()
+{
     this->setup_initial_model();
 }
 
-void TestTreeItemModel::cleanup() {
+void TestTreeItemModel::cleanup()
+{
     this->model.reset();
 }
 
-void TestTreeItemModel::setup_initial_model() {
+void TestTreeItemModel::setup_initial_model()
+{
     this->model = std::make_unique<TreeItemModelTestWrapper>();
     new QAbstractItemModelTester(this->model.get(), this->model.get());
 
@@ -60,7 +63,8 @@ void TestTreeItemModel::setup_initial_model() {
     QCOMPARE(this->model->get_size(), 3);
 }
 
-void TestTreeItemModel::test_initial_setup() {
+void TestTreeItemModel::test_initial_setup()
+{
     const auto A_index = this->model->index(0, 0);
     const auto B_index = this->model->index(1, 0);
     const auto B1_index = this->model->index(0, 0, B_index);
@@ -70,7 +74,8 @@ void TestTreeItemModel::test_initial_setup() {
     this->verify_item(B1_index, "B1", 0, B_index);
 }
 
-void TestTreeItemModel::test_set_data() {
+void TestTreeItemModel::test_set_data()
+{
     QVERIFY(!this->model->setData(QModelIndex(), ""));
 
     const auto A_index = this->model->index(0, 0);
@@ -85,10 +90,11 @@ void TestTreeItemModel::test_set_data() {
     QCOMPARE(A_index.data(UuidRole), A_uuid);
 }
 
-void TestTreeItemModel::test_remove_single_row() {
+void TestTreeItemModel::test_remove_single_row()
+{
     const auto initial_size = this->model->get_size();
     auto data = std::make_unique<TestHelpers::TestTag>("about to be deleted");
-    const auto *data_ptr = data.get();
+    const auto* data_ptr = data.get();
     QSignalSpy spy(data_ptr, SIGNAL(destroyed(QObject*)));
     this->model->create_tree_node(std::move(data));
     this->model->create_tree_node(std::make_unique<TestHelpers::TestTag>("C"));
@@ -110,13 +116,14 @@ void TestTreeItemModel::test_remove_single_row() {
     QCOMPARE(this->model->rowCount(B_index), 0);
 }
 
-void TestTreeItemModel::test_remove_multiple_rows() {
+void TestTreeItemModel::test_remove_multiple_rows()
+{
     const auto initial_size = this->model->get_size();
     auto first_new_item  = std::make_unique<TestHelpers::TestTag>("about to be deleted");
     auto second_new_item = std::make_unique<TestHelpers::TestTag>("about to be deleted, too");
 
-    const auto *first_data_pointer = first_new_item.get();
-    const auto *second_data_pointer = second_new_item.get();
+    const auto* first_data_pointer = first_new_item.get();
+    const auto* second_data_pointer = second_new_item.get();
 
     auto first_spy = QSignalSpy(first_data_pointer, SIGNAL(destroyed(QObject*)));
     auto second_spy = QSignalSpy(second_data_pointer, SIGNAL(destroyed(QObject*)));
@@ -135,7 +142,8 @@ void TestTreeItemModel::test_remove_multiple_rows() {
     QCOMPARE(second_spy.takeFirst().at(0).value<QObject*>(), second_data_pointer);
 }
 
-void TestTreeItemModel::test_remove_rows_with_children() {
+void TestTreeItemModel::test_remove_rows_with_children()
+{
     this->model->create_tree_node(std::make_unique<TestHelpers::TestTag>("C"));
 
     QVERIFY(this->model->removeRows(0, 2));
@@ -144,7 +152,8 @@ void TestTreeItemModel::test_remove_rows_with_children() {
     QCOMPARE(this->model->index(0, 0).data().toString(), "C");
 }
 
-void TestTreeItemModel::test_clone_tree_node_clones_children_recursiveley() {
+void TestTreeItemModel::test_clone_tree_node_clones_children_recursiveley()
+{
     auto A_index = this->model->index(0, 0);
     auto B_index = this->model->index(1, 0);
     auto B1_index = this->model->index(0, 0, B_index);
@@ -183,7 +192,8 @@ void TestTreeItemModel::test_clone_tree_node_clones_children_recursiveley() {
     QCOMPARE(this->model->get_size(), ModelIteration::count_model_rows(this->model.get()));
 }
 
-void TestTreeItemModel::test_adding_children_to_clones() {
+void TestTreeItemModel::test_adding_children_to_clones()
+{
     auto B_index = this->model->index(1, 0);
     auto B1_index = this->model->index(0, 0, B_index);
     auto B1_uuid = this->model->index(0, 0, B_index).data(UuidRole).value<QtdId>();
@@ -229,7 +239,8 @@ void TestTreeItemModel::test_adding_children_to_clones() {
     QCOMPARE(this->model_indices_of_row_change_signals(spy), expected_signalling_indices);
 }
 
-void TestTreeItemModel::test_remove_clone() {
+void TestTreeItemModel::test_remove_clone()
+{
     const auto B_index = this->model->index(1, 0);
     const auto B1_index = this->model->index(0, 0, B_index);
     const auto B1_uuid = this->model->index(0, 0, B_index).data(UuidRole).value<QtdId>();
@@ -248,7 +259,8 @@ void TestTreeItemModel::test_remove_clone() {
     QCOMPARE(this->model->index(0, 0, clone_index).data(), "child 1");
 }
 
-void TestTreeItemModel::test_remove_child_of_clone() {
+void TestTreeItemModel::test_remove_child_of_clone()
+{
     const auto B_index = this->model->index(1, 0);
     const auto B1_index = this->model->index(0, 0, B_index);
     const auto B1_uuid = this->model->index(0, 0, B_index).data(UuidRole).value<QtdId>();
@@ -272,19 +284,23 @@ void TestTreeItemModel::test_remove_child_of_clone() {
 
 void TestTreeItemModel::verify_item(
     const QModelIndex& item, const QString& name, int child_count, const QModelIndex& parent
-) {
+)
+{
     QCOMPARE(item.data().toString(), name);
     QCOMPARE(this->model->rowCount(item), child_count);
     QCOMPARE(this->model->columnCount(item), 1);
     QCOMPARE(item.parent(), parent);
-    if (parent != QModelIndex()) {
+    if (parent != QModelIndex())
+    {
         QCOMPARE(this->model->index(item.row(), 0, parent), item);
     }
 }
 
-QSet<QModelIndex> TestTreeItemModel::model_indices_of_row_change_signals(const QSignalSpy& spy) {
+QSet<QModelIndex> TestTreeItemModel::model_indices_of_row_change_signals(const QSignalSpy& spy)
+{
     QSet<QModelIndex> result;
-    for (const auto& call_arguments : spy) {
+    for (const auto& call_arguments : spy)
+    {
         result.insert(call_arguments.at(0).toModelIndex());
     }
     return result;

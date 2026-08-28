@@ -30,33 +30,32 @@
 
 #include "datetimeparser.h"
 
-// -------------------------------------------------
-// helper utilities
-// -------------------------------------------------
-
-std::unique_ptr<DateTimeParser> TestDateTimeParser::make_parser(const QLocale& locale) const {
+std::unique_ptr<DateTimeParser> TestDateTimeParser::make_parser(const QLocale& locale) const
+{
     QLocale::setDefault(locale);
     auto parser = std::make_unique<DateTimeParser>();
     parser->setProperty("default_time", this->defaultTime);
     return parser;
 }
 
-QList<QLocale> TestDateTimeParser::locales() {
-    return {
+QList<QLocale> TestDateTimeParser::locales()
+{
+    return
+    {
         QLocale::C,
         QLocale(QLocale::English, QLocale::UnitedStates),
         QLocale(QLocale::German, QLocale::Germany)
     };
 }
 
-// -------------------------------------------------
 // SHIFT TESTS
-// -------------------------------------------------
 
-void TestDateTimeParser::shift_units() {
+void TestDateTimeParser::shift_units()
+{
     const QDate today = QDate::currentDate();
 
-    for (const auto& loc : TestDateTimeParser::locales()) {
+    for (const auto& loc : TestDateTimeParser::locales())
+    {
         const auto parser = this->make_parser(loc);
 
         QCOMPARE(parser->parse("+1d").date(), today.addDays(1));
@@ -73,11 +72,13 @@ void TestDateTimeParser::shift_units() {
     }
 }
 
-void TestDateTimeParser::shift_implicit_days() {
+void TestDateTimeParser::shift_implicit_days()
+{
     const QDate today = QDate::currentDate();
 
-    for (const auto& loc : TestDateTimeParser::locales()) {
-        const auto parser = make_parser(loc);
+    for (const auto& loc : TestDateTimeParser::locales())
+    {
+        const auto parser = this->make_parser(loc);
 
         QCOMPARE(parser->parse("3").date(), today.addDays(3));
         QCOMPARE(parser->parse("+5").date(), today.addDays(5));
@@ -85,37 +86,41 @@ void TestDateTimeParser::shift_implicit_days() {
     }
 }
 
-void TestDateTimeParser::shift_whitespace() {
+void TestDateTimeParser::shift_whitespace()
+{
     const QDate today = QDate::currentDate();
 
-    for (const auto& loc : TestDateTimeParser::locales()) {
-        const auto parser = make_parser(loc);
+    for (const auto& loc : TestDateTimeParser::locales())
+    {
+        const auto parser = this->make_parser(loc);
 
         QCOMPARE(parser->parse("+ 3 d").date(), today.addDays(3));
         QCOMPARE(parser->parse("  - 2 w ").date(), today.addDays(-14));
     }
 }
 
-void TestDateTimeParser::shift_large_values() {
+void TestDateTimeParser::shift_large_values()
+{
     const QDate today = QDate::currentDate();
 
-    for (const auto& loc : TestDateTimeParser::locales()) {
-        const auto parser = make_parser(loc);
+    for (const auto& loc : TestDateTimeParser::locales())
+    {
+        const auto parser = this->make_parser(loc);
 
         QCOMPARE(parser->parse("+365d").date(), today.addDays(365));
         QCOMPARE(parser->parse("-365d").date(), today.addDays(-365));
     }
 }
 
-// -------------------------------------------------
 // LOCALE PARSING
-// -------------------------------------------------
 
-void TestDateTimeParser::locale_dates() {
+void TestDateTimeParser::locale_dates()
+{
     const QDate sample(2024, 3, 14);
 
-    for (const auto& loc : TestDateTimeParser::locales()) {
-        const auto parser = make_parser(loc);
+    for (const auto& loc : TestDateTimeParser::locales())
+    {
+        const auto parser = this->make_parser(loc);
 
         const QString text = loc.toString(sample, QLocale::ShortFormat);
         auto result = parser->parse(text);
@@ -126,11 +131,13 @@ void TestDateTimeParser::locale_dates() {
     }
 }
 
-void TestDateTimeParser::locale_datetimes() {
+void TestDateTimeParser::locale_datetimes()
+{
     const QDateTime sample(QDate(2024,6,7), QTime(13,45));
 
-    for (const auto& loc : TestDateTimeParser::locales()) {
-        const auto parser = make_parser(loc);
+    for (const auto& loc : TestDateTimeParser::locales())
+    {
+        const auto parser = this->make_parser(loc);
 
         auto result = parser->parse(loc.toString(sample, QLocale::ShortFormat));
 
@@ -140,15 +147,15 @@ void TestDateTimeParser::locale_datetimes() {
     }
 }
 
-// -------------------------------------------------
 // TIME
-// -------------------------------------------------
 
-void TestDateTimeParser::time_only() {
+void TestDateTimeParser::time_only()
+{
     const QDate today = QDate::currentDate();
 
-    for (const auto& loc : TestDateTimeParser::locales()) {
-        const auto parser = make_parser(loc);
+    for (const auto& loc : TestDateTimeParser::locales())
+    {
+        const auto parser = this->make_parser(loc);
         auto result = parser->parse("13:45");
 
         QVERIFY(result.isValid());
@@ -157,18 +164,18 @@ void TestDateTimeParser::time_only() {
     }
 }
 
-// -------------------------------------------------
 // DATE WITHOUT YEAR
-// -------------------------------------------------
 
-void TestDateTimeParser::date_without_year() {
+void TestDateTimeParser::date_without_year()
+{
     const int current_year = QDate::currentDate().year();
 
-    for (const auto& loc : TestDateTimeParser::locales()) {
+    for (const auto& loc : TestDateTimeParser::locales())
+    {
         const auto format = loc.dateFormat(QLocale::ShortFormat)
                                .replace(QRegularExpression("[^\\d]?y{1-4}[^\\d]?"), "");
         const auto input = loc.toString(QDate(current_year, 3, 14), format);
-        const auto parser = make_parser(loc);
+        const auto parser = this->make_parser(loc);
         const auto result = parser->parse(input);
 
         QVERIFY(result.isValid());
@@ -176,19 +183,20 @@ void TestDateTimeParser::date_without_year() {
     }
 }
 
-// -------------------------------------------------
 // YEAR VARIANTS
-// -------------------------------------------------
 
-void TestDateTimeParser::year_variants() {
+void TestDateTimeParser::year_variants()
+{
     const QDate sample(2024, 5, 6);
 
-    for (const auto& loc : TestDateTimeParser::locales()) {
-        const auto parser = make_parser(loc);
+    for (const auto& loc : TestDateTimeParser::locales())
+    {
+        const auto parser = this->make_parser(loc);
 
         const QString format = loc.dateFormat(QLocale::ShortFormat);
 
-        if (!format.contains('y')) {
+        if (!format.contains('y'))
+        {
             continue;
         }
 
@@ -212,35 +220,37 @@ void TestDateTimeParser::year_variants() {
     }
 }
 
-// -------------------------------------------------
 // ROLLOVER
-// -------------------------------------------------
 
-void TestDateTimeParser::month_rollover() {
+void TestDateTimeParser::month_rollover()
+{
     const QDate today = QDate::currentDate();
 
-    for (const auto& loc : TestDateTimeParser::locales()) {
-        const auto parser = make_parser(loc);
+    for (const auto& loc : TestDateTimeParser::locales())
+    {
+        const auto parser = this->make_parser(loc);
         QCOMPARE(parser->parse("+1m").date(), today.addMonths(1));
     }
 }
 
-void TestDateTimeParser::year_rollover() {
+void TestDateTimeParser::year_rollover()
+{
     const QDate today = QDate::currentDate();
 
-    for (const auto& loc : TestDateTimeParser::locales()) {
-        const auto parser = make_parser(loc);
+    for (const auto& loc : TestDateTimeParser::locales())
+    {
+        const auto parser = this->make_parser(loc);
         QCOMPARE(parser->parse("+1y").date(), today.addYears(1));
     }
 }
 
-// -------------------------------------------------
 // LEAP YEAR
-// -------------------------------------------------
 
-void TestDateTimeParser::leap_year_dates() {
-    for (const auto& loc : TestDateTimeParser::locales()) {
-        const auto parser = make_parser(loc);
+void TestDateTimeParser::leap_year_dates()
+{
+    for (const auto& loc : TestDateTimeParser::locales())
+    {
+        const auto parser = this->make_parser(loc);
 
         const QDate leap(2024, 2, 29);
         const QString text = loc.toString(leap, QLocale::ShortFormat);
@@ -252,13 +262,13 @@ void TestDateTimeParser::leap_year_dates() {
     }
 }
 
-// -------------------------------------------------
 // WHITESPACE
-// -------------------------------------------------
 
-void TestDateTimeParser::whitespace_handling() {
-    for (const auto& loc : TestDateTimeParser::locales()) {
-        const auto parser = make_parser(loc);
+void TestDateTimeParser::whitespace_handling()
+{
+    for (const auto& loc : TestDateTimeParser::locales())
+    {
+        const auto parser = this->make_parser(loc);
 
         const auto result_padded = parser->parse("   +3d ");
         const auto result = parser->parse("+3d");
@@ -267,13 +277,13 @@ void TestDateTimeParser::whitespace_handling() {
     }
 }
 
-// -------------------------------------------------
 // INVALID INPUTS
-// -------------------------------------------------
 
-void TestDateTimeParser::invalid_inputs() {
-    for (const auto& loc : TestDateTimeParser::locales()) {
-        const auto parser = make_parser(loc);
+void TestDateTimeParser::invalid_inputs()
+{
+    for (const auto& loc : TestDateTimeParser::locales())
+    {
+        const auto parser = this->make_parser(loc);
 
         QVERIFY(!parser->parse("").isValid());
         QVERIFY(!parser->parse(" ").isValid());
@@ -282,13 +292,13 @@ void TestDateTimeParser::invalid_inputs() {
     }
 }
 
-// -------------------------------------------------
 // NORMALIZATION TESTS
-// -------------------------------------------------
 
-void TestDateTimeParser::normalization_time_single_digits() {
-    for (const auto& loc : TestDateTimeParser::locales()) {
-        const auto parser = make_parser(loc);
+void TestDateTimeParser::normalization_time_single_digits()
+{
+    for (const auto& loc : TestDateTimeParser::locales())
+    {
+        const auto parser = this->make_parser(loc);
 
         const auto result = parser->parse("3:4");
         QVERIFY(result.isValid());
@@ -296,9 +306,11 @@ void TestDateTimeParser::normalization_time_single_digits() {
     }
 }
 
-void TestDateTimeParser::normalization_time_mixed_digits() {
-    for (const auto& loc : TestDateTimeParser::locales()) {
-        const auto parser = make_parser(loc);
+void TestDateTimeParser::normalization_time_mixed_digits()
+{
+    for (const auto& loc : TestDateTimeParser::locales())
+    {
+        const auto parser = this->make_parser(loc);
 
         auto result = parser->parse("3:45");
         QVERIFY(result.isValid());
@@ -306,9 +318,11 @@ void TestDateTimeParser::normalization_time_mixed_digits() {
     }
 }
 
-void TestDateTimeParser::normalization_time_leading_zero_preserved() {
-    for (const auto& loc : TestDateTimeParser::locales()) {
-        const auto parser = make_parser(loc);
+void TestDateTimeParser::normalization_time_leading_zero_preserved()
+{
+    for (const auto& loc : TestDateTimeParser::locales())
+    {
+        const auto parser = this->make_parser(loc);
 
         const auto result = parser->parse("03:04");
         QVERIFY(result.isValid());
@@ -316,11 +330,13 @@ void TestDateTimeParser::normalization_time_leading_zero_preserved() {
     }
 }
 
-void TestDateTimeParser::normalization_date_single_digits() {
+void TestDateTimeParser::normalization_date_single_digits()
+{
     const QDate sample(2024, 3, 7);
 
-    for (const auto& loc : TestDateTimeParser::locales()) {
-        const auto parser = make_parser(loc);
+    for (const auto& loc : TestDateTimeParser::locales())
+    {
+        const auto parser = this->make_parser(loc);
 
         const QString format_d  = loc.dateFormat(QLocale::ShortFormat).replace("dd", "d");
         const QString format_dd = QString(format_d).replace("d", "dd");
@@ -336,11 +352,13 @@ void TestDateTimeParser::normalization_date_single_digits() {
     }
 }
 
-void TestDateTimeParser::normalization_datetime_single_digits() {
+void TestDateTimeParser::normalization_datetime_single_digits()
+{
     const QDateTime sample(QDate(2024, 3, 7), QTime(4, 5));
 
-    for (const auto& loc : TestDateTimeParser::locales()) {
-        const auto parser = make_parser(loc);
+    for (const auto& loc : TestDateTimeParser::locales())
+    {
+        const auto parser = this->make_parser(loc);
 
         auto default_format = loc.dateTimeFormat(QLocale::ShortFormat);
         const QString format_single = default_format.replace("dd", "d").replace("HH", "H");
@@ -357,9 +375,11 @@ void TestDateTimeParser::normalization_datetime_single_digits() {
     }
 }
 
-void TestDateTimeParser::normalization_does_not_change_double_digits() {
-    for (const auto& loc : TestDateTimeParser::locales()) {
-        const auto parser = make_parser(loc);
+void TestDateTimeParser::normalization_does_not_change_double_digits()
+{
+    for (const auto& loc : TestDateTimeParser::locales())
+    {
+        const auto parser = this->make_parser(loc);
         const auto result = parser->parse("12:34");
 
         QVERIFY(result.isValid());
@@ -367,14 +387,17 @@ void TestDateTimeParser::normalization_does_not_change_double_digits() {
     }
 }
 
-void TestDateTimeParser::normalization_date_without_year_single_digits() {
+void TestDateTimeParser::normalization_date_without_year_single_digits()
+{
     const int currentYear = QDate::currentDate().year();
 
-    for (const auto& loc : TestDateTimeParser::locales()) {
-        const auto parser = make_parser(loc);
+    for (const auto& loc : TestDateTimeParser::locales())
+    {
+        const auto parser = this->make_parser(loc);
         const auto result = parser->parse("3/7");
 
-        if (result.isValid()) {
+        if (result.isValid())
+        {
             QCOMPARE(result.date().month(), 3);
             QCOMPARE(result.date().day(), 7);
             QCOMPARE(result.date().year(), currentYear);
@@ -382,11 +405,14 @@ void TestDateTimeParser::normalization_date_without_year_single_digits() {
     }
 }
 
-void TestDateTimeParser::normalization_boundary_values() {
-    for (const auto& loc : TestDateTimeParser::locales()) {
-        const auto parser = make_parser(loc);
+void TestDateTimeParser::normalization_boundary_values()
+{
+    for (const auto& loc : TestDateTimeParser::locales())
+    {
+        const auto parser = this->make_parser(loc);
 
-        for (const auto& input : QStringList({ "0:0", "9:9" })) {
+        for (const auto& input : QStringList({ "0:0", "9:9" }))
+        {
             const auto result = parser->parse(input);
             QVERIFY(result.isValid());
             const int digit = input.at(0).digitValue();
@@ -395,9 +421,11 @@ void TestDateTimeParser::normalization_boundary_values() {
     }
 }
 
-void TestDateTimeParser::normalization_invalid_results() {
-    for (const auto& loc : TestDateTimeParser::locales()) {
-        const auto parser = make_parser(loc);
+void TestDateTimeParser::normalization_invalid_results()
+{
+    for (const auto& loc : TestDateTimeParser::locales())
+    {
+        const auto parser = this->make_parser(loc);
 
         QVERIFY(!parser->parse("9:99").isValid());
         QVERIFY(!parser->parse("99:9").isValid());

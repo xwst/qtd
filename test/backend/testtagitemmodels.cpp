@@ -39,35 +39,40 @@
 #include "persistedtreeitemmodelstestbase.h"
 #include "utils/modeliteration.h"
 
-TestTagItemModels::TestTagItemModels(QObject *parent)
+TestTagItemModels::TestTagItemModels(QObject* parent)
     : PersistedTreeItemModelsTestBase{parent}
 {}
 
-void TestTagItemModels::initTestCase() {
+void TestTagItemModels::initTestCase()
+{
     PersistedTreeItemModelsTestBase::initTestCase();
     TestHelpers::assert_table_exists("tags");
 }
 
-void TestTagItemModels::init() {
+void TestTagItemModels::init()
+{
     PersistedTreeItemModelsTestBase::init();
     TestHelpers::setup_item_model(this->model, this->get_db_connection_name());
     TestHelpers::setup_proxy_item_model(this->flat_model, this->model.get());
     // Proxy model will be deleted by base model destructor
 }
 
-void TestTagItemModels::cleanup() {
+void TestTagItemModels::cleanup()
+{
     this->assert_correctness_of_proxy_models();
     this->assert_model_persistence();
     this->model.reset();
     PersistedTreeItemModelsTestBase::cleanup();
 }
 
-void TestTagItemModels::test_initial_dataset_represented_correctly() const {
+void TestTagItemModels::test_initial_dataset_represented_correctly() const
+{
     this->assert_initial_dataset_representation_base_model();
     this->assert_initial_dataset_representation_flat_model();
 }
 
-void TestTagItemModels::test_remove_single_row() const {
+void TestTagItemModels::test_remove_single_row() const
+{
     auto* base_model = this->model.get();
     const int initial_row_number = ModelIteration::count_model_rows(base_model);
     remove_single_row_without_children(*base_model);
@@ -75,7 +80,8 @@ void TestTagItemModels::test_remove_single_row() const {
     QCOMPARE(ModelIteration::count_model_rows(this->flat_model.get()), initial_row_number - 1);
 }
 
-void TestTagItemModels::test_remove_rows_with_children() const {
+void TestTagItemModels::test_remove_rows_with_children() const
+{
     auto* base_model = this->model.get();
     TestTagItemModels::remove_children_of_first_top_level_index(*base_model);
     QCOMPARE(ModelIteration::count_model_rows(base_model), 4);
@@ -88,14 +94,16 @@ void TestTagItemModels::test_remove_rows_with_children() const {
     QCOMPARE(remaining, remaining_flat);
 }
 
-void TestTagItemModels::test_remove_single_row_with_nested_children() const {
+void TestTagItemModels::test_remove_single_row_with_nested_children() const
+{
     this->model->removeRow(0, QModelIndex());
     QCOMPARE(ModelIteration::count_model_rows(this->model.get()), 3);
     QCOMPARE(ModelIteration::count_model_rows(this->flat_model.get()), 3);
     QCOMPARE(this->model->rowCount(), 1);
 }
 
-void TestTagItemModels::test_create_toplevel_tag() const {
+void TestTagItemModels::test_create_toplevel_tag() const
+{
     const int old_row_count = this->model->rowCount();
     const int old_row_count_flat_model = this->flat_model->rowCount();
     const QString new_tag_name = "new tag name";
@@ -112,7 +120,8 @@ void TestTagItemModels::test_create_toplevel_tag() const {
     QVERIFY(tag1_uuid.is_valid());
 }
 
-void TestTagItemModels::test_create_tag_with_parent() const {
+void TestTagItemModels::test_create_tag_with_parent() const
+{
     const int old_row_count = this->model->rowCount();
     const int old_row_count_flat_model = this->flat_model->rowCount();
     const auto vegetable_index = this->model->index(1, 0);
@@ -133,7 +142,7 @@ void TestTagItemModels::test_create_tag_with_parent() const {
     const auto new_tag_uuid = new_tag_index.data(UuidRole).value<TagId>();
     QVERIFY(new_tag_uuid.is_valid());
 
-    const auto *new_tag_item = static_cast<TreeNode*>(
+    const auto* new_tag_item = static_cast<TreeNode*>(
         new_tag_index.internalPointer()
     );
     QCOMPARE(
@@ -142,7 +151,8 @@ void TestTagItemModels::test_create_tag_with_parent() const {
     );
 }
 
-void TestTagItemModels::test_data_change_of_toplevel_item() const {
+void TestTagItemModels::test_data_change_of_toplevel_item() const
+{
     const auto index = this->model->index(0, 0);
 
     const auto green = QColor(Qt::green);
@@ -157,7 +167,8 @@ void TestTagItemModels::test_data_change_of_toplevel_item() const {
     QCOMPARE(flat_proxy_index.data(Qt::DecorationRole), green);
 }
 
-void TestTagItemModels::test_data_change_of_child_item() const {
+void TestTagItemModels::test_data_change_of_child_item() const
+{
     auto index = this->model->index(2, 0, this->model->index(0, 0));
     const QString new_display_role = "new name";
 
@@ -177,15 +188,22 @@ void TestTagItemModels::test_data_change_of_child_item() const {
     );
 }
 
-void TestTagItemModels::assert_initial_dataset_representation_base_model() const {
+void TestTagItemModels::assert_initial_dataset_representation_base_model() const
+{
     QCOMPARE(this->model->rowCount(), 2);
-    for (int row=0; row<this->model->rowCount(); row++) {
+    for (int row=0; row<this->model->rowCount(); row++)
+    {
         auto row_index = this->model->index(row, 0);
-        if (row_index.data() == "Private") {
+        if (row_index.data() == "Private")
+        {
             QCOMPARE(this->model->rowCount(row_index), 4);
-        } else if (row_index.data() == "Work") {
+        }
+        else if (row_index.data() == "Work")
+        {
             QCOMPARE(this->model->rowCount(row_index), 2);
-        } else {
+        }
+        else
+        {
             QFAIL("Unexpected model entry at top level!");
         }
     }
@@ -195,9 +213,11 @@ void TestTagItemModels::assert_initial_dataset_representation_base_model() const
 void TestTagItemModels::assert_correct_from_source_mapping_recursively(
     const QModelIndex& source_index,
     int expected_proxy_row
-) const {
+) const
+{
     const std::function<void(const QModelIndex&)> correct_mapping_assertion_operation
-        = [this, &expected_proxy_row](const QModelIndex& source_index) {
+        = [this, &expected_proxy_row](const QModelIndex& source_index)
+        {
         auto proxy_index = this->flat_model->mapFromSource(source_index);
         QCOMPARE(proxy_index.internalPointer(), source_index.internalPointer());
         QCOMPARE(proxy_index.row(), expected_proxy_row++);
@@ -205,8 +225,10 @@ void TestTagItemModels::assert_correct_from_source_mapping_recursively(
     ModelIteration::model_foreach(*this->model, correct_mapping_assertion_operation, source_index);
 }
 
-void TestTagItemModels::assert_correct_proxy_mapping() const {
-    for (int row=0; row<this->flat_model->rowCount(); row++) {
+void TestTagItemModels::assert_correct_proxy_mapping() const
+{
+    for (int row=0; row<this->flat_model->rowCount(); row++)
+    {
         auto proxy_index = this->flat_model->index(row, 0);
         auto source_index = this->flat_model->mapToSource(proxy_index);
         QCOMPARE(proxy_index.internalPointer(), source_index.internalPointer());
@@ -215,20 +237,23 @@ void TestTagItemModels::assert_correct_proxy_mapping() const {
     this->assert_correct_from_source_mapping_recursively(QModelIndex());
 }
 
-void TestTagItemModels::assert_initial_dataset_representation_flat_model() const {
+void TestTagItemModels::assert_initial_dataset_representation_flat_model() const
+{
     const int total_source_rows = ModelIteration::count_model_rows(this->model.get());
     const int total_rows = ModelIteration::count_model_rows(this->flat_model.get());
     const int top_level_rows = this->flat_model->rowCount();
     QCOMPARE(total_rows, total_source_rows);
     QCOMPARE(top_level_rows, total_source_rows);
 
-    for (int row=0; row<this->flat_model->rowCount(); row++) {
+    for (int row=0; row<this->flat_model->rowCount(); row++)
+    {
         auto row_index = this->flat_model->index(row, 0);
         QCOMPARE(this->flat_model->rowCount(row_index), 0);
     }
 }
 
-void TestTagItemModels::assert_correctness_of_proxy_models() const {
+void TestTagItemModels::assert_correctness_of_proxy_models() const
+{
     const int model_size = ModelIteration::count_model_rows(this->model.get());
     QCOMPARE(ModelIteration::count_model_rows(this->flat_model.get()), model_size);
     QCOMPARE(this->flat_model->rowCount(), model_size);
@@ -240,7 +265,8 @@ void TestTagItemModels::assert_correctness_of_proxy_models() const {
     this->assert_correct_proxy_mapping();
 }
 
-void TestTagItemModels::assert_model_persistence() const {
+void TestTagItemModels::assert_model_persistence() const
+{
     std::unique_ptr<TagItemModel> model_reloaded_from_db;
 
     TestHelpers::setup_item_model(model_reloaded_from_db, this->get_db_connection_name());
@@ -253,9 +279,11 @@ void TestTagItemModels::assert_model_persistence() const {
     );
 }
 
-void TestTagItemModels::remove_single_row_without_children(QAbstractItemModel& model) {
+void TestTagItemModels::remove_single_row_without_children(QAbstractItemModel& model)
+{
     QModelIndex index_without_child = QModelIndex();
-    while (model.hasChildren(index_without_child)) {
+    while (model.hasChildren(index_without_child))
+    {
         index_without_child = model.index(0, 0, index_without_child);
     }
 
@@ -265,7 +293,8 @@ void TestTagItemModels::remove_single_row_without_children(QAbstractItemModel& m
     ); // Remove first row without children
 }
 
-void TestTagItemModels::remove_children_of_first_top_level_index(QAbstractItemModel& model) {
+void TestTagItemModels::remove_children_of_first_top_level_index(QAbstractItemModel& model)
+{
     auto first_toplevel_index = model.index(0, 0);
     model.removeRows(
         0,
@@ -274,7 +303,8 @@ void TestTagItemModels::remove_children_of_first_top_level_index(QAbstractItemMo
     ); // Remove multiple rows including children
 }
 
-void TestTagItemModels::test_changing_parent_new_parent_can_not_be_descendant() const {
+void TestTagItemModels::test_changing_parent_new_parent_can_not_be_descendant() const
+{
     auto index_ultimate_parent = TestHelpers::find_model_index_by_display_role(*this->model, "Private");
     auto index_grand_child = TestHelpers::find_model_index_by_display_role(*this->model, "Vacation");
     QVERIFY(
@@ -285,7 +315,8 @@ void TestTagItemModels::test_changing_parent_new_parent_can_not_be_descendant() 
     );
 }
 
-void TestTagItemModels::test_changing_parent_new_parent_can_not_be_oneself() const {
+void TestTagItemModels::test_changing_parent_new_parent_can_not_be_oneself() const
+{
     auto index = TestHelpers::find_model_index_by_display_role(*this->model, "Fun");
     QVERIFY(
         !this->model->change_parent(
@@ -295,7 +326,8 @@ void TestTagItemModels::test_changing_parent_new_parent_can_not_be_oneself() con
     );
 }
 
-void TestTagItemModels::test_removing_parent() const {
+void TestTagItemModels::test_removing_parent() const
+{
     auto index = TestHelpers::find_model_index_by_display_role(*this->model, "Vacation");
     auto parent_index = index.parent();
     auto top_level_count = this->model->rowCount();
@@ -309,7 +341,8 @@ void TestTagItemModels::test_removing_parent() const {
     QVERIFY(!new_index.parent().isValid());
 }
 
-void TestTagItemModels::test_changing_parent_to_grand_parent() const {
+void TestTagItemModels::test_changing_parent_to_grand_parent() const
+{
     auto index_grand_parent = TestHelpers::find_model_index_by_display_role(*this->model, "Private");
     auto index_grand_child = TestHelpers::find_model_index_by_display_role(*this->model, "Vacation");
     auto index_parent = index_grand_child.parent();
@@ -330,7 +363,8 @@ void TestTagItemModels::test_changing_parent_to_grand_parent() const {
     QCOMPARE(new_index.parent(), index_grand_parent);
 }
 
-void TestTagItemModels::test_changing_parent_to_different_subtree() const {
+void TestTagItemModels::test_changing_parent_to_different_subtree() const
+{
     auto index = QPersistentModelIndex(
         TestHelpers::find_model_index_by_display_role(*this->model, "Fun")
     );

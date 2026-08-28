@@ -28,11 +28,13 @@
 
 DateTimeParser::DateTimeParser(QObject* parent) : QObject(parent) {}
 
-void DateTimeParser::set_default_time(const QTime& time) {
+void DateTimeParser::set_default_time(const QTime& time)
+{
     this->default_time = time.isValid() ? time : QTime(0, 0);
 }
 
-QRegularExpressionMatch DateTimeParser::match_shift_pattern(const QString& input) {
+QRegularExpressionMatch DateTimeParser::match_shift_pattern(const QString& input)
+{
     static const QRegularExpression shift_pattern = QRegularExpression(
         R"(^([+-]?)\s*(\d+)\s*([dwmy]?)$)",
         QRegularExpression::CaseInsensitiveOption
@@ -40,35 +42,49 @@ QRegularExpressionMatch DateTimeParser::match_shift_pattern(const QString& input
     return shift_pattern.match(input);
 }
 
-QDateTime DateTimeParser::parse_shift_pattern_match(const QRegularExpressionMatch& match) const {
+QDateTime DateTimeParser::parse_shift_pattern_match(const QRegularExpressionMatch& match) const
+{
     QDateTime base_date_time = QDateTime(QDate::currentDate(), this->default_time);
 
     const int sign = (match.captured(1) == "-") ? -1 : 1;
-    const int value = sign * match.captured(2).toInt();
+    const int value = sign* match.captured(2).toInt();
     const QString unit = match.captured(3).toLower();
 
-    if (unit == "d" or unit == "") {
+    if (unit == "d" or unit == "")
+    {
         base_date_time = base_date_time.addDays(value);
-    } else if (unit == "w") {
-        base_date_time = base_date_time.addDays(Q_INT64_C(7) * value);
-    } else if (unit == "m") {
+    }
+    else if (unit == "w")
+    {
+        base_date_time = base_date_time.addDays(Q_INT64_C(7)* value);
+    }
+    else if (unit == "m")
+    {
         base_date_time = base_date_time.addMonths(value);
-    } else if (unit == "y") {
+    }
+    else if (unit == "y")
+    {
         base_date_time = base_date_time.addYears(value);
-    } else {
+    }
+    else
+    {
         return {};
     }
     return base_date_time;
 }
 
 QStringList DateTimeParser::year_variants(const QString& format)
+
 {
     QStringList variants;
     variants << format;
 
-    if (format.contains("yyyy")) {
+    if (format.contains("yyyy"))
+    {
         variants << QString(format).replace("yyyy", "yy");
-    } else if (format.contains("yy")) {
+    }
+    else if (format.contains("yy"))
+    {
         variants << QString(format).replace("yy", "yyyy");
     }
 
@@ -76,12 +92,15 @@ QStringList DateTimeParser::year_variants(const QString& format)
     return variants;
 }
 
-QDateTime DateTimeParser::try_parse_date_time(const QString& input) const {
+QDateTime DateTimeParser::try_parse_date_time(const QString& input) const
+{
     const QString base_format = this->locale.dateTimeFormat(QLocale::ShortFormat);
 
-    for (const QString& format : DateTimeParser::year_variants(base_format)) {
+    for (const QString& format : DateTimeParser::year_variants(base_format))
+    {
         QDateTime datetime = this->locale.toDateTime(input, format, DateTimeParser::BASE_YEAR);
-        if (datetime.isValid()) {
+        if (datetime.isValid())
+        {
             return datetime;
         }
     }
@@ -89,12 +108,15 @@ QDateTime DateTimeParser::try_parse_date_time(const QString& input) const {
     return {};
 }
 
-QDate DateTimeParser::try_parse_date(QString input) const {
+QDate DateTimeParser::try_parse_date(QString input) const
+{
     QString base_format = this->locale.dateFormat(QLocale::ShortFormat);
 
-    for (const QString& format : DateTimeParser::year_variants(base_format)) {
+    for (const QString& format : DateTimeParser::year_variants(base_format))
+    {
         QDate date = this->locale.toDate(input, format, DateTimeParser::BASE_YEAR);
-        if (date.isValid()) {
+        if (date.isValid())
+        {
             return date;
         }
     }
@@ -106,7 +128,8 @@ QDate DateTimeParser::try_parse_date(QString input) const {
     input.remove(QRegularExpression(R"(^[^\d]+|[^\d]+$)"));
 
     QDate date = locale.toDate(input, base_format);
-    if (date.isValid()) {
+    if (date.isValid())
+    {
         date.setDate(QDate::currentDate().year(), date.month(), date.day());
         return date;
     }
@@ -114,18 +137,23 @@ QDate DateTimeParser::try_parse_date(QString input) const {
     return {};
 }
 
-QTime DateTimeParser::try_parse_time(const QString& input) const {
-    if (auto time = this->locale.toTime(input, QLocale::ShortFormat); time.isValid()) {
+QTime DateTimeParser::try_parse_time(const QString& input) const
+{
+    if (auto time = this->locale.toTime(input, QLocale::ShortFormat); time.isValid())
+    {
         return time;
     }
 
-    static const QStringList fallback_formats = {
+    static const QStringList fallback_formats =
+    {
         "HH:mm",
         "HH:mm:ss"
     };
 
-    for (const auto& format : fallback_formats) {
-        if (auto time = QTime::fromString(input, format); time.isValid()) {
+    for (const auto& format : fallback_formats)
+    {
+        if (auto time = QTime::fromString(input, format); time.isValid())
+        {
             return time;
         }
     }
@@ -133,33 +161,40 @@ QTime DateTimeParser::try_parse_time(const QString& input) const {
     return {};
 }
 
-QDateTime DateTimeParser::parse_regular_formats(QString& input) const {
+QDateTime DateTimeParser::parse_regular_formats(QString& input) const
+{
     static const QRegularExpression single_digit_pattern = QRegularExpression(R"(\b(\d)\b)");
     input.replace(single_digit_pattern, "0\\1");
 
-    if (auto datetime = this->try_parse_date_time(input); datetime.isValid()) {
+    if (auto datetime = this->try_parse_date_time(input); datetime.isValid())
+    {
         return datetime;
     }
 
-    if (auto date = this->try_parse_date(input); date.isValid()) {
+    if (auto date = this->try_parse_date(input); date.isValid())
+    {
         return { date, this->default_time };
     }
 
-    if (auto time = this->try_parse_time(input); time.isValid()) {
+    if (auto time = this->try_parse_time(input); time.isValid())
+    {
         return { QDate::currentDate(), time };
     }
 
     return {};
 }
 
-QDateTime DateTimeParser::parse(QString input) const {
+QDateTime DateTimeParser::parse(QString input) const
+{
     input = input.simplified();
-    if (input.isEmpty()) {
+    if (input.isEmpty())
+    {
         return {};
     }
 
     const auto shift_match = DateTimeParser::match_shift_pattern(input);
-    if (shift_match.hasMatch()) {
+    if (shift_match.hasMatch())
+    {
         return this->parse_shift_pattern_match(shift_match);
     }
 

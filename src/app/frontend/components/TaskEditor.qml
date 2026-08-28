@@ -45,6 +45,8 @@ ColumnLayout {
 
         function save(data, role = Qt.DisplayRole) {
             if (task.index) {
+                // qmllint disable unresolved-type
+                // qmllint disable missing-property
                 task.model.sourceModel.setData(task.uuid, data, role)
             }
         }
@@ -72,9 +74,6 @@ ColumnLayout {
     Dialog {
         id: conflicting_dates_dialog
         implicitWidth: contentItem.implicitWidth * 1.2
-        anchors.centerIn: parent
-        x: (control.width - width) / 2
-        y: (control.height - height) / 2
         modal: true
         title: "Conflicting start and due dates"
         contentItem: Label {

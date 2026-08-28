@@ -1,5 +1,5 @@
 /**
- * Copyright 2025 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
+ * Copyright 2025, 2026 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
  *
  * This file is part of qtd.
  *
@@ -24,43 +24,51 @@
 #include <QUuid>
 #include <QVariant>
 
-size_t qHash(const QtdId& qtd_id) {
+size_t qHash(const QtdId& qtd_id)
+{
     return qHash(qtd_id.toString());
 }
 
 QtdId::QtdId(const QUuid& uuid) : uuid(uuid) {}
 
-QtdId::QtdId(const char *uuid) : QtdId(QString(uuid)) {}
+QtdId::QtdId(const char* uuid) : QtdId(QString(uuid)) {}
 
 QtdId::QtdId(const QString& uuid) : uuid(QUuid::fromString(uuid)) {}
 
-QtdId QtdId::create() {
+QtdId QtdId::create()
+{
     return QtdId(QUuid::createUuid());
 }
 
-QtdId::operator QVariant() const {
+QtdId::operator QVariant() const
+{
     return
         this->is_valid()
             ? QVariant::fromValue(*this)
             : QVariant();
 }
 
-QtdId::operator QString() const {
+QtdId::operator QString() const
+{
     return this->toString();
 }
 
-bool QtdId::operator==(const QtdId& other) const {
+bool QtdId::operator==(const QtdId& other) const
+{
     return this->uuid == other.uuid;
 }
 
-bool QtdId::operator<(const QtdId& other) const {
+bool QtdId::operator<(const QtdId& other) const
+{
     return this->uuid < other.uuid;
 }
 
-QString QtdId::toString() const {
-    return uuid.toString(QUuid::WithoutBraces);
+QString QtdId::toString() const
+{
+    return this->uuid.toString(QUuid::WithoutBraces);
 }
 
-bool QtdId::is_valid() const {
-    return !uuid.isNull();
+bool QtdId::is_valid() const
+{
+    return !this->uuid.isNull();
 }

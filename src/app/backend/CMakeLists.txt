@@ -46,10 +46,12 @@ LIST(
 
 QT_ADD_LIBRARY(backend STATIC ${backend_files})
 TARGET_LINK_LIBRARIES(backend PRIVATE ${backend_dependencies})
-TARGET_COMPILE_OPTIONS(backend PRIVATE -O3)
-
-QT_ADD_LIBRARY(backend_internal STATIC ${backend_files})
-TARGET_LINK_LIBRARIES(backend_internal PRIVATE ${backend_dependencies})
-IF(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
-    TARGET_COMPILE_OPTIONS(backend_internal PRIVATE -O0 --coverage)
+IF(QTD_ENABLE_COVERAGE)
+    TARGET_COMPILE_OPTIONS(backend PRIVATE -O0 --coverage)
+    TARGET_LINK_OPTIONS(backend PUBLIC --coverage)
+    IF(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
+        TARGET_LINK_LIBRARIES(backend PUBLIC gcov)
+    ENDIF()
+ELSE()
+    TARGET_COMPILE_OPTIONS(backend PRIVATE -O3)
 ENDIF()

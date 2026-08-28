@@ -47,6 +47,7 @@ Task::Task(
     , start_date(std::move(start_date))
     , due_date(std::move(due_date))
     , resolve_date(std::move(resolve_date))
+
 {
     this->description = std::make_unique<QTextDocument>();
     this->description->setHtml(document_html);
@@ -77,60 +78,75 @@ Task::Task(const QVariantList& args)
     ) {}
 // NOLINTEND(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
 
-QString Task::get_title() const {
+QString Task::get_title() const
+{
     return this->title;
 }
 
-QTextDocument* Task::get_text_document() const {
+QTextDocument* Task::get_text_document() const
+{
     return this->description.get();
 }
 
-Task::Status Task::get_status() const {
+Task::Status Task::get_status() const
+{
     return this->status;
 }
 
-QDateTime Task::get_start_datetime() const {
+QDateTime Task::get_start_datetime() const
+{
     return this->start_date;
 }
 
-QDateTime Task::get_due_datetime() const {
+QDateTime Task::get_due_datetime() const
+{
     return this->due_date;
 }
 
-QDateTime Task::get_resolve_datetime() const {
+QDateTime Task::get_resolve_datetime() const
+{
     return this->resolve_date;
 }
 
-QSet<TagId> Task::get_tags() const {
+QSet<TagId> Task::get_tags() const
+{
     return this->tags;
 }
 
-void Task::set_title(const QString& new_title) {
+void Task::set_title(const QString& new_title)
+{
     this->title = new_title;
 }
 
-void Task::set_status(Task::Status new_status) {
+void Task::set_status(Task::Status new_status)
+{
     this->status = new_status;
 }
 
-void Task::set_start_datetime(const QDateTime& start_datetime) {
+void Task::set_start_datetime(const QDateTime& start_datetime)
+{
     this->start_date = start_datetime;
 }
 
-void Task::set_due_datetime(const QDateTime& due_datetime) {
+void Task::set_due_datetime(const QDateTime& due_datetime)
+{
     this->due_date = due_datetime;
 }
 
-void Task::set_resolve_datetime(const QDateTime& resolve_datetime) {
+void Task::set_resolve_datetime(const QDateTime& resolve_datetime)
+{
     this->resolve_date = resolve_datetime;
 }
 
-void Task::set_tags(const QSet<TagId> &new_tags) {
+void Task::set_tags(const QSet<TagId>& new_tags)
+{
     this->tags = new_tags;
 }
 
-QVariant Task::get_data(int role) const {
-    switch (role) {
+QVariant Task::get_data(int role) const
+{
+    switch (role)
+    {
     case Qt::DisplayRole: return this->get_title();
     case ActiveRole:      return this->get_status();
     case StartRole:       return this->get_start_datetime();
@@ -144,8 +160,10 @@ QVariant Task::get_data(int role) const {
     }
 }
 
-void Task::set_data(const QVariant& value, int role) {
-    switch (role) {
+void Task::set_data(const QVariant& value, int role)
+{
+    switch (role)
+    {
     case Qt::DisplayRole:
         this->set_title(value.toString());
         break;
@@ -175,9 +193,11 @@ void Task::set_data(const QVariant& value, int role) {
     }
 }
 
-QString Task::status_to_string(Task::Status status) {
+QString Task::status_to_string(Task::Status status)
+{
     const char* enum_key = QMetaEnum::fromType<Status>().valueToKey(status);
-    if (enum_key == nullptr) {
+    if (enum_key == nullptr)
+    {
         throw std::invalid_argument("Could not parse given status to string!");
     }
     return enum_key;

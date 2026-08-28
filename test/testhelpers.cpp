@@ -38,7 +38,8 @@
 #include "utils/modeliteration.h"
 #include "utils/query_utilities.h"
 
-namespace {
+namespace
+{
 
 void assert_index_data_and_dimension_equality(
     const QAbstractItemModel& model_under_test,
@@ -46,13 +47,15 @@ void assert_index_data_and_dimension_equality(
     const QSet<int>& roles_to_check,
     const QModelIndex& index_of_model_under_test,
     const QModelIndex& index_of_model_expectation
-) {
+)
+{
     // Index data equality:
     QCOMPARE(
         index_of_model_under_test.isValid(),
         index_of_model_expectation.isValid()
     );
-    for (const auto item_data_role : roles_to_check) {
+    for (const auto item_data_role : roles_to_check)
+    {
         QCOMPARE(
             index_of_model_under_test.data(item_data_role),
             index_of_model_expectation.data(item_data_role)
@@ -72,12 +75,16 @@ void assert_index_data_and_dimension_equality(
 
 } // anonymous namespace
 
-bool TestHelpers::setup_database() {
+bool TestHelpers::setup_database()
+{
     QSqlDatabase database;
-    if (QSqlDatabase::contains()) {
+    if (QSqlDatabase::contains())
+    {
         database = QSqlDatabase::database();
         database.close();
-    } else {
+    }
+    else
+    {
         database = QSqlDatabase::addDatabase("QSQLITE");
         database.setDatabaseName(":memory:");
     }
@@ -86,21 +93,24 @@ bool TestHelpers::setup_database() {
     return QueryUtilities::create_tables_if_not_exist(database.connectionName());
 }
 
-void TestHelpers::assert_table_exists(const QString& table_name) {
+void TestHelpers::assert_table_exists(const QString& table_name)
+{
     QSqlQuery query;
     const bool result = query.exec("SELECT COUNT(*) FROM " + table_name);
     const QString error_msg = QString("The '%1'-table was not created!").arg(table_name);
     QVERIFY2(result, qPrintable(error_msg));
 }
 
-void TestHelpers::populate_database() {
+void TestHelpers::populate_database()
+{
     QFile file(":/resources/sql/generic/populate_database.sql");
     std::ignore = file.open(QFile::ReadOnly | QFile::Text);
     QTextStream in_stream(&file);
     const QString all_queries_str = QueryUtilities::remove_sql_comments(in_stream.readAll());
 
     QSqlQuery query;
-    for (const QString& query_str : QueryUtilities::split_queries(all_queries_str)) {
+    for (const QString& query_str : QueryUtilities::split_queries(all_queries_str))
+    {
         QVERIFY2(
             query.exec(query_str),
             qPrintable("Error while populating test database: " + query.lastError().text())
@@ -112,16 +122,18 @@ std::vector<QModelIndex> TestHelpers::get_sorted_children(
     const QAbstractItemModel& model,
     const QModelIndex& parent,
     const std::function<bool(const QModelIndex&, const QModelIndex&)>& item_sort_comparator
-) {
+)
+{
     std::vector<QModelIndex> result;
     const int number_of_children = model.rowCount(parent);
     const int column = parent.isValid() ? parent.column() : 0;
 
     result.reserve(number_of_children);
-    for (int row=0; row<number_of_children; row++) {
+    for (int row=0; row<number_of_children; row++)
+    {
         result.push_back(model.index(row, column, parent));
     }
-    std::sort(result.begin(), result.end(), item_sort_comparator);
+    std::ranges::sort(result, item_sort_comparator);
 
     return result;
 }
@@ -134,12 +146,14 @@ void TestHelpers::assert_model_equality(
     const std::function<bool(const QModelIndex&, const QModelIndex&)>& item_sort_comparator,
     const QModelIndex& index_of_model_under_test,
     const QModelIndex& index_of_model_expectation
-) {
+)
+{
     // Sanity checks:
     if (
         (&model_under_test == &model_expectation)
         && (index_of_model_under_test == index_of_model_expectation)
-    ) {
+    )
+    {
         QFAIL("Sanity check failed: Models or indices should be different!");
     }
 
@@ -163,7 +177,8 @@ void TestHelpers::assert_model_equality(
     );
 
     // Children equality (recursion):
-    for (decltype(children_under_test.size()) i=0; i<children_under_test.size(); i++) {
+    for (decltype(children_under_test.size()) i=0; i<children_under_test.size(); i++)
+    {
         TestHelpers::assert_model_equality(
             model_under_test,
             model_expectation,
@@ -180,11 +195,14 @@ void TestHelpers::assert_index_equality(
     const QModelIndex& index1,
     const QModelIndex& index2,
     const QSet<int>& roles_to_check
-) {
+)
+{
     const int index1_row_count = index1.model()->rowCount(index1);
     QCOMPARE(index1_row_count, index2.model()->rowCount(index2));
-    for (int row=0; row<index1_row_count; row++) {
-        for (const auto role : roles_to_check) {
+    for (int row=0; row<index1_row_count; row++)
+    {
+        for (const auto role : roles_to_check)
+        {
             QCOMPARE(
                 index1.model()->index(row, index1.column(), index1).data(role),
                 index2.model()->index(row, index2.column(), index2).data(role)
@@ -202,7 +220,8 @@ void TestHelpers::assert_index_equality(
 QStringList TestHelpers::get_display_roles(
     const QAbstractItemModel& model,
     const QModelIndex& parent
-) {
+)
+{
     const std::function<QString(const QModelIndex&)> get_display_role
         = [](const QModelIndex& index) -> QString { return index.data().toString(); };
     return ModelIteration::model_flat_map(model, get_display_role, parent);
@@ -219,10 +238,12 @@ QModelIndex TestHelpers::find_model_index_by_display_role(
     const QAbstractItemModel& model,
     const QString& display_role,
     const QModelIndex& parent
-) {
+)
+{
     return ModelIteration::model_find(
         model,
-        [&display_role](const QModelIndex& index){
+        [&display_role](const QModelIndex& index)
+        {
             return index.data().toString() == display_role;
         },
         parent
@@ -232,6 +253,7 @@ QModelIndex TestHelpers::find_model_index_by_display_role(
 bool TestHelpers::compare_indices_by_uuid(
     const QModelIndex& index_1,
     const QModelIndex& index_2
-) {
+)
+{
     return index_1.data(UuidRole).value<QtdId>() < index_2.data(UuidRole).value<QtdId>();
 }

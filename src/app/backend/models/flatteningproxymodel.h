@@ -24,8 +24,10 @@
 #include <QObject>
 
 class FlatteningProxyModel : public QAbstractProxyModel
+
 {
     Q_OBJECT
+    Q_CLASSINFO("QML.Element", "anonymous")
 
 private:
     [[nodiscard]] int count_source_model_rows(const QModelIndex& index = QModelIndex()) const;

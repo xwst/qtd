@@ -1,5 +1,5 @@
 /**
- * Copyright 2025 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
+ * Copyright 2025, 2026 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
  *
  * This file is part of qtd.
  *
@@ -23,7 +23,6 @@
 #include <QObject>
 #include <QSet>
 #include <QTest>
-#include <QUuid>
 
 #include "dataitems/qtdid.h"
 #include "dataitems/task.h"
@@ -31,6 +30,7 @@
 #include "persistedtreeitemmodelstestbase.h"
 
 class TestTaskItemModel final : public PersistedTreeItemModelsTestBase
+
 {
     Q_OBJECT
 
@@ -54,7 +54,7 @@ private:
     ) const;
 
 public:
-    explicit TestTaskItemModel(QObject *parent = nullptr);
+    explicit TestTaskItemModel(QObject* parent = nullptr);
 
 private slots:
     // Test setup/cleanup:

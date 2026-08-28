@@ -1,5 +1,5 @@
 /**
- * Copyright 2025 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
+ * Copyright 2025, 2026 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
  *
  * This file is part of qtd.
  *
@@ -27,10 +27,9 @@
 #include "testmodelwrappers.h"
 
 class TestTreeItemModel : public QObject
+
 {
     Q_OBJECT
-public:
-    explicit TestTreeItemModel(QObject *parent = nullptr);
 
 private:
     std::unique_ptr<TreeItemModelTestWrapper> model;
@@ -40,6 +39,9 @@ private:
         const QModelIndex& item, const QString& name, int child_count, const QModelIndex& parent
     );
     static QSet<QModelIndex> model_indices_of_row_change_signals(const QSignalSpy& spy);
+
+public:
+    explicit TestTreeItemModel(QObject* parent = nullptr);
 
 private slots:
     // Test setup/cleanup:

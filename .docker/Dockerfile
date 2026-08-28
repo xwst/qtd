@@ -30,7 +30,7 @@ RUN apt-get update \
         mesa-utils \
         locales \
         clang \
-        clang-tidy \
+        clang-tidy-21 \
         gdb \
         lldb \
         valgrind \

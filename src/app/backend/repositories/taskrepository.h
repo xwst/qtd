@@ -1,5 +1,5 @@
 /**
- * Copyright 2025 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
+ * Copyright 2025, 2026 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
  *
  * This file is part of qtd.
  *
@@ -18,8 +18,6 @@
 
 #pragma once
 
-#include "transactionalrepository.h"
-
 #include <QHash>
 #include <QList>
 #include <QMultiHash>
@@ -28,8 +26,10 @@
 #include "dataitems/qtdid.h"
 #include "dataitems/task.h"
 #include "sqlresultview.h"
+#include "transactionalrepository.h"
 
 class TaskRepository : public TransactionalRepository
+
 {
 private:
     using TransactionalRepository::TransactionalRepository;
@@ -38,7 +38,7 @@ private:
     bool remove_isolated(const QList<QVariant>& task_ids) const;
 
 public:
-    static TaskRepository create(const QString &database_connection_name);
+    static TaskRepository create(const QString& database_connection_name);
 
     [[nodiscard]] SqlResultView<Task> get_all_tasks() const;
     [[nodiscard]] QHash<TaskId, QSet<TagId>> get_all_tag_assignments() const;

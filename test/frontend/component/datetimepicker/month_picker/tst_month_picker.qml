@@ -33,7 +33,7 @@ TestCase {
 
         MonthPicker {
             id: picker
-            font.pointSize: 12
+            font: Qt.font({ pointSize: 12 })
         }
     }
 

@@ -31,33 +31,39 @@
  * @brief Simple whitelist filter for the tag item model
  */
 
-FilteredTagItemModel::FilteredTagItemModel(QObject *parent)
+FilteredTagItemModel::FilteredTagItemModel(QObject* parent)
     : QSortFilterProxyModel{parent}
+
 {
     this->setRecursiveFilteringEnabled(true);
 }
 
 bool FilteredTagItemModel::filterAcceptsRow(
     int source_row,
-    const QModelIndex &source_parent
-) const {
+    const QModelIndex& source_parent
+) const
+{
     auto source_row_index = this->sourceModel()->index(source_row, 0, source_parent);
     return this->tag_whitelist.contains(source_row_index.data(UuidRole).value<TagId>());
 }
 
-void FilteredTagItemModel::set_tag_whitelist(const QSet<TagId>& new_tag_whitelist) {
+void FilteredTagItemModel::set_tag_whitelist(const QSet<TagId>& new_tag_whitelist)
+{
     this->beginFilterChange();
     this->tag_whitelist = new_tag_whitelist;
     this->endFilterChange(Direction::Rows);
 }
 
-void FilteredTagItemModel::tag_selection_changed(QList<QModelIndex> selection) const {
+void FilteredTagItemModel::tag_selection_changed(QList<QModelIndex> selection) const
+{
     QSet<TagId> id_selection;
 
-    while (!selection.isEmpty()) {
+    while (!selection.isEmpty())
+    {
         auto index = selection.takeLast();
         id_selection.insert(index.data(UuidRole).value<TagId>());
-        for (auto child_row=0; child_row<this->rowCount(index); ++child_row) {
+        for (auto child_row=0; child_row<this->rowCount(index); ++child_row)
+        {
             selection.append(this->index(child_row, 0, index));
         }
     }

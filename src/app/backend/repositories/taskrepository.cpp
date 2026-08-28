@@ -1,5 +1,5 @@
 /**
- * Copyright 2025 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
+ * Copyright 2025, 2026 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
  *
  * This file is part of qtd.
  *
@@ -33,11 +33,13 @@
 #include "sqlresultview.h"
 #include "utils/query_utilities.h"
 
-TaskRepository TaskRepository::create(const QString &database_connection_name) {
+TaskRepository TaskRepository::create(const QString& database_connection_name)
+{
     return TaskRepository(database_connection_name); // NOLINT (modernize-return-braced-init-list)
 }
 
-SqlResultView<Task> TaskRepository::get_all_tasks() const {
+SqlResultView<Task> TaskRepository::get_all_tasks() const
+{
     auto query = QueryUtilities::get_sql_query(
         "select_tasks.sql",
         this->get_connection_name()
@@ -45,13 +47,15 @@ SqlResultView<Task> TaskRepository::get_all_tasks() const {
     return SqlResultView<Task>(std::move(query));
 }
 
-QHash<TaskId, QSet<TagId>> TaskRepository::get_all_tag_assignments() const {
+QHash<TaskId, QSet<TagId>> TaskRepository::get_all_tag_assignments() const
+{
     QHash<TaskId, QSet<TagId>> result;
     auto query = QueryUtilities::get_sql_query(
         "select_tag_assignments.sql",
         this->get_connection_name()
     );
-    while (query.next()) {
+    while (query.next())
+    {
         result[query.value(0).value<TaskId>()].insert(query.value(1).value<TagId>());
     }
     return result;
@@ -61,10 +65,12 @@ QHash<TaskId, QSet<TagId>> TaskRepository::get_all_tag_assignments() const {
  * @brief Read dependencies from database
  * @return A mapping of tasks to the tasks that depend on them (children mapped to their parents)
  */
-QMultiHash<TaskId, TaskId> TaskRepository::get_all_dependencies() const {
+QMultiHash<TaskId, TaskId> TaskRepository::get_all_dependencies() const
+{
     QMultiHash<TaskId, TaskId> result;
     auto query = QueryUtilities::get_sql_query("select_dependencies.sql", this->get_connection_name());
-    while (query.next()) {
+    while (query.next())
+    {
         // 0: dependent_uuid
         // 1: prerequisite_uuid
         result.insert(query.value(1).value<TaskId>(), query.value(0).value<TaskId>());
@@ -72,10 +78,12 @@ QMultiHash<TaskId, TaskId> TaskRepository::get_all_dependencies() const {
     return result;
 }
 
-bool TaskRepository::save(const Task& task) const {
+bool TaskRepository::save(const Task& task) const
+{
     return this->alter_database(
         "create_task.sql",
-        {
+
+{
             task.get_uuid_string(),
             task.get_title(),
             Task::status_to_string(task.get_status()),
@@ -86,10 +94,12 @@ bool TaskRepository::save(const Task& task) const {
     );
 }
 
-bool TaskRepository::add_prerequisites(const TaskId& dependent, const QList<QVariant>& prerequisites) const {
+bool TaskRepository::add_prerequisites(const TaskId& dependent, const QList<QVariant>& prerequisites) const
+{
     return this->alter_database(
         "create_dependency.sql",
-        {
+
+{
             QVariant(QList<QVariant>(prerequisites.size(), dependent.toString())),
             prerequisites
         },
@@ -97,10 +107,12 @@ bool TaskRepository::add_prerequisites(const TaskId& dependent, const QList<QVar
     );
 }
 
-bool TaskRepository::add_dependents(const TaskId& prerequisite, const QList<QVariant>& dependents) const {
+bool TaskRepository::add_dependents(const TaskId& prerequisite, const QList<QVariant>& dependents) const
+{
     return this->alter_database(
         "create_dependency.sql",
-        {
+
+{
             dependents,
             QVariant(QList<QVariant>(dependents.size(), prerequisite.toString()))
         },
@@ -108,10 +120,12 @@ bool TaskRepository::add_dependents(const TaskId& prerequisite, const QList<QVar
     );
 }
 
-bool TaskRepository::remove_prerequisites(const TaskId& dependent, const QList<QVariant>& prerequisites) const {
+bool TaskRepository::remove_prerequisites(const TaskId& dependent, const QList<QVariant>& prerequisites) const
+{
     return this->alter_database(
         "delete_dependency.sql",
-        {
+
+{
             QVariant(QList<QVariant>(prerequisites.size(), dependent.toString())),
             prerequisites
         },
@@ -119,10 +133,12 @@ bool TaskRepository::remove_prerequisites(const TaskId& dependent, const QList<Q
     ) && this->remove_isolated(prerequisites);
 }
 
-bool TaskRepository::remove_dependents(const TaskId& prerequisite, const QList<QVariant>& dependents) const {
+bool TaskRepository::remove_dependents(const TaskId& prerequisite, const QList<QVariant>& dependents) const
+{
     return this->alter_database(
         "delete_dependency.sql",
-        {
+
+{
             dependents,
             QVariant(QList<QVariant>(dependents.size(), prerequisite.toString()))
         },
@@ -134,10 +150,12 @@ bool TaskRepository::update_column(
     const TaskId& task,
     const QString& column_name,
     const QVariant& new_value
-) const {
+) const
+{
     return this->alter_database(
         "update_task.sql",
-        {
+
+{
             new_value,
             task.toString()
         },
@@ -165,15 +183,18 @@ bool TaskRepository::update_column(
  * @param task_ids top-level tasks to remove
  * @return whether the operation was successful
  */
-bool TaskRepository::remove_isolated(const QList<QVariant>& task_ids) const {
-    if (task_ids.isEmpty()) {
+bool TaskRepository::remove_isolated(const QList<QVariant>& task_ids) const
+{
+    if (task_ids.isEmpty())
+    {
         return true;
     }
 
     auto formatted_ids
         = QtConcurrent::blockingMapped(
               task_ids,
-              [](const QVariant& uuid) {
+              [](const QVariant& uuid)
+              {
                   return uuid.toString();
               }
         ).join("', '");
@@ -186,14 +207,16 @@ bool TaskRepository::remove_isolated(const QList<QVariant>& task_ids) const {
     );
 }
 
-bool TaskRepository::add_tag(const TaskId& task, const TagId& tag) const {
+bool TaskRepository::add_tag(const TaskId& task, const TagId& tag) const
+{
     return this->alter_database(
         "add_tag_association.sql",
         {task.toString(), tag.toString()}
     );
 }
 
-bool TaskRepository::remove_tag(const TaskId& task, const TagId& tag) const {
+bool TaskRepository::remove_tag(const TaskId& task, const TagId& tag) const
+{
     return this->alter_database(
         "remove_tag_association.sql",
         {task.toString(), tag.toString()}

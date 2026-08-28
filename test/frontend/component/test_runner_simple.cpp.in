@@ -18,7 +18,7 @@
 
 #include <QtQuickTest>
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
     return quick_test_main(
         argc, argv, "@TEST_NAME@",

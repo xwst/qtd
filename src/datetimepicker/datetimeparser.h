@@ -26,7 +26,8 @@
 #include <QString>
 #include <QTime>
 
-class DateTimeParser : public QObject {
+class DateTimeParser : public QObject
+{
     Q_OBJECT
     QML_ELEMENT
     Q_PROPERTY(QTime default_time MEMBER default_time WRITE set_default_time REQUIRED)

@@ -29,6 +29,7 @@
 #include "../qmlinterface.h"
 
 class TestQmlInterface : public QObject
+
 {
     Q_OBJECT
 private:
@@ -40,7 +41,7 @@ private:
     QAbstractItemModel* get_model(const char* model_name) const;
 
 public:
-    explicit TestQmlInterface(QObject *parent = nullptr);
+    explicit TestQmlInterface(QObject* parent = nullptr);
 
 private slots:
     // Test setup/cleanup:

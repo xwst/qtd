@@ -12,4 +12,4 @@ BUILD_DIR=$2
 
 find $SRC_DIR/src/ $SRC_DIR/test/ \
     | egrep "\.h$|\.cpp$" \
-    | xargs clang-tidy -p $BUILD_DIR --config-file .clang-tidy
+    | xargs ${CLANG_TIDY:-clang-tidy} -p $BUILD_DIR --config-file .clang-tidy

@@ -115,7 +115,7 @@ GridLayout {
         model: QmlInterface.flat_tags
         Component.onCompleted: {
             currentIndex = tag_form_container.parent_index.valid
-                         ? indexOfValue(parent_index.data(QmlInterface.UuidRole))
+                         ? indexOfValue(tag_form_container.parent_index.data(QmlInterface.UuidRole))
                          : -1
         }
         editable: true
@@ -136,7 +136,7 @@ GridLayout {
             id: color_input
             Layout.fillWidth: true
             implicitHeight: name_input.height
-            text: tag_form_container.tag_color
+            text: String(tag_form_container.tag_color)
             font: GlobalStyle.font
         }
         Button {
@@ -154,7 +154,7 @@ GridLayout {
             highlighted: hovered
             background: Rectangle {
                 color: color_input.text
-                opacity: parent.hovered ? 0.7 : 1
+                opacity: open_color_dialog.hovered ? 0.7 : 1
                 border.width: 0
                 radius: 2
             }

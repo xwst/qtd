@@ -32,7 +32,7 @@ TestCase {
         visible: true
     }    
 
-    function keyClicks(text) {
+    function key_clicks(text) {
         for (var character of text)
             keyClick(character)
     }
@@ -93,7 +93,7 @@ TestCase {
 
     function test_lists_and_indentation() {
         text_area.forceActiveFocus()
-        keyClicks("First line")
+        key_clicks("First line")
         var initial_text = text_area.text
 
         Util.click_by_name(this, component_to_test, "outdent_button")
@@ -106,7 +106,7 @@ TestCase {
         verify(single_item_list_regex.test(text_area.text))
 
         keyPress(Qt.Key_Enter)
-        keyClicks("Second line")
+        key_clicks("Second line")
         const two_items_list_regex = /<ol[^>]*>\s*<li[^>]*>First line<\/li>\s*<li[^>]*>Second line<\/li><\/ol>/;
         verify(two_items_list_regex.test(text_area.text))
 
@@ -127,7 +127,7 @@ TestCase {
         var text_step_2 = "<span style=\" font-weight:" + Font.Bold + ";\">" + text_step_1 + "</span>"
 
         text_area.forceActiveFocus()
-        keyClicks(text_step_1)
+        key_clicks(text_step_1)
         text_area.selectAll()
         Util.click_by_name(this, component_to_test, "bold_button")
 

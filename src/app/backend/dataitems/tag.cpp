@@ -33,24 +33,30 @@ Tag::Tag(const QVariantList& args)
     : Tag(args[0].toString(), args[1].value<QColor>(), args[2].toString())
 {}
 
-QString Tag::get_name() const {
+QString Tag::get_name() const
+{
     return this->name;
 }
 
-QColor Tag::get_color() const {
+QColor Tag::get_color() const
+{
     return this->color;
 }
 
-void Tag::set_name(const QString &new_name) {
+void Tag::set_name(const QString& new_name)
+{
     this->name = new_name;
 }
 
-void Tag::set_color(const QColor& new_color) {
+void Tag::set_color(const QColor& new_color)
+{
     this->color = new_color;
 }
 
-QVariant Tag::get_data(int role) const {
-    switch (role) {
+QVariant Tag::get_data(int role) const
+{
+    switch (role)
+    {
     case Qt::DisplayRole:
         return this->get_name();
     case Qt::DecorationRole:
@@ -60,12 +66,18 @@ QVariant Tag::get_data(int role) const {
     }
 }
 
-void Tag::set_data(const QVariant& value, int role) {
-    if (role == Qt::DisplayRole) {
+void Tag::set_data(const QVariant& value, int role)
+{
+    if (role == Qt::DisplayRole)
+    {
         this->set_name(value.toString());
-    } else if (role == Qt::DecorationRole) {
+    }
+    else if (role == Qt::DecorationRole)
+    {
         this->set_color(qvariant_cast<QColor>(value));
-    } else {
+    }
+    else
+    {
         UniqueDataItem::set_data(value, role);
     }
 }

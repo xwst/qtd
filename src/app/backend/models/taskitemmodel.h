@@ -28,8 +28,10 @@
 #include "treeitemmodel.h"
 
 class TaskItemModel : public TreeItemModel
+
 {
     Q_OBJECT
+    Q_CLASSINFO("QML.Element", "anonymous")
 
 private:
     QString connection_name;
@@ -41,7 +43,7 @@ public:
     explicit TaskItemModel(QString connection_name, QObject* parent = nullptr);
 
     bool setData(const QModelIndex& index, const QVariant& value, int role) override;
-    Q_INVOKABLE bool setData(const TaskId& task_id, const QVariant& value, int role);
+    Q_INVOKABLE bool set_data(const TaskId& task_id, const QVariant& value, int role);
     Q_INVOKABLE bool create_task(const QString& title, const QModelIndexList& parents = {});
     bool removeRows(int row, int count, const QModelIndex& parent) override;
     bool add_dependency(const QModelIndex& dependent, const QModelIndex& prerequisite);

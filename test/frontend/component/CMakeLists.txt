@@ -56,13 +56,14 @@ FUNCTION(CREATE_QML_COMPONENT_TEST)
         Qt6::Gui
         app_library
         app_libraryplugin
-        app_libraryplugin_init
         qmltexteditorplugin
         datetimepickerplugin
-        datetimepickerplugin_init
         ${arg_LIBS}
     )
 
+    IF(MSVC)
+        SET_TARGET_PROPERTIES(${arg_TEST_NAME} PROPERTIES WIN32_EXECUTABLE FALSE)
+    ENDIF()
     ADD_TEST(NAME ${arg_TEST_NAME} COMMAND ${arg_TEST_NAME})
     SET_TESTS_PROPERTIES(${arg_TEST_NAME} PROPERTIES LABELS "frontend-test")
     ADD_DEPENDENCIES(all_tests ${arg_TEST_NAME})

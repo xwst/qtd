@@ -24,7 +24,6 @@ import QtQuick
 import QtQuick.Controls 2.15
 import QtQuick.Layouts
 import src.app
-import src.datetimepicker
 
 ApplicationWindow {
     id: main_window
@@ -118,8 +117,8 @@ ApplicationWindow {
                 icon.height: width
                 implicitHeight: tab_bar.height
                 implicitWidth: height
-                onClicked: QmlInterface.task_model.create_task(
-                    "", swipe_view.currentItem.task_selection_model.selectedIndexes
+                onClicked: QmlInterface.task_model.create_task( // qmllint disable missing-property
+                    "", swipe_view.currentItem.task_selection_model.selectedIndexes // qmllint disable missing-property
                 )
             }
             Button {
@@ -139,7 +138,7 @@ ApplicationWindow {
                 implicitWidth: contentWidth * 1.5
 
                 Repeater {
-                    model: pages_model
+                    model: main_window.pages_model
 
                     TabButton {
                         required property var name
@@ -171,7 +170,7 @@ ApplicationWindow {
             currentIndex: tab_bar.currentIndex
 
             Repeater {
-                model: pages_model
+                model: main_window.pages_model
                 TaskPage {
                     button_size: add_task_button.height
                 }

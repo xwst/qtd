@@ -1,5 +1,5 @@
 /**
- * Copyright 2025 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
+ * Copyright 2025, 2026 xwst <xwst@gmx.net> (F460A9992A713147DEE92958D2020D61FD66FE94)
  *
  * This file is part of qtd.
  *
@@ -27,11 +27,12 @@
 #include "../testhelpers.h"
 #include "utils/initialize.h"
 
-PersistedTreeItemModelsTestBase::PersistedTreeItemModelsTestBase(QObject *parent)
+PersistedTreeItemModelsTestBase::PersistedTreeItemModelsTestBase(QObject* parent)
     : QObject{parent}
 {}
 
-void PersistedTreeItemModelsTestBase::initTestCase() {
+void PersistedTreeItemModelsTestBase::initTestCase()
+{
 
     QLoggingCategory::setFilterRules("qt.modeltest.debug=true");
     initialize_qt_meta_types();
@@ -40,21 +41,26 @@ void PersistedTreeItemModelsTestBase::initTestCase() {
     this->db_connection_name = QSqlDatabase::database().connectionName();
 }
 
-void PersistedTreeItemModelsTestBase::cleanupTestCase() {
+void PersistedTreeItemModelsTestBase::cleanupTestCase()
+{
     QSqlDatabase::database().close();
 }
 
-void PersistedTreeItemModelsTestBase::init() {
+void PersistedTreeItemModelsTestBase::init()
+{
     TestHelpers::populate_database();
 }
 
-void PersistedTreeItemModelsTestBase::cleanup() {
-    for (const auto& table_name : {"tag_assignments", "tags", "dependencies", "tasks"}) {
+void PersistedTreeItemModelsTestBase::cleanup()
+{
+    for (const auto& table_name : {"tag_assignments", "tags", "dependencies", "tasks"})
+    {
         PersistedTreeItemModelsTestBase::clear_table(table_name);
     }
 }
 
-void PersistedTreeItemModelsTestBase::clear_table(const QString& table_name) {
+void PersistedTreeItemModelsTestBase::clear_table(const QString& table_name)
+{
     QSqlQuery query;
     query.exec("DELETE FROM " + table_name);
     query.exec("SELECT COUNT(*) FROM " + table_name);
@@ -62,6 +68,7 @@ void PersistedTreeItemModelsTestBase::clear_table(const QString& table_name) {
     QCOMPARE(query.value(0), 0);
 }
 
-QString PersistedTreeItemModelsTestBase::get_db_connection_name() const {
+QString PersistedTreeItemModelsTestBase::get_db_connection_name() const
+{
     return this->db_connection_name;
 }
